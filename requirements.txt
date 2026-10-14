@@ -1,0 +1,2 @@
+# Zero external dependencies required.
+# Elysia Code runs purely on standard Python 3.8+!

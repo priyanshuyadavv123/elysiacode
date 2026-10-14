@@ -1,0 +1,21 @@
+{
+  "test_user_3": {
+    "id": "usr_1790278246_8e1b27",
+    "name": "Updated Name",
+    "identifier": "test_user_3",
+    "username": "test_user_3",
+    "email": "test_user_3@test.local",
+    "password_hash": "459b406d5b5157a99389426246bdaa73:0f15f1e545b7835c247bfc3bd15c5d1bb464f1ccdee66536d5e811ebeacfd36f",
+    "avatar": "\ud83d\udc51",
+    "motto": "Never stop learning",
+    "xp": 450,
+    "streak": 7,
+    "completed_subtopics": [
+      "sub_py_1",
+      "sub_py_2"
+    ],
+    "today_seconds": 3600,
+    "total_seconds": 0,
+    "created_at": "2026-09-25 01:00:46"
+  }
+}

@@ -1,0 +1,32 @@
+# Byte-compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment secrets & local config
+.env
+.env.local
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# User data & databases: never commit real accounts or session databases
+data/*.db
+data/*.db-wal
+data/*.db-shm
+*.db
+*.sqlite3
+
+# Distribution & caches
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+*.bak

@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elysia School — Learn • Build • Evolve</title>
+  
+  <!-- Google Fonts: Elegant Display Serif for Hero Headline, Modern Sans for UI, JetBrains Mono for Code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Main Cinematic Design System -->
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Visual Handbook / E-Book Styles -->
+  <link rel="stylesheet" href="css/handbook.css">
+  
+  <!-- CodeMirror Syntax Highlighting (Dark IDE Theme) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+</head>
+<body>
+
+  <!-- Ambient Background Lighting -->
+  <div class="aurora-container">
+    <div class="aurora-orb orb-1"></div>
+    <div class="aurora-orb orb-2"></div>
+    <div class="aurora-orb orb-3"></div>
+  </div>
+
+  <!-- Master App Shell -->
+  <div class="app-layout">
+    
+    <!-- =========================================================================
+         LEFT NAVIGATION SIDEBAR (Compact Dark Sidebar matching Reference)
+         ========================================================================= -->
+    <aside class="app-sidebar" id="app-sidebar">
+      <div class="sidebar-header">
+        <a href="#" class="sidebar-brand">
+          <div class="brand-crystal-logo">
+            <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
+              <path d="M14 2L24 8V20L14 26L4 20V8L14 2Z" stroke="url(#elysia-logo-grad)" stroke-width="2" fill="rgba(99,102,241,0.15)"/>
+              <path d="M14 7L19 10.5V17.5L14 21L9 17.5V10.5L14 7Z" fill="url(#elysia-logo-grad)"/>
+              <defs>
+                <linearGradient id="elysia-logo-grad" x1="4" y1="2" x2="24" y2="26" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#38bdf8"/>
+                  <stop offset="0.5" stop-color="#818cf8"/>
+                  <stop offset="1" stop-color="#c084fc"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div class="brand-text-block">
+            <span class="brand-title-text">ELYSIA SCHOOL</span>
+            <span class="brand-sub-text">Learn • Build • Evolve</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Navigation Destinations -->
+      <nav class="sidebar-nav">
+        <button class="side-nav-btn active" data-dest="dashboard">
+          <span class="side-nav-icon">⊞</span>
+          <span class="side-nav-label">Dashboard</span>
+        </button>
+        <button class="side-nav-btn" data-dest="course">
+          <span class="side-nav-icon">📖</span>
+          <span class="side-nav-label">Python Course</span>
+        </button>
+        <button class="side-nav-btn" data-dest="lab">
+          <span class="side-nav-icon">💻</span>
+          <span class="side-nav-label">Coding Lab</span>
+          <span class="side-nav-chevron">›</span>
+        </button>
+        <button class="side-nav-btn" data-dest="projects">
+          <span class="side-nav-icon">📦</span>
+          <span class="side-nav-label">Projects</span>
+        </button>
+        <button class="side-nav-btn" data-dest="mock">
+          <span class="side-nav-icon">📋</span>
+          <span class="side-nav-label">Mock Exams</span>
+        </button>
+        <button class="side-nav-btn" data-dest="handbook">
+          <span class="side-nav-icon">📑</span>
+          <span class="side-nav-label">Handbook</span>
+        </button>
+        <button class="side-nav-btn" data-dest="xray">
+          <span class="side-nav-icon">🛡️</span>
+          <span class="side-nav-label">Error Decoder</span>
+        </button>
+        <button class="side-nav-btn" data-dest="viva">
+          <span class="side-nav-icon">🎙️</span>
+          <span class="side-nav-label">Viva Questions</span>
+        </button>
+        <button class="side-nav-btn" data-dest="records">
+          <span class="side-nav-icon">📝</span>
+          <span class="side-nav-label">Notes & Records</span>
+        </button>
+        <button class="side-nav-btn" data-dest="community">
+          <span class="side-nav-icon">🌐</span>
+          <span class="side-nav-label">Community</span>
+        </button>
+        <button class="side-nav-btn" data-dest="privacy" onclick="window.elysiaApp.openModal('modal-privacy-policy')">
+          <span class="side-nav-icon">🔒</span>
+          <span class="side-nav-label">Privacy Policy</span>
+        </button>
+      </nav>
+
+      <!-- Bottom User Profile Chip in Sidebar -->
+      <div class="sidebar-footer">
+        <div class="side-user-chip" id="side-user-profile-chip" title="Click to view profile">
+          <div class="side-avatar-circle" id="side-avatar-box">
+            <img id="side-avatar-img" class="side-avatar-img" style="display:none;" />
+            <span id="side-avatar-emoji" class="side-avatar-emoji">🐍</span>
+          </div>
+          <div class="side-user-meta">
+            <span class="side-user-name" id="side-user-name">Priyanshu</span>
+            <span class="side-user-role" id="side-user-role">Student</span>
+          </div>
+          <button class="side-settings-btn" id="btn-side-settings" title="Profile Settings">⚙️</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile Navigation Drawer Backdrop -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+    <!-- =========================================================================
+         MAIN CONTENT VIEWPORT (Right Scrollable Area)
+         ========================================================================= -->
+    <main class="app-main-viewport" id="app-main-viewport">
+
+      <!-- TOP BAR OVER HERO / HEADER -->
+      <header class="viewport-top-header">
+        <div class="viewport-top-left">
+          <!-- Mobile Hamburger Drawer Button -->
+          <button class="mobile-sidebar-toggle-btn" id="btn-mobile-sidebar-toggle" title="Open Navigation Menu">☰</button>
+
+          <button class="hero-back-tag" id="btn-hero-back" title="Course Track">
+            <span>←</span>
+            <span>PYTHON: ZERO TO PEAK</span>
+          </button>
+          
+          <!-- Bilingual Engine Toggle -->
+          <div class="pill-group top-lang-pill-group">
+            <button class="pill-btn lang-btn active" data-lang="hi">🇮🇳 Hinglish</button>
+            <button class="pill-btn lang-btn" data-lang="en">🇬🇧 English</button>
+          </div>
+
+          <!-- Track Switcher -->
+          <div class="pill-group top-track-pill-group">
+            <button class="pill-btn track-btn active" data-track="python">🐍 Python 3</button>
+            <button class="pill-btn track-btn" data-track="html">🌐 HTML5</button>
+          </div>
+
+          <!-- Tactile Sound Effect (SFX) -->
+          <button id="audio-toggle-btn" class="icon-btn-3d" title="Toggle Tactile Audio Sound">🔊</button>
+        </div>
+
+        <div class="viewport-top-right">
+          <!-- Search Bar with cmd+K shortcut -->
+          <div class="hero-search-box">
+            <span class="search-lens-icon">🔍</span>
+            <input type="text" id="hero-global-search" placeholder="Search lessons, topics or projects..." />
+            <kbd class="kbd-shortcut">⌘ K</kbd>
+          </div>
+
+          <!-- Quick Theme Toggle Button -->
+          <button class="hero-icon-round-btn" id="btn-quick-theme-toggle" title="Switch Theme">☀️</button>
+          
+          <!-- Hidden theme select for legacy state syncing -->
+          <select id="theme-select" style="display:none;">
+            <option value="midnight" selected>🌌 Midnight</option>
+            <option value="dracula">🧛 Dracula</option>
+            <option value="emerald">🌲 Emerald</option>
+            <option value="sunset">🌅 Sunset</option>
+            <option value="royal">👑 Royal</option>
+            <option value="light">☀️ Light</option>
+          </select>
+
+          <!-- Notification Bell -->
+          <button class="hero-icon-round-btn" id="btn-notifications" title="Notifications">🔔</button>
+
+          <!-- User Avatar Circle -->
+          <button class="hero-avatar-round-btn" id="btn-hero-profile" title="My Profile">P</button>
+
+          <!-- Hidden legacy navbar triggers kept for full JS event compatibility -->
+          <div style="display:none;">
+            <span id="nav-streak-count">1</span>
+            <span id="nav-xp-count">0</span>
+            <span id="nav-timer-display">00:00:00</span>
+            <button id="btn-open-auth"></button>
+            <button id="btn-open-profile"></button>
+            <img id="nav-user-avatar-img" />
+            <span id="nav-user-avatar-emoji"></span>
+            <span id="nav-user-display-name"></span>
+            <span id="nav-profile-rank"></span>
+            <button id="btn-open-exporter"></button>
+            <button id="btn-open-flex"></button>
+          </div>
+        </div>
+      </header>
+
+      <!-- =======================================================================
+           TAB 1: MAIN DASHBOARD & COURSE WORKSPACE
+           ======================================================================= -->
+      <section id="tab-learn" class="tab-content active">
+
+        <!-- 1. CINEMATIC HERO SECTION (Pixel-Close to Reference Artwork) -->
+        <div class="hero-banner-container">
+          <div class="hero-main-content-wrap">
+            <div class="hero-text-col">
+              <h1 class="hero-display-headline">
+                Turn Curiosity<br>
+                <span class="headline-accent">Into Creation.</span>
+              </h1>
+              <p class="hero-support-desc">
+                A complete Python learning journey from absolute basics to real-world mastery — structured, interactive and built for you.
+              </p>
+              <div class="hero-buttons-row">
+                <button class="hero-btn-continue" id="btn-hero-continue">Continue Learning →</button>
+                <button class="hero-btn-curriculum" id="btn-hero-curriculum">View Curriculum</button>
+              </div>
+            </div>
+
+            <!-- Environmental Atmospheric Quote near Character -->
+            <div class="hero-character-quote-tag">
+              Discipline today,<br>freedom tomorrow.
+            </div>
+          </div>
+
+          <!-- Floating Upper-Right Card: Keep Going Panel -->
+          <div class="keep-going-panel">
+            <div class="keep-going-top-row">
+              <span class="keep-going-heading">Keep Going</span>
+              <span class="streak-badge-flame">🔥 <span id="keep-streak-num">3</span> day streak</span>
+            </div>
+            <div class="week-calendar-strip" id="hero-week-calendar">
+              <div class="cal-day-col"><span class="cal-d-name">Mon</span><span class="cal-d-num">15</span></div>
+              <div class="cal-day-col"><span class="cal-d-name">Tue</span><span class="cal-d-num">16</span></div>
+              <div class="cal-day-col"><span class="cal-d-name">Wed</span><span class="cal-d-num">17</span></div>
+              <div class="cal-day-col"><span class="cal-d-name">Thu</span><span class="cal-d-num">18</span></div>
+              <div class="cal-day-col active"><span class="cal-d-name">Fri</span><span class="cal-d-num">19</span></div>
+              <div class="cal-day-col"><span class="cal-d-name">Sat</span><span class="cal-d-num">20</span></div>
+              <div class="cal-day-col"><span class="cal-d-name">Sun</span><span class="cal-d-num">21</span></div>
+            </div>
+            <div class="keep-going-quote-box">
+              <span class="kg-quote-mark">“</span>
+              <p class="kg-quote-text">Code is not just a skill.<br>It's a way of thinking.</p>
+              <span class="kg-author">— Elysia</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. PROGRESS & QUICK ACTIONS ROW (4 Cards below Hero) -->
+        <div class="dashboard-stats-grid">
+          <!-- Card 1: Your Progress -->
+          <div class="stat-card-ref stat-card-progress">
+            <div class="stat-card-title">Your Progress</div>
+            <div class="progress-card-body">
+              <div class="progress-circle-wrap">
+                <svg class="stat-ring-svg" width="76" height="76" viewBox="0 0 76 76">
+                  <defs>
+                    <linearGradient id="stat-ring-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#38bdf8"/>
+                      <stop offset="100%" stop-color="#a855f7"/>
+                    </linearGradient>
+                  </defs>
+                  <circle class="stat-ring-bg" cx="38" cy="38" r="30"/>
+                  <circle class="stat-ring-bar" id="dash-ring-bar" cx="38" cy="38" r="30"/>
+                </svg>
+                <span class="stat-ring-text" id="dash-progress-percent">12%</span>
+              </div>
+              <div class="progress-breakdown-list">
+                <div class="breakdown-item">
+                  <span><span class="dot dot-blue"></span>7 Parts</span>
+                  <span class="item-val" id="stat-parts-val">1/7</span>
+                </div>
+                <div class="breakdown-item">
+                  <span><span class="dot dot-cyan"></span>26 Chapters</span>
+                  <span class="item-val" id="stat-chapters-val">3/26</span>
+                </div>
+                <div class="breakdown-item">
+                  <span><span class="dot dot-purple"></span>100+ Exercises</span>
+                  <span class="item-val" id="stat-exercises-val">12/86</span>
+                </div>
+                <div class="breakdown-item">
+                  <span><span class="dot dot-emerald"></span>5 Projects</span>
+                  <span class="item-val" id="stat-projects-val">0/5</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Current Chapter -->
+          <div class="stat-card-ref stat-card-chapter">
+            <div class="stat-card-header-row">
+              <span class="stat-card-title">Current Chapter</span>
+              <span class="badge-part" id="dash-part-badge">Part 1</span>
+            </div>
+            <div class="current-chapter-body">
+              <div class="chapter-icon-box">🐍</div>
+              <div class="chapter-info">
+                <div class="chapter-name" id="dash-chapter-title">Chapter 1: Welcome to the World of Python</div>
+                <div class="chapter-progress-bar-wrap">
+                  <div class="chapter-progress-fill" id="dash-chapter-fill" style="width: 42%;"></div>
+                </div>
+                <div class="chapter-topics-count" id="dash-topics-count">3 / 7 topics</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Next Topic -->
+          <div class="stat-card-ref stat-card-next">
+            <div class="stat-card-title">Next Topic</div>
+            <div class="next-topic-body" id="dash-next-topic-btn">
+              <div class="play-icon-box">▶</div>
+              <div class="next-info">
+                <div class="next-title" id="dash-next-title">How computers understand code<br>(The Translator Analogy)</div>
+                <div class="next-meta">
+                  <span id="dash-next-time">~ 8 min</span>
+                  <span class="arrow-sym">→</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Quick Actions -->
+          <div class="stat-card-ref stat-card-actions">
+            <div class="stat-card-title">Quick Actions</div>
+            <div class="quick-actions-row">
+              <button class="qa-btn" id="qa-btn-practice" title="Open Code Editor">
+                <span class="qa-icon">&lt;/&gt;</span>
+                <span class="qa-label">Practice Code</span>
+              </button>
+              <button class="qa-btn" id="qa-btn-quiz" title="Take Concept Quiz">
+                <span class="qa-icon">📄</span>
+                <span class="qa-label">Take Quiz</span>
+              </button>
+              <button class="qa-btn" id="qa-btn-project" title="Build Project">
+                <span class="qa-icon">📦</span>
+                <span class="qa-label">Build Project</span>
+              </button>
+              <button class="qa-btn" id="qa-btn-handbook" title="Explore Visual Handbook">
+                <span class="qa-icon">📖</span>
+                <span class="qa-label">Explore Handbook</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. INTEGRATED TEXTBOOK WORKSPACE (3-COLUMN REGION) -->
+        <div class="integrated-workspace-grid" id="integrated-course-workspace">
+          
+          <!-- REGION 1: LEFT - Course Chapters Navigation Tree -->
+          <div class="workspace-panel tree-panel">
+            <div class="tree-panel-header">
+              <span class="tree-title">Python Course</span>
+              <button class="tree-toggle-btn" title="Toggle view">⊞</button>
+            </div>
+            <div class="tree-search-bar">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="course-tree-search" placeholder="Search chapters..." />
+              <span class="filter-icon">⚙</span>
+            </div>
+            
+            <!-- Dynamic Tree Accordion -->
+            <div class="course-tree-content" id="course-tree-accordion">
+              <!-- Rendered dynamically by app.js using window.PYTHON_CURRICULUM_PARTS -->
+            </div>
+
+            <!-- Legacy selectors kept hidden for complete JS compatibility -->
+            <div style="display:none;">
+              <div id="chapter-selector-strip"></div>
+              <div id="subtopic-selector-strip"></div>
+            </div>
+          </div>
+
+          <!-- REGION 2: CENTER - Lesson Reader & Interactive Content -->
+          <div class="workspace-panel lesson-panel">
+            <!-- Breadcrumbs -->
+            <div class="lesson-breadcrumb-row">
+              <span class="bc-item">🌐</span>
+              <span class="bc-item" id="lesson-bc-part">Part 1</span>
+              <span class="bc-sep">&gt;</span>
+              <span class="bc-item" id="lesson-bc-ch">Chapter 1</span>
+              <span class="bc-sep">&gt;</span>
+              <span class="bc-item active" id="lesson-bc-sub">What is Python and why is it so popular?</span>
+            </div>
+
+            <!-- Lesson Main Header -->
+            <div class="lesson-title-meta-wrap">
+              <h2 class="lesson-h2" id="lesson-title">What is Python and why is it so popular?</h2>
+              <div class="lesson-meta-badges">
+                <span class="meta-badge-time" id="lesson-duration-tag">⏱️ Reading Time ~ 5 min</span>
+                <span id="lesson-xp-badge" style="display:none;">⚡ +50 XP</span>
+                <span id="lesson-chapter-tag" style="display:none;">PART 1</span>
+                <div class="circle-fraction-badge" id="lesson-circle-fraction">1/7</div>
+              </div>
+            </div>
+            
+            <p class="lesson-summary-p" id="lesson-active-summary">
+              Python is a high-level, easy-to-read programming language used for web development, data science, automation, artificial intelligence and much more. It is popular because it is simple, powerful and beginner-friendly.
+            </p>
+
+            <!-- Lesson Tabs -->
+            <div class="lesson-pill-tabs">
+              <button class="l-tab active" data-subtab="explanation">Explanation</button>
+              <button class="l-tab" data-subtab="examples">Examples</button>
+              <button class="l-tab" data-subtab="hinglish">Hinglish</button>
+              <button class="l-tab" data-subtab="practice">Practice</button>
+              <button class="l-tab" data-subtab="quiz">Quiz</button>
+              <button class="l-tab" data-subtab="notes">Notes</button>
+            </div>
+
+            <div class="lesson-content-layout">
+              <!-- Main Content Column -->
+              <div class="lesson-main-col">
+                <!-- Sub-block: Your First Python Program -->
+                <div class="lesson-sub-block" id="block-first-program">
+                  <h3 class="block-title" id="lesson-block-title">Your First Python Program</h3>
+                  <p class="block-desc" id="lesson-block-desc">The simplest Python program is just one line:</p>
+
+                  <div class="code-snippet-box">
+                    <div class="code-snippet-header">
+                      <span class="lang-tag">python</span>
+                      <button class="copy-btn" id="btn-copy-snippet">📋 Copy</button>
+                    </div>
+                    <pre class="snippet-pre"><code id="lesson-snippet-code">print("Hello, World!")</code></pre>
+                  </div>
+
+                  <div class="output-preview-card">
+                    <div class="output-preview-head">
+                      <span>Output</span>
+                      <button class="btn-run-snippet" id="btn-run-snippet-code">▶ Run Code</button>
+                    </div>
+                    <div class="output-preview-text" id="lesson-snippet-output">Hello, World!</div>
+                  </div>
+
+                  <div class="educational-tip-box" id="lesson-tip-box">
+                    <span class="tip-icon">💡</span>
+                    <span class="tip-text" id="lesson-tip-text">The print() function tells Python to display the text inside the parentheses.</span>
+                  </div>
+                </div>
+
+                <!-- Concept Breakdown (Explanation Tab Content) -->
+                <div class="theory-details-wrap" id="block-theory-details">
+                  <div class="concept-card" style="margin-top:14px;">
+                    <div class="box-label">📖 <span data-i18n-en="Concept Foundation" data-i18n-hi="Concept Foundation">Concept Foundation</span></div>
+                    <p id="lesson-what" class="analogy-text">Loading...</p>
+                  </div>
+
+                  <div class="why-card" style="margin-top:12px;">
+                    <div class="box-label" style="color: #38bdf8;">💡 <span>Why We Need It</span></div>
+                    <p id="lesson-why" class="analogy-text">Loading...</p>
+                  </div>
+
+                  <div class="syntax-card" style="margin-top:12px;">
+                    <div class="box-label" style="color: #c084fc;">⚙️ <span>Syntax & Blueprint</span></div>
+                    <pre class="syntax-pre"><code id="lesson-syntax"></code></pre>
+                    <p id="lesson-how" class="analogy-text" style="margin-top: 8px; font-size: 0.86rem;"></p>
+                  </div>
+
+                  <div class="rules-card" style="margin-top:12px;">
+                    <div class="box-label" style="color: #fbbf24;">📜 <span>Golden Rules</span></div>
+                    <ul id="lesson-rules-list" class="rules-bullet-list"></ul>
+                  </div>
+
+                  <!-- Example 1 & 2 Cards -->
+                  <div class="example-card" id="lesson-example-1-card" style="margin-top:12px;">
+                    <div class="example-header">
+                      <span class="example-label">🧪 Example 1: <strong id="example-1-title">Basic Syntax</strong></span>
+                      <button id="btn-try-example-1" class="btn-micro" title="Copy code into editor">⚡ Try in IDE</button>
+                    </div>
+                    <pre class="example-code-pre"><code id="example-1-code">print("Hello, World!")</code></pre>
+                    <div class="example-expl" id="example-1-expl">Line by line breakdown...</div>
+                  </div>
+
+                  <div class="example-card" id="lesson-example-2-card" style="margin-top:12px;">
+                    <div class="example-header">
+                      <span class="example-label">💼 Example 2: <strong id="example-2-title">Real World Project</strong></span>
+                      <button id="btn-try-example-2" class="btn-micro" title="Copy code into editor">⚡ Try in IDE</button>
+                    </div>
+                    <pre class="example-code-pre"><code id="example-2-code"># Example code</code></pre>
+                    <div class="example-expl" id="example-2-expl">Real world application details...</div>
+                  </div>
+
+                  <div class="analogy-box" style="margin-top:12px;">
+                    <div class="box-label">🧠 <span>Mental Model & Relatable Analogy</span></div>
+                    <p id="lesson-analogy" class="analogy-text">Loading...</p>
+                  </div>
+                </div>
+
+                <!-- Subtopic Challenge Card (Practice Tab Content) -->
+                <div class="challenge-card" id="lesson-challenge-card" style="margin-top:16px;">
+                  <div class="challenge-header">
+                    <span class="challenge-badge">🎯 SUBTOPIC CHALLENGE</span>
+                    <span class="challenge-reward" id="challenge-reward-badge">Earn +50 XP</span>
+                  </div>
+                  <p id="challenge-prompt" class="challenge-prompt-text">Challenge task will appear here.</p>
+                  <div class="challenge-expected-box">
+                    <span class="expected-label">Expected Terminal Output:</span>
+                    <code id="challenge-expected-output">I am a future Python Pro</code>
+                  </div>
+                  <div class="challenge-actions-row">
+                    <button id="btn-load-starter-code" class="btn-micro">📝 Load Starter Code</button>
+                    <button id="btn-toggle-solution" class="btn-micro btn-ghost">👁️ Reveal Solution</button>
+                  </div>
+                  <div id="challenge-solution-box" class="solution-box hidden">
+                    <div class="solution-header">
+                      <span>💡 Official Solution Code:</span>
+                      <button id="btn-copy-solution" class="btn-micro" style="font-size:0.7rem;">Copy to IDE</button>
+                    </div>
+                    <pre class="solution-code-pre"><code id="solution-code-display"></code></pre>
+                    <p id="solution-explanation-text" class="solution-expl-text"></p>
+                  </div>
+                </div>
+
+                <!-- Navigation Controls -->
+                <div class="subtopic-nav-footer" style="margin-top: 18px;">
+                  <button id="btn-prev-subtopic" class="pill-btn">⏮️ Previous</button>
+                  <span id="subtopic-counter-indicator" style="font-size:0.85rem; color:#94a3b8; font-weight:600;">1 of 7 Subtopics</span>
+                  <button id="btn-next-subtopic" class="btn-primary-3d">Next Topic ⏭️</button>
+                </div>
+              </div>
+
+              <!-- Right Sub-rail inside Center Panel (as seen in the reference) -->
+              <div class="lesson-subrail-col">
+                <div class="subrail-section">
+                  <div class="subrail-heading">On This Page</div>
+                  <div class="subrail-links-list" id="subrail-on-this-page">
+                    <a href="#intro" class="subrail-link active">Introduction</a>
+                    <a href="#example" class="subrail-link">A Simple Example</a>
+                    <a href="#why" class="subrail-link">Why is it so popular?</a>
+                    <a href="#uses" class="subrail-link">Real-world uses</a>
+                    <a href="#takeaways" class="subrail-link">Key takeaways</a>
+                  </div>
+                </div>
+
+                <div class="subrail-section">
+                  <div class="subrail-heading">Quick Notes</div>
+                  <ul class="subrail-bullets-list" id="subrail-quick-notes">
+                    <li>Python is easy to read</li>
+                    <li>Used in many industries</li>
+                    <li>Beginner-friendly</li>
+                    <li>Large community support</li>
+                  </ul>
+                </div>
+
+                <div class="subrail-section">
+                  <div class="subrail-heading">Related Topics</div>
+                  <div class="subrail-related-list" id="subrail-related-topics">
+                    <a href="#" class="related-link">📄 Downloading Python</a>
+                    <a href="#" class="related-link">📄 Your first program</a>
+                    <a href="#" class="related-link">📄 Using the terminal</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- REGION 3: RIGHT - Code Editor & Interactive Playground -->
+          <div class="workspace-panel editor-panel">
+            <div class="editor-panel-tabs">
+              <div class="editor-tabs-group">
+                <button class="e-tab active" data-ed-tab="code">Code</button>
+                <button class="e-tab" data-ed-tab="tests">Test Cases</button>
+                <button class="e-tab" data-ed-tab="ai">AI Help</button>
+              </div>
+              <button class="e-expand-btn" id="btn-fullscreen-editor" title="Expand Fullscreen">⛶</button>
+            </div>
+
+            <!-- Python Runtime Selector -->
+            <div class="editor-engine-bar">
+              <div class="engine-pill">
+                <span class="py-icon">🐍</span>
+                <select id="select-exec-engine" class="engine-dropdown" title="Choose Execution Engine">
+                  <option value="pyodide" selected>Python 3 (Pyodide)</option>
+                  <option value="server">Python 3 (Server Engine)</option>
+                </select>
+              </div>
+              <button class="btn-editor-reset" id="btn-reset-code" title="Reset starter code">↺ Reset</button>
+            </div>
+
+            <!-- CodeMirror Editor Textarea -->
+            <div class="monaco-like-editor-wrapper">
+              <textarea id="code-editor-textarea" class="code-textarea" spellcheck="false"></textarea>
+              <iframe id="html-preview-frame" class="html-preview-frame" style="display:none;"></iframe>
+            </div>
+
+            <div style="display:none;">
+              <span id="editor-lang-indicator">python_workspace.py</span>
+              <span id="editor-cursor-pos">Ln 1, Col 1</span>
+              <button id="btn-copy-code"></button>
+              <button id="btn-download-code"></button>
+              <button id="btn-ai-find-errors"></button>
+              <button id="btn-ai-ask-tutor"></button>
+              <button id="btn-submit-code"></button>
+            </div>
+
+            <!-- Big Electric Blue Run Button -->
+            <button class="btn-run-prominent" id="btn-run-code" title="Shortcut: Ctrl+Enter or Cmd+Enter">
+              <span>Run</span>
+              <span class="run-play-triangle">▶</span>
+              <span class="run-key-hint">Ctrl + Enter</span>
+            </button>
+
+            <!-- Output Terminal Box -->
+            <div class="terminal-box-ref">
+              <div class="term-tabs-row">
+                <div class="term-left-tabs">
+                  <button class="term-tab active" id="term-tab-output">Output</button>
+                  <button class="term-tab" id="term-tab-errors">Errors</button>
+                  <button class="term-tab" id="term-tab-input">Input</button>
+                  <button class="term-tab" id="term-tab-repl">REPL</button>
+                </div>
+                <button class="term-clear-btn" id="btn-clear-terminal">🗑️ Clear</button>
+              </div>
+              <div class="term-console-body">
+                <div id="terminal-stdout" class="stdout-text">
+                  <span class="status-circle-green">🟢</span> Hello, Elysia!
+                </div>
+                <div id="terminal-stderr" class="stderr-text"></div>
+                
+                <!-- Interactive Stdin Input Bar -->
+                <div id="terminal-input-bar" class="terminal-input-bar" style="display:none;">
+                  <span class="terminal-prompt-sym">❯</span>
+                  <input type="text" id="terminal-stdin-input" class="terminal-stdin-field" placeholder="Type here and press Enter..." />
+                  <button id="btn-submit-stdin" class="btn-micro">Send ↵</button>
+                </div>
+
+                <!-- Original Interactive REPL Console -->
+                <div id="terminal-repl-view" style="display:none;">
+                  <div id="repl-history" class="repl-history">
+                    <div class="repl-line system-line">Python 3.11 (Pyodide WASM) Console:</div>
+                  </div>
+                  <div class="repl-input-row">
+                    <span class="repl-prompt">&gt;&gt;&gt;&nbsp;</span>
+                    <input type="text" id="repl-input" class="repl-input-field" placeholder="Type command..." />
+                    <button id="btn-repl-send" class="btn-micro">Run ↵</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3D Live Variable Memory Visualizer (RAM boxes) -->
+            <div id="memory-tracker-card" class="memory-tracker-card" style="margin-bottom:12px;">
+              <div class="memory-header">
+                <span>🧠 3D Variable Memory Tracker</span>
+                <span style="font-size:0.7rem; color: var(--text-dim);">Live RAM</span>
+              </div>
+              <div id="memory-grid" class="memory-grid"></div>
+            </div>
+
+            <!-- Try It Yourself Challenge Box -->
+            <div class="try-yourself-card">
+              <div class="try-yourself-header">
+                <div class="try-head-left">
+                  <span class="lightbulb-sym">💡</span>
+                  <span class="try-title">Try It Yourself</span>
+                </div>
+                <button class="try-hint-btn" id="btn-show-hint">Hint</button>
+              </div>
+              <p class="try-prompt-p" id="try-prompt-text">Modify the code to print your own name.</p>
+              <div class="try-footer-row">
+                <button class="try-sol-btn" id="btn-show-solution">
+                  <span>👁️</span> Show Solution
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. LOWER SHOWCASE PREVIEWS ROW (Matching bottom of Reference) -->
+        <div class="bottom-showcase-row" id="bottom-showcase-row">
+          
+          <!-- Card 1: Projects Showcase -->
+          <div class="showcase-card showcase-projects" style="background-image: linear-gradient(180deg, rgba(8,12,20,0.45) 0%, rgba(8,12,20,0.94) 100%), url('images/projects-bg.jpg');">
+            <div class="sc-header">
+              <div class="sc-title-block">
+                <h3 class="sc-title">Projects</h3>
+                <p class="sc-subtitle">Build real applications and apply what you learn</p>
+              </div>
+              <div class="sc-tabs">
+                <button class="sc-tab active">All Projects</button>
+                <button class="sc-tab">By Chapter</button>
+                <button class="sc-tab">Completed</button>
+              </div>
+            </div>
+            <div class="sc-items-grid">
+              <div class="sc-item-box" onclick="window.elysiaApp.loadProject('ch2_sub5_mini_project_chatbot')">
+                <div class="sc-item-thumb">💬</div>
+                <div class="sc-item-info">
+                  <div class="sc-item-title">Interactive Welcome Chatbot</div>
+                  <div class="sc-item-meta">
+                    <span>Part 1 • Chapter 2</span>
+                    <span class="level-tag beginner">Beginner</span>
+                  </div>
+                  <p class="sc-item-desc">Build a simple chatbot using input() and print().</p>
+                </div>
+              </div>
+              <div class="sc-item-box" onclick="window.elysiaApp.loadProject('ch6_sub7_mini_project_adventure_game')">
+                <div class="sc-item-thumb">🎮</div>
+                <div class="sc-item-info">
+                  <div class="sc-item-title">Choose-Your-Own-Adventure Game</div>
+                  <div class="sc-item-meta">
+                    <span>Part 2 • Chapter 6</span>
+                    <span class="level-tag beginner">Beginner</span>
+                  </div>
+                  <p class="sc-item-desc">A text-based story game using if, else and loops.</p>
+                </div>
+              </div>
+              <div class="sc-item-box" onclick="window.elysiaApp.loadProject('ch7_sub9_mini_project_password_guesser')">
+                <div class="sc-item-thumb">🔐</div>
+                <div class="sc-item-info">
+                  <div class="sc-item-title">Password Guesser Game</div>
+                  <div class="sc-item-meta">
+                    <span>Part 2 • Chapter 7</span>
+                    <span class="level-tag intermediate">Intermediate</span>
+                  </div>
+                  <p class="sc-item-desc">Guess the password using while loops.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Mock Exams Showcase -->
+          <div class="showcase-card showcase-exams" style="background-image: linear-gradient(180deg, rgba(8,12,20,0.45) 0%, rgba(8,12,20,0.94) 100%), url('images/exams-bg.jpg');">
+            <div class="sc-header">
+              <div class="sc-title-block">
+                <h3 class="sc-title">Mock Exams</h3>
+                <p class="sc-subtitle">Test your knowledge and track your progress</p>
+              </div>
+              <div class="sc-tabs">
+                <button class="sc-tab active">Chapter Tests</button>
+                <button class="sc-tab">Full Tests</button>
+                <button class="sc-tab">Custom Test</button>
+              </div>
+            </div>
+            <div class="sc-items-grid">
+              <div class="sc-exam-card" onclick="window.elysiaApp.switchTab('mock')">
+                <div class="exam-icon-circle blue-icon">📄</div>
+                <div class="exam-card-title">Part 1 Test</div>
+                <div class="exam-card-sub">Chapters 1–5</div>
+                <div class="exam-card-meta">⏱️ 20 Questions</div>
+                <button class="btn-start-exam">Start Test</button>
+              </div>
+              <div class="sc-exam-card" onclick="window.elysiaApp.switchTab('mock')">
+                <div class="exam-icon-circle purple-icon">📄</div>
+                <div class="exam-card-title">Part 2 Test</div>
+                <div class="exam-card-sub">Chapters 6–7</div>
+                <div class="exam-card-meta">⏱️ 15 Questions</div>
+                <button class="btn-start-exam">Start Test</button>
+              </div>
+              <div class="sc-exam-card" onclick="window.elysiaApp.switchTab('mock')">
+                <div class="exam-icon-circle green-icon">📄</div>
+                <div class="exam-card-title">Part 3 Test</div>
+                <div class="exam-card-sub">Chapters 8–11</div>
+                <div class="exam-card-meta">⏱️ 20 Questions</div>
+                <button class="btn-start-exam">Start Test</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Mobile View (Responsive) Preview -->
+          <div class="showcase-card showcase-device-preview mobile-preview-card">
+            <div class="preview-badge-header">Mobile View (Responsive)</div>
+            <div class="device-mockup-frame">
+              <div class="mockup-header-bar">
+                <span class="mockup-logo">⚡ ELYSIA CODE</span>
+                <span class="mockup-menu-icon">☰</span>
+              </div>
+              <div class="mockup-body">
+                <div class="mockup-greet">Good evening,<br><strong>Priyanshu 👑</strong></div>
+                <button class="mockup-hero-btn" onclick="window.elysiaApp.focusEditor()">Continue Learning →</button>
+                <div class="mockup-course-title">Python Course</div>
+                <div class="mockup-part-row"><span>Part 1: The Absolute Basics</span> <span class="part-prog">1/5</span></div>
+                <div class="mockup-ch-row"><span>Chapter 1: Welcome to the World of Python</span> <span class="ch-prog">3/7</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Theme Switch (Adaptive) Preview -->
+          <div class="showcase-card showcase-device-preview light-theme-preview-card">
+            <div class="preview-badge-header">Theme Switch (Adaptive)</div>
+            <div class="device-mockup-frame light-frame">
+              <div class="mockup-header-bar light">
+                <span class="mockup-logo">⚡ ELYSIA CODE</span>
+                <span class="mockup-menu-icon">☀️</span>
+              </div>
+              <div class="mockup-body light">
+                <div class="mockup-greet light">Good evening,<br><strong>Priyanshu 👑</strong></div>
+                <button class="mockup-hero-btn light-btn" onclick="window.elysiaApp.toggleThemeQuick()">Switch to Light Theme →</button>
+                <div class="mockup-course-title light">Python Course</div>
+                <div class="mockup-part-row light"><span>Part 1: The Absolute Basics</span> <span class="part-prog light">1/5</span></div>
+                <div class="mockup-ch-row light"><span>Chapter 1: Welcome to the World of Python</span> <span class="ch-prog light">3/7</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- =======================================================================
+           OTHER FEATURE TABS (Preserved with 100% full functionality)
+           ======================================================================= -->
+<section id="tab-handbook" class="tab-content">
+      <div class="handbook-header-card card-3d-tilt">
+        <div>
+          <span class="brand-tag">OFFICIAL VISUAL E-BOOK</span>
+          <h2 style="font-size: 1.6rem; font-weight: 800; color:#fff; margin-top: 4px;">📘 Python Visual Handbook</h2>
+          <p style="font-size: 0.92rem; color: #94a3b8; margin-top: 2px;">
+            Learn how Python works under the hood & how professionals think through diagrams and mental models.
+          </p>
+        </div>
+        <div style="display:flex; gap:12px; align-items:center;">
+          <input type="text" id="handbook-search-input" class="search-input-3d" style="padding: 10px 20px; font-size: 0.88rem; width: 280px;" placeholder="Search handbook slides...">
+          <button class="pill-btn" onclick="window.print()" style="background: rgba(255,255,255,0.08); color:#fff;">🖨️ Print View</button>
+        </div>
+      </div>
+
+      <!-- Chapter Tabs Strip (#1 Intro, #2 Strings, #3 Numbers, etc.) -->
+      <div id="handbook-chapters-strip" class="handbook-chapter-strip"></div>
+
+      <!-- Slide Viewer Container -->
+      <div class="slide-viewer-container">
+        <!-- Left: Visual Model & Executable Snippet -->
+        <div class="slide-visual-card card-3d-tilt">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <span id="slide-topic-badge" class="lesson-tag">#1 INTRODUCTION</span>
+              <span id="slide-number-indicator" class="slide-counter-badge">Slide 1 of 12</span>
+            </div>
+            <h2 id="slide-title" style="font-size:1.6rem; font-weight:800; color:#fff;">Programming Languages</h2>
+            <p id="slide-concept" style="color:#cbd5e1; font-size:0.95rem; margin-top:6px; line-height:1.6;">
+              We use programming languages to give computers clear, executable instructions.
+            </p>
+          </div>
+
+          <!-- Dynamic Visual Display Diagram (Rendered by app.js) -->
+          <div id="slide-visual-display" class="slide-visual-display"></div>
+
+          <!-- Executable Code Box with Send to Sandbox button -->
+          <div style="margin-top: 14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span style="font-family:var(--font-mono); font-size:0.75rem; color:var(--accent-cyan);">Executable Snippet</span>
+              <button id="btn-send-to-sandbox" class="btn-primary-3d" style="font-size:0.75rem; padding: 4px 14px;">
+                ⚡ Try in Playground
+              </button>
+            </div>
+            <pre id="slide-code-snippet" class="code-textarea" style="min-height: 80px; max-height: 120px; background:#020617; padding: 10px; border-radius:8px;"></pre>
+          </div>
+        </div>
+
+        <!-- Right: Structured Notes & Real-Life Analogy -->
+        <div class="slide-notes-card card-3d-tilt">
+          <!-- Relatable Analogy Box -->
+          <div class="analogy-box">
+            <div class="box-label">💡 <span data-i18n-en="Intuition & Analogy" data-i18n-hi="Asli Zindagi Ki Analogy">Asli Zindagi Ki Analogy</span></div>
+            <p id="slide-analogy" class="analogy-text">Loading...</p>
+          </div>
+
+          <!-- Key Rules & Notes -->
+          <div class="analogy-box" style="border-color: rgba(56, 189, 248, 0.25); background: linear-gradient(135deg, rgba(56, 189, 248, 0.06), rgba(168, 85, 247, 0.06));">
+            <div class="box-label" style="color: var(--accent-cyan);">📝 <span data-i18n-en="Key Rules & How It Works" data-i18n-hi="Kaise Kaam Karta Hai & Niyam">Kaise Kaam Karta Hai & Niyam</span></div>
+            <ul id="slide-notes-list" style="padding-left: 20px; font-size:0.88rem; color:#cbd5e1; line-height:1.7;"></ul>
+          </div>
+
+          <!-- When to Use in Real Projects -->
+          <div id="slide-when-use-box" class="analogy-box" style="border-color: rgba(16, 185, 129, 0.25); background: linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(56, 189, 248, 0.04));">
+            <div class="box-label" style="color: var(--accent-emerald);">🎯 <span data-i18n-en="When to Use in Real Projects" data-i18n-hi="Kahan Aur Kab Use Karein">Kahan Aur Kab Use Karein</span></div>
+            <p id="slide-when-use" class="analogy-text"></p>
+          </div>
+
+          <!-- Slide Navigation Controller -->
+          <div class="slide-nav-bar">
+            <button id="btn-prev-slide" class="pill-btn" style="border: 1px solid var(--border-glass);">
+              ⏮️ <span data-i18n-en="Previous Slide" data-i18n-hi="Pichhla Slide">Previous</span>
+            </button>
+            <span id="slide-quick-indicator" style="font-size:0.82rem; color:var(--text-muted); font-weight:600;">Slide 1</span>
+            <button id="btn-next-slide" class="btn-primary-3d">
+              <span data-i18n-en="Next Slide" data-i18n-hi="Agla Slide">Next Slide</span> ⏭️
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!--
+      =========================================================================
+      TAB 2: DYNAMIC QUESTION BANK
+      =========================================================================
+      📌 KYA KAAM HAI:
+        User customized questions generate kar sakta hai (Topic, Difficulty, Count)
+        aur har question ko wahi solve karke test pass kar sakta hai.
+    -->
+    <section id="tab-qbank" class="tab-content">
+      <div class="qbank-header-card card-3d-tilt">
+        <div>
+          <h2 style="font-size: 1.5rem; font-weight: 800; color:#fff;">🎯 Dynamic Question Bank</h2>
+          <p style="font-size: 0.92rem; color: #94a3b8; margin-top: 4px;">Customize real-world campus coding problems with instant test cases.</p>
+        </div>
+        <div class="filter-controls">
+          <select id="qbank-topic-select" class="custom-select">
+            <option value="all">All Topics (Full Syllabus)</option>
+          </select>
+          <select id="qbank-diff-select" class="custom-select">
+            <option value="all">All Difficulties</option>
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Tricky">Tricky (Lab Level)</option>
+          </select>
+          <select id="qbank-count-select" class="custom-select">
+            <option value="3">3 Questions</option>
+            <option value="5" selected>5 Questions</option>
+            <option value="10">10 Questions</option>
+          </select>
+          <button id="btn-filter-qbank" class="btn-primary-3d">Generate Set</button>
+        </div>
+
+        <!-- 🤖 Groq AI Dynamic Question Generator Bar -->
+        <div class="qbank-ai-bar" style="margin-top: 14px; display: flex; gap: 10px; align-items: center; background: rgba(99, 102, 241, 0.08); border: 1px dashed rgba(129, 140, 248, 0.35); padding: 10px 16px; border-radius: 12px; flex-wrap: wrap;">
+          <div style="display:flex; gap:10px; align-items:center; flex:1; min-width:280px;">
+            <span style="font-size: 1.1rem;">🤖</span>
+            <input id="qbank-ai-custom-prompt" type="text" placeholder="Ask Groq AI for any topic (e.g. 'Swiggy coupon discount', 'Factorial recursion', 'CSS Flexbox card')..." style="flex:1; background:transparent; border:none; outline:none; color:#f8fafc; font-size:0.86rem;">
+          </div>
+          <button id="btn-ai-generate-qbank" class="btn-primary-3d" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); border-color:#818cf8; color:#fff; white-space:nowrap; padding:6px 14px; font-size:0.84rem;">
+            <span>✨</span> Generate with Groq AI
+          </button>
+          <div id="qbank-ai-status-msg" style="width:100%; font-size:0.8rem; display:none; padding-top:4px;"></div>
+        </div>
+      </div>
+
+      <!-- Questions Grid Container -->
+      <div id="questions-grid" class="questions-container"></div>
+
+      <!-- Question Bank Pagination Bar -->
+      <div id="qbank-pagination-controls" class="pagination-bar" style="display:none; justify-content:space-between; align-items:center; margin-top:20px; padding:14px 20px; background:rgba(15,23,42,0.65); border:1px solid rgba(255,255,255,0.08); border-radius:14px; flex-wrap:wrap; gap:12px;">
+        <div class="pagination-info" style="font-size:0.86rem; color:#94a3b8;">
+          Showing <strong id="qbank-page-start" style="color:#f8fafc;">1</strong> - <strong id="qbank-page-end" style="color:#f8fafc;">5</strong> of <strong id="qbank-page-total" style="color:#818cf8;">25</strong> questions
+        </div>
+        <div class="pagination-buttons" style="display:flex; gap:6px; align-items:center;">
+          <button id="qbank-btn-prev" class="pill-btn" style="padding:6px 14px; font-size:0.82rem;" onclick="window.elysiaApp.prevQBankPage()">‹ Previous</button>
+          <div id="qbank-page-numbers" style="display:flex; gap:4px;"></div>
+          <button id="qbank-btn-next" class="pill-btn" style="padding:6px 14px; font-size:0.82rem;" onclick="window.elysiaApp.nextQBankPage()">Next ›</button>
+        </div>
+        <div class="pagination-size" style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:0.8rem; color:#64748b;">Per page:</span>
+          <select id="qbank-page-size-select" class="custom-select" style="padding:4px 10px; font-size:0.82rem; background:rgba(15,23,42,0.8); border:1px solid #334155; border-radius:8px; color:#f8fafc;" onchange="window.elysiaApp.changeQBankPageSize(this.value)">
+            <option value="3">3</option>
+            <option value="5" selected>5</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!--
+      =========================================================================
+      TAB 3: COLLEGE MOCK TEST & VIVA SIMULATOR
+      =========================================================================
+      📌 KYA KAAM HAI:
+        Real college lab practical exam ko simulate karta hai (Timed test, Output Guessing MCQs,
+        Doctor Mode bug hunting, aur Oral Viva questions).
+    -->
+    <section id="tab-mock" class="tab-content">
+      <div class="mock-exam-header card-3d-tilt">
+        <div>
+          <span style="font-size:0.75rem; color:var(--accent-rose); font-weight:800; letter-spacing:1px;">EXAMINATION PORTAL</span>
+          <h2 id="mock-exam-title" style="font-size:1.6rem; font-weight:800; color:#fff;">Python Lab Practical Evaluation (CA1)</h2>
+          <p id="mock-exam-instructions" style="color:#94a3b8; font-size:0.9rem; margin-top:4px;">Loading exam instructions...</p>
+        </div>
+        <!-- 25-Minute Countdown Timer -->
+        <div id="exam-timer-display" class="timer-box-3d">⏱️ 25:00</div>
+      </div>
+
+      <!-- Section A: Output Guessing MCQs -->
+      <div class="exam-section-card card-3d-tilt">
+        <div class="section-badge-header">SECTION A • OUTPUT PREDICTOR (MCQs)</div>
+        <div id="mock-mcq-container"></div>
+      </div>
+
+      <!-- Section B: Doctor Mode (Syntax & Bug Hunt) -->
+      <div class="exam-section-card card-3d-tilt">
+        <div class="section-badge-header">SECTION B • DOCTOR MODE (SYNTAX & BUG HUNT)</div>
+        <div id="mock-debug-container"></div>
+      </div>
+
+      <!-- Section D: Oral Viva Defense Room -->
+      <div class="exam-section-card card-3d-tilt">
+        <div class="section-badge-header">SECTION D • ORAL VIVA DEFENSE ROOM</div>
+        <div id="mock-viva-container"></div>
+      </div>
+    </section>
+
+    <!--
+      =========================================================================
+      TAB 4: 60-SECOND DOUBT BUSTER
+      =========================================================================
+      📌 KYA KAAM HAI:
+        Exam se pehle kisi bhi keyword ko search karke 60 second me instant crash card paayein.
+    -->
+    <section id="tab-search" class="tab-content">
+      <div class="search-hero-box card-3d-tilt">
+        <h2 style="font-size:2rem; font-weight:800; color:#fff;">⚡ 60-Second Doubt Buster</h2>
+        <p style="color:#cbd5e1; font-size:1rem; margin-top:6px;">Got a doubt before your lecture or lab? Search any keyword below.</p>
+        <div class="search-input-wrapper">
+          <input type="text" id="search-input" class="search-input-3d" placeholder="Search any topic (e.g. 'loops', 'slice', 'table', 'indentation')...">
+        </div>
+      </div>
+
+      <div id="search-results-list" class="search-results-container">
+        <div style="text-align:center; color:#64748b; padding: 20px;">Type any topic above to see instant intuition, mistakes to avoid, and viva questions.</div>
+      </div>
+    </section>
+
+    <!--
+      =========================================================================
+      TAB 5: CODE X-RAY (VIVA SHIELD)
+      =========================================================================
+      📌 KYA KAAM HAI:
+        Dost se mila code paste karo -> har ek single line ka meaning aur viva defense explanation paao!
+    -->
+    <section id="tab-xray" class="tab-content">
+      <div class="qbank-header-card card-3d-tilt" style="margin-bottom: 24px;">
+        <div>
+          <h2 style="font-size:1.5rem; font-weight:800; color:#fff;">🔬 Line-by-Line Code X-Ray (Viva Shield)</h2>
+          <p style="color:#94a3b8; font-size:0.92rem; margin-top:4px;">Paste any code from a friend or lab manual. Get an instant explanation and anticipate teacher questions!</p>
+        </div>
+      </div>
+
+      <div class="xray-container">
+        <div class="editor-card-3d card-3d-tilt">
+          <div class="editor-toolbar">
+            <span class="editor-tab-pill">Paste Your Code Snippet</span>
+            <button id="btn-analyze-xray" class="btn-primary-3d">🔬 Analyze X-Ray</button>
+          </div>
+          <div class="code-editor-wrapper" style="min-height:350px;">
+            <textarea id="xray-input-textarea" class="code-textarea" style="min-height:350px;">arr = [45, 88, 92, 67, 78]
+rev_arr = arr[::-1]
+for item in rev_arr:
+    if item >= 80:
+        print(f"Topper score: {item}")</textarea>
+          </div>
+        </div>
+
+        <div class="theory-card-3d card-3d-tilt" style="max-height: 500px; overflow-y:auto;">
+          <div class="box-label" style="color:var(--accent-cyan); margin-bottom: 12px;">🛡️ LINE-BY-LINE VIVA BREAKDOWN</div>
+          <div id="xray-breakdown-list">
+            <p style="color:#94a3b8; font-size:0.9rem;">Click "Analyze X-Ray" to break down each line.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!--
+      =========================================================================
+      TAB 6: 10-MINUTE LAB PANIC MODE (EMERGENCY TRIAGE)
+      =========================================================================
+    -->
+    <section id="tab-panic" class="tab-content">
+      <div id="panic-content-container"></div>
+    </section>
+  
+
+    <!-- =========================================================================
+         ELYSIA SCHOOL FOOTER
+         ========================================================================= -->
+    <footer class="app-footer" style="margin-top:60px; padding:32px 24px; border-top:1px solid rgba(255,255,255,0.08); background:rgba(7,9,19,0.7); backdrop-filter:blur(16px); border-radius:18px 18px 0 0;">
+      <div style="max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;">
+        <div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:1.1rem; font-weight:800; color:#f8fafc; letter-spacing:0.5px;">ELYSIA SCHOOL</span>
+            <span style="font-size:0.75rem; color:#818cf8; background:rgba(99,102,241,0.15); border:1px solid rgba(129,140,248,0.3); padding:2px 8px; border-radius:9999px; font-weight:700;">ACADEMY</span>
+          </div>
+          <p style="font-size:0.82rem; color:#94a3b8; margin-top:4px;">Next-Gen Python Learning • Client-Side WebAssembly • Zero-Lag Cloud Scale</p>
+        </div>
+        <div style="display:flex; gap:18px; align-items:center; flex-wrap:wrap; font-size:0.86rem;">
+          <a href="javascript:void(0)" onclick="window.elysiaApp.switchTab('course')" style="color:#cbd5e1; text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='#cbd5e1'">Curriculum</a>
+          <a href="javascript:void(0)" onclick="window.elysiaApp.switchTab('lab')" style="color:#cbd5e1; text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='#cbd5e1'">Coding Lab</a>
+          <a href="javascript:void(0)" onclick="window.elysiaApp.switchTab('mock')" style="color:#cbd5e1; text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='#cbd5e1'">Mock Exams</a>
+          <a href="javascript:void(0)" onclick="window.elysiaApp.openModal('modal-lab-exporter')" style="color:#cbd5e1; text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='#cbd5e1'">Lab Exporter</a>
+          <a href="javascript:void(0)" onclick="window.elysiaApp.openModal('modal-privacy-policy')" style="color:#38bdf8; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:4px;">
+            <span>🔒</span> Privacy Policy
+          </a>
+        </div>
+      </div>
+      <div style="max-width:1200px; margin:20px auto 0; padding-top:16px; border-top:1px solid rgba(255,255,255,0.05); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; font-size:0.78rem; color:#64748b;">
+        <span>© 2026 Elysia School. All rights reserved. Built for curious learners.</span>
+        <span>Client-Side Pyodide Runtime • Safe, Private & Offline Capable</span>
+      </div>
+    </footer>
+
+    </main>
+  </div>
+
+  <!-- =========================================================================
+       MODALS, AI TUTOR & SCRIPTS (Preserved with 100% full functionality)
+       ========================================================================= -->
+
+  <!--
+    ===========================================================================
+    MODAL 1: 1-CLICK PRINTABLE LAB PRACTICAL FILE EXPORTER
+    ===========================================================================
+    📌 KYA KAAM HAI:
+      Student ka Name, Roll No, Course Code pooch kar university practical file
+      generate karta hai ready to print / save as PDF.
+  -->
+  <div id="modal-lab-exporter" class="modal-overlay">
+    <div class="modal-card-3d">
+      <button class="modal-close-btn" onclick="window.elysiaApp.closeModal('modal-lab-exporter')">✕</button>
+      <h3 style="font-size:1.4rem; font-weight:800; color:#fff; margin-bottom:6px;">📄 College Lab Practical Record Exporter</h3>
+      <p style="color:#94a3b8; font-size:0.9rem; margin-bottom:20px;">Generate an authentic university format lab sheet ready for 1-click printing or PDF submission.</p>
+
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div>
+          <label style="font-size:0.8rem; color:#cbd5e1; font-weight:600;">Student Full Name:</label>
+          <input type="text" id="exporter-name" class="search-input-3d" style="padding:10px 16px; font-size:0.9rem;" value="Aman Sharma">
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div>
+            <label style="font-size:0.8rem; color:#cbd5e1; font-weight:600;">Roll Number:</label>
+            <input type="text" id="exporter-roll" class="search-input-3d" style="padding:10px 16px; font-size:0.9rem;" value="12204590">
+          </div>
+          <div>
+            <label style="font-size:0.8rem; color:#cbd5e1; font-weight:600;">Course Code:</label>
+            <input type="text" id="exporter-course" class="search-input-3d" style="padding:10px 16px; font-size:0.9rem;" value="CSE205 / INT108">
+          </div>
+        </div>
+
+        <button class="btn-primary-3d" style="justify-content:center; padding:12px; margin-top:10px;" onclick="window.elysiaApp.generateLabFile()">
+          🖨️ Generate & Print Lab Record
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!--
+    ===========================================================================
+    MODAL 2: 3D FLEX CARD (VIRAL WHATSAPP & INSTAGRAM SHARING)
+    ===========================================================================
+    📌 KYA KAAM HAI:
+      Student ke achievement ko 1 click me WhatsApp ya Instagram stories par
+      share karne ke liye visual card popup deta hai.
+  -->
+  <div id="modal-flex-card" class="modal-overlay">
+    <div class="modal-card-3d" style="text-align:center;">
+      <button class="modal-close-btn" onclick="window.elysiaApp.closeModal('modal-flex-card')">✕</button>
+      
+      <!-- 3D Card Graphic -->
+      <div style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(168, 85, 247, 0.25)); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 20px; padding: 28px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); margin-bottom: 24px;">
+        <div style="font-size: 3rem; margin-bottom: 8px;">🚀</div>
+        <div style="font-size:0.75rem; color:var(--accent-cyan); font-weight:800; letter-spacing:1px;">CERTIFICATE OF AGILITY</div>
+        <h2 style="font-size:1.5rem; font-weight:800; color:#fff; margin-top:4px;">Python & HTML Foundation Crusher</h2>
+        <p style="font-size:0.88rem; color:#cbd5e1; margin-top:8px;">Crushed 5 Lab Practical Challenges and Defended all Viva Questions on Elysia Code!</p>
+      </div>
+
+      <div style="display:flex; justify-content:center; gap:12px;">
+        <button class="btn-success-3d" onclick="window.elysiaApp.shareOnWhatsApp()">
+          📱 Share on WhatsApp
+        </button>
+        <button class="btn-primary-3d" onclick="alert('Link copied to clipboard! Share it on Instagram Story!')">
+          🔗 Copy Link
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!--
+    ===========================================================================
+    MODAL 3: 👤 USER PROFILE & PRODUCTIVITY TRACKER
+    ===========================================================================
+    📌 KYA KAAM HAI:
+      User ko uski daily productivity, time spent learning, streak calendar,
+      XP, completed subtopics, aur Ego Tier (Noob -> Grandmaster) dikhata hai.
+  -->
+  <div id="modal-user-profile" class="modal-overlay">
+    <div class="modal-card-3d profile-modal-card">
+      <button class="modal-close-btn" onclick="window.elysiaApp.closeModal('modal-user-profile')">✕</button>
+      
+      <!-- Profile Header -->
+      <div class="profile-header-banner">
+        <div class="profile-avatar-box">
+          <img id="prof-avatar-img" class="profile-avatar-img" style="display:none;" />
+          <span class="profile-avatar-emoji" id="prof-avatar">🐍</span>
+          <div class="profile-avatar-glow"></div>
+        </div>
+        <div class="profile-identity">
+          <div class="profile-badge-row">
+            <span class="ego-rank-badge" id="prof-ego-tier">KEYBOARD TOURIST</span>
+            <span class="level-indicator" id="prof-level-tag">Level 2</span>
+          </div>
+          <h2 class="profile-name" id="prof-user-name">Future Python Architect</h2>
+          <p class="profile-motto" id="prof-ego-motto">"Code doesn't lie, syntax errors do."</p>
+        </div>
+      </div>
+
+      <!-- XP & Level Progress Bar -->
+      <div class="profile-xp-progress-wrap">
+        <div class="profile-xp-labels">
+          <span>Level Progress</span>
+          <span id="prof-xp-details">180 / 300 XP</span>
+        </div>
+        <div class="profile-xp-track">
+          <div class="profile-xp-fill" id="prof-xp-fill" style="width: 60%;"></div>
+        </div>
+      </div>
+
+      <!-- 4 Key Productivity & Time Spent Metric Cards -->
+      <div class="profile-metrics-grid">
+        <div class="metric-card">
+          <div class="metric-icon">⏱️</div>
+          <div class="metric-val" id="prof-time-today">00:00:00</div>
+          <div class="metric-label">Time Spent Today</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">⏳</div>
+          <div class="metric-val" id="prof-time-total">00:00:00</div>
+          <div class="metric-label">Total Time Learning</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">🔥</div>
+          <div class="metric-val" id="prof-streak-val">1 Day</div>
+          <div class="metric-label">Active Streak</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">⚡</div>
+          <div class="metric-val" id="prof-xp-val">0 XP</div>
+          <div class="metric-label">Total Experience</div>
+        </div>
+      </div>
+
+      <!-- 7-Day Habit Streak Activity Calendar (Instagram / Duolingo habit loop) -->
+      <div class="habit-streak-section">
+        <div class="section-title-small">
+          <span>📅 7-Day Habit Tracker</span>
+          <span class="habit-status-tag" id="prof-habit-status">🔥 On Fire!</span>
+        </div>
+        <div class="streak-days-row" id="prof-streak-calendar">
+          <div class="streak-day active"><span class="day-letter">M</span><span class="day-dot">✓</span></div>
+          <div class="streak-day active"><span class="day-letter">T</span><span class="day-dot">✓</span></div>
+          <div class="streak-day active today"><span class="day-letter">W</span><span class="day-dot">🔥</span></div>
+          <div class="streak-day"><span class="day-letter">T</span><span class="day-dot">○</span></div>
+          <div class="streak-day"><span class="day-letter">F</span><span class="day-dot">○</span></div>
+          <div class="streak-day"><span class="day-letter">S</span><span class="day-dot">○</span></div>
+          <div class="streak-day"><span class="day-letter">S</span><span class="day-dot">○</span></div>
+        </div>
+      </div>
+
+      <!-- Curriculum Mastery Progress Bar -->
+      <div class="curriculum-mastery-section">
+        <div class="section-title-small">
+          <span>🌳 Python Foundation Mastery</span>
+          <span id="prof-subtopics-fraction">0 / 15 Subtopics</span>
+        </div>
+        <div class="profile-xp-track" style="height: 10px; margin-top: 8px;">
+          <div class="profile-xp-fill" id="prof-curriculum-fill" style="width: 0%; background: linear-gradient(90deg, #10b981, #38bdf8);"></div>
+        </div>
+      </div>
+
+      <!-- Ego Ranks Roadmap -->
+      <div class="ego-roadmap-section">
+        <div class="section-title-small"><span>👑 Ego Rank Progression</span></div>
+        <div class="ranks-pills-row">
+          <div class="rank-step passed" title="0 - 99 XP">🐣 Noob</div>
+          <div class="rank-step current" title="100 - 299 XP">💻 Tourist</div>
+          <div class="rank-step" title="300 - 599 XP">⚔️ Warrior</div>
+          <div class="rank-step" title="600 - 999 XP">🐍 Slayer</div>
+          <div class="rank-step" title="1000+ XP">👑 Grandmaster</div>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="profile-footer-actions" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div style="display:flex; gap:8px;">
+          <button class="pill-btn" onclick="window.elysiaApp.openEditProfile()">
+            ✏️ Edit Profile
+          </button>
+          <button id="btn-user-logout" class="pill-btn" style="color:#fb7185; border-color:rgba(251,113,133,0.3);" onclick="window.elysiaApp.logoutUser()">
+            🚪 Log Out
+          </button>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-primary-3d" onclick="window.elysiaApp.openModal('modal-flex-card'); window.elysiaApp.closeModal('modal-user-profile');">
+            🏆 Share 3D Flex Card
+          </button>
+          <button class="pill-btn" onclick="window.elysiaApp.closeModal('modal-user-profile')">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--
+    ===========================================================================
+    MODAL 4: 🔐 AUTHENTICATION (SIGN IN / LOG IN & SIGN UP WITH PROFILE PIC)
+    ===========================================================================
+  -->
+  <div id="modal-auth" class="modal-overlay">
+    <div class="modal-card-3d auth-modal-card">
+      <button class="modal-close-btn" onclick="window.elysiaApp.closeModal('modal-auth')">✕</button>
+
+      <!-- Auth Modal Header -->
+      <div class="auth-header">
+        <div class="auth-icon-badge">✨</div>
+        <h2 id="auth-modal-title" class="auth-title">Welcome to Elysia School</h2>
+        <p id="auth-modal-subtitle" class="auth-subtitle">Save your daily coding streak, XP, code, and profile picture across devices!</p>
+      </div>
+
+      <!-- Sign In vs Sign Up Tabs -->
+      <div class="auth-tabs-row">
+        <button id="tab-btn-login" class="auth-tab-btn active" onclick="window.elysiaApp.switchAuthTab('login')">
+          <span>🔓</span> Log In
+        </button>
+        <button id="tab-btn-signup" class="auth-tab-btn" onclick="window.elysiaApp.switchAuthTab('signup')">
+          <span>✨</span> Create Account
+        </button>
+      </div>
+
+      <!-- Feedback / Alert Banner -->
+      <div id="auth-feedback-banner" class="auth-feedback-banner" style="display:none;"></div>
+
+      <!-- 1. LOGIN FORM -->
+      <div id="auth-login-view" class="auth-view-panel">
+        <div class="auth-input-group">
+          <label class="auth-input-label">Username or Email</label>
+          <input type="text" id="auth-login-identifier" class="auth-input-field" placeholder="e.g. priyanshu@gmail.com" />
+        </div>
+        <div class="auth-input-group">
+          <label class="auth-input-label">Password</label>
+          <input type="password" id="auth-login-password" class="auth-input-field" placeholder="Enter your password..." />
+        </div>
+        <button id="btn-submit-login" class="btn-primary-3d auth-submit-btn">
+          <span>🔓</span> Log In to Account
+        </button>
+        <p class="auth-switch-prompt">
+          Don't have an account? <a href="javascript:void(0)" onclick="window.elysiaApp.switchAuthTab('signup')">Create a free account</a>
+        </p>
+      </div>
+
+      <!-- 2. SIGN UP / REGISTER FORM (WITH REAL PHOTO / PRESET AVATAR) -->
+      <div id="auth-signup-view" class="auth-view-panel" style="display:none;">
+        <!-- Anti-Spam Honeypot Field (Hidden for bots) -->
+        <div style="display:none !important; visibility:hidden; opacity:0; position:absolute; left:-9999px;">
+          <label>Campus Blank</label>
+          <input type="text" id="auth-signup-hp" name="school_verify_blank" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <div class="auth-input-group">
+          <label class="auth-input-label">Full Name</label>
+          <input type="text" id="auth-signup-name" class="auth-input-field" placeholder="e.g. Priyanshu Yadav" />
+        </div>
+        <div class="auth-input-group">
+          <label class="auth-input-label">Username / Email</label>
+          <input type="text" id="auth-signup-identifier" class="auth-input-field" placeholder="e.g. priyanshu_dev" />
+        </div>
+        <div class="auth-input-group">
+          <label class="auth-input-label">Password</label>
+          <input type="password" id="auth-signup-password" class="auth-input-field" placeholder="Create a password (min 8 chars)..." />
+        </div>
+
+        <!-- 📸 PROFILE PICTURE SELECTION -->
+        <div class="auth-avatar-selection-box">
+          <label class="auth-input-label">Choose Your Profile Picture / Avatar</label>
+          
+          <div class="avatar-picker-flex">
+            <!-- Live Avatar Preview Circle -->
+            <div class="avatar-preview-wrapper">
+              <div class="avatar-preview-circle" id="auth-preview-circle">
+                <img id="auth-avatar-preview-img" class="avatar-preview-img" style="display:none;" />
+                <span id="auth-avatar-preview-emoji" class="avatar-preview-emoji">🐍</span>
+              </div>
+              <span class="avatar-preview-tag">Preview</span>
+            </div>
+
+            <!-- Upload Custom Photo or Pick Preset Emoji -->
+            <div class="avatar-options-col">
+              <div class="avatar-emoji-grid">
+                <button type="button" class="avatar-opt-btn active" data-avatar="🐍" onclick="window.elysiaApp.selectPresetAvatar('🐍')">🐍</button>
+                <button type="button" class="avatar-opt-btn" data-avatar="⚡" onclick="window.elysiaApp.selectPresetAvatar('⚡')">⚡</button>
+                <button type="button" class="avatar-opt-btn" data-avatar="🤖" onclick="window.elysiaApp.selectPresetAvatar('🤖')">🤖</button>
+                <button type="button" class="avatar-opt-btn" data-avatar="🚀" onclick="window.elysiaApp.selectPresetAvatar('🚀')">🚀</button>
+                <button type="button" class="avatar-opt-btn" data-avatar="🧙‍♂️" onclick="window.elysiaApp.selectPresetAvatar('🧙‍♂️')">🧙‍♂️</button>
+                <button type="button" class="avatar-opt-btn" data-avatar="👑" onclick="window.elysiaApp.selectPresetAvatar('👑')">👑</button>
+                <button type="button" class="avatar-opt-btn" data-avatar="💻" onclick="window.elysiaApp.selectPresetAvatar('💻')">💻</button>
+                <button type="button" class="avatar-opt-btn" data-avatar="🦁" onclick="window.elysiaApp.selectPresetAvatar('🦁')">🦁</button>
+              </div>
+
+              <!-- Real Photo Upload Button -->
+              <div class="avatar-upload-row">
+                <input type="file" id="auth-photo-file-input" accept="image/*" style="display:none;" onchange="window.elysiaApp.handleCustomPhotoUpload(event)" />
+                <button type="button" class="btn-micro" onclick="document.getElementById('auth-photo-file-input').click()" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 6px 12px;">
+                  📷 Upload Photo
+                </button>
+                <span id="auth-photo-filename" style="font-size:0.75rem; color:#94a3b8; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:140px;"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button id="btn-submit-signup" class="btn-primary-3d auth-submit-btn">
+          <span>✨</span> Create Account & Save Profile
+        </button>
+        <p class="auth-switch-prompt">
+          Already have an account? <a href="javascript:void(0)" onclick="window.elysiaApp.switchAuthTab('login')">Log In</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!--
+    ===========================================================================
+    MODAL 5: ✏️ EDIT PROFILE & CHANGE PHOTO MODAL
+    ===========================================================================
+  -->
+  <div id="modal-edit-profile" class="modal-overlay">
+    <div class="modal-card-3d auth-modal-card">
+      <button class="modal-close-btn" onclick="window.elysiaApp.closeModal('modal-edit-profile')">✕</button>
+
+      <div class="auth-header">
+        <div class="auth-icon-badge">✏️</div>
+        <h2 class="auth-title">Edit Your Profile</h2>
+        <p class="auth-subtitle">Update your display name, developer motto, or profile picture.</p>
+      </div>
+
+      <div class="auth-input-group">
+        <label class="auth-input-label">Display Name</label>
+        <input type="text" id="edit-profile-name" class="auth-input-field" placeholder="Your display name..." />
+      </div>
+
+      <div class="auth-input-group">
+        <label class="auth-input-label">Developer Motto / Bio</label>
+        <input type="text" id="edit-profile-motto" class="auth-input-field" placeholder="e.g. Code doesn't lie, syntax errors do." />
+      </div>
+
+      <!-- 📸 PHOTO SELECTION IN EDIT MODE -->
+      <div class="auth-avatar-selection-box">
+        <label class="auth-input-label">Update Profile Picture / Avatar</label>
+        
+        <div class="avatar-picker-flex">
+          <div class="avatar-preview-wrapper">
+            <div class="avatar-preview-circle" id="edit-preview-circle">
+              <img id="edit-avatar-preview-img" class="avatar-preview-img" style="display:none;" />
+              <span id="edit-avatar-preview-emoji" class="avatar-preview-emoji">🐍</span>
+            </div>
+            <span class="avatar-preview-tag">Preview</span>
+          </div>
+
+          <div class="avatar-options-col">
+            <div class="avatar-emoji-grid">
+              <button type="button" class="avatar-opt-btn" data-avatar="🐍" onclick="window.elysiaApp.selectPresetAvatar('🐍', true)">🐍</button>
+              <button type="button" class="avatar-opt-btn" data-avatar="⚡" onclick="window.elysiaApp.selectPresetAvatar('⚡', true)">⚡</button>
+              <button type="button" class="avatar-opt-btn" data-avatar="🤖" onclick="window.elysiaApp.selectPresetAvatar('🤖', true)">🤖</button>
+              <button type="button" class="avatar-opt-btn" data-avatar="🚀" onclick="window.elysiaApp.selectPresetAvatar('🚀', true)">🚀</button>
+              <button type="button" class="avatar-opt-btn" data-avatar="🧙‍♂️" onclick="window.elysiaApp.selectPresetAvatar('🧙‍♂️', true)">🧙‍♂️</button>
+              <button type="button" class="avatar-opt-btn" data-avatar="👑" onclick="window.elysiaApp.selectPresetAvatar('👑', true)">👑</button>
+              <button type="button" class="avatar-opt-btn" data-avatar="💻" onclick="window.elysiaApp.selectPresetAvatar('💻', true)">💻</button>
+              <button type="button" class="avatar-opt-btn" data-avatar="🦁" onclick="window.elysiaApp.selectPresetAvatar('🦁', true)">🦁</button>
+            </div>
+
+            <div class="avatar-upload-row">
+              <input type="file" id="edit-photo-file-input" accept="image/*" style="display:none;" onchange="window.elysiaApp.handleCustomPhotoUpload(event, true)" />
+              <button type="button" class="btn-micro" onclick="document.getElementById('edit-photo-file-input').click()" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 6px 12px;">
+                📷 Upload New Photo
+              </button>
+              <span id="edit-photo-filename" style="font-size:0.75rem; color:#94a3b8; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:140px;"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+        <button class="pill-btn" onclick="window.elysiaApp.closeModal('modal-edit-profile')">Cancel</button>
+        <button id="btn-save-profile-edits" class="btn-primary-3d" onclick="window.elysiaApp.saveProfileEdits()">
+          💾 Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!--
+    ===========================================================================
+    MODAL 6: 🔒 ELYSIA SCHOOL PRIVACY POLICY
+    ===========================================================================
+  -->
+  <div id="modal-privacy-policy" class="modal-overlay">
+    <div class="modal-card-3d" style="max-width: 680px; max-height: 85vh; display: flex; flex-direction: column;">
+      <button class="modal-close-btn" onclick="window.elysiaApp.closeModal('modal-privacy-policy')">✕</button>
+
+      <div style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 14px; margin-bottom: 16px;">
+        <div style="display:inline-flex; align-items:center; gap:6px; font-size:0.75rem; color:#38bdf8; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); padding:3px 10px; border-radius:9999px; font-weight:700; text-transform:uppercase;">
+          🛡️ Student Data Protection
+        </div>
+        <h2 style="font-size:1.45rem; font-weight:800; color:#fff; margin-top:8px;">Elysia School Privacy Policy</h2>
+        <p style="font-size:0.82rem; color:#94a3b8;">Effective Date: Academic Session 2026 • Strict Privacy & Zero Surveillance Standard</p>
+      </div>
+
+      <div style="overflow-y: auto; padding-right: 6px; font-size: 0.88rem; line-height: 1.65; color: #cbd5e1; display: flex; flex-direction: column; gap: 16px;">
+        <div>
+          <h4 style="color:#f8fafc; font-size:0.95rem; margin-bottom:4px;">1. Client-Side Code Execution (Zero Code Logging)</h4>
+          <p>Your Python programs execute directly in your browser using client-side Pyodide WebAssembly (WebWorker). Your code, scripts, and inputs are never stored, logged, or inspected on our servers by default.</p>
+        </div>
+
+        <div>
+          <h4 style="color:#f8fafc; font-size:0.95rem; margin-bottom:4px;">2. Account & Progress Data</h4>
+          <p>We store only what is required to track your learning journey: your chosen name, username, email, encrypted password hash (salted scrypt), avatar image/emoji, XP, streaks, and completed lesson IDs. We never sell or monetize student data.</p>
+        </div>
+
+        <div>
+          <h4 style="color:#f8fafc; font-size:0.95rem; margin-bottom:4px;">3. AI Mentorship Transparency</h4>
+          <p>When you query the Senior AI Tutor or Error Decoder, only the relevant code snippet and terminal error message are passed to generate educational hints. No personal profile data or session credentials are shared with third-party model providers.</p>
+        </div>
+
+        <div>
+          <h4 style="color:#f8fafc; font-size:0.95rem; margin-bottom:4px;">4. Security & Cookies</h4>
+          <p>Authentication uses secure, HttpOnly, same-origin session tokens protected by CSRF shields, rate limiters, and bot traps. No third-party tracking scripts, ads, or fingerprinting cookies exist on Elysia School.</p>
+        </div>
+
+        <div>
+          <h4 style="color:#f8fafc; font-size:0.95rem; margin-bottom:4px;">5. Student Rights & Data Deletion</h4>
+          <p>You have full ownership of your learning portfolio and code records. You can download lab records as university-standard printouts or request complete account deletion at any time.</p>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; margin-top:18px; border-top:1px solid rgba(255,255,255,0.08); padding-top:12px;">
+        <button class="btn-primary-3d" onclick="window.elysiaApp.closeModal('modal-privacy-policy')">
+          I Understand & Agree
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating AI Senior Tutor Trigger & Chat Panel (Powered by Groq) -->
+  <div id="ai-tutor-fab" class="ai-tutor-fab" onclick="window.elysiaApp.toggleAITutor()" title="Ask Senior AI (Powered by Groq)">
+    <div class="ai-fab-icon">🤖</div>
+    <div class="ai-fab-label">
+      <span>Senior AI Tutor</span>
+      <span class="ai-status-dot" id="ai-status-indicator" title="Groq AI Active">● Live AI Active</span>
+    </div>
+  </div>
+
+  <div id="ai-tutor-drawer" class="ai-tutor-drawer">
+    <div class="ai-drawer-header">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:1.4rem;">🤖</span>
+        <div>
+          <div style="font-weight:700; color:#fff; font-size:0.95rem;">Elysia Senior AI Tutor</div>
+          <div style="font-size:0.72rem; color:#38bdf8;">⚡ Powered by Groq (Sub-Second Inference)</div>
+        </div>
+      </div>
+      <button class="ai-drawer-close" onclick="window.elysiaApp.toggleAITutor()">✕</button>
+    </div>
+
+    <!-- Quick Prompt Pills -->
+    <div class="ai-quick-pills">
+      <button class="ai-chip" onclick="window.elysiaApp.quickAskAI('debug')">🔍 Check Editor for Errors</button>
+      <button class="ai-chip" onclick="window.elysiaApp.quickAskAI('explain')">💡 Explain Current Topic Simply</button>
+      <button class="ai-chip" onclick="window.elysiaApp.quickAskAI('analogy')">🍕 Give a Real-Life Analogy</button>
+    </div>
+
+    <!-- Chat Messages Container -->
+    <div id="ai-chat-messages" class="ai-chat-messages">
+      <div class="ai-msg ai-msg-bot">
+        <div class="ai-msg-avatar">🤖</div>
+        <div class="ai-msg-body">
+          Haan bhai! Main tera <strong>Senior AI Mentor</strong> hoon. Python me kahin bhi fas gaya ho, code me error dhoondhna ho, ya viva questions samajhne ho — bejhijhak pooch!
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Input Box -->
+    <div class="ai-chat-input-row">
+      <textarea id="ai-chat-input" class="ai-chat-input" placeholder="Type your doubt or ask 'Mera code check kar'... (Shift+Enter for new line)" rows="1"></textarea>
+      <button id="btn-send-ai-chat" class="ai-send-btn" onclick="window.elysiaApp.sendAIChat()">➤</button>
+    </div>
+  </div>
+
+  <!-- Fullscreen Dopamine Confetti Canvas -->
+  <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
+
+  <!--
+    ===========================================================================
+    📜 JAVASCRIPT DEPENDENCY SCRIPTS
+    ===========================================================================
+    1. audio.js: Web Audio API synthesizer for tactile clicks, chords and buzzers.
+    2. pyodide_runner.js: In-browser Python 3.11 execution manager.
+    3. html_runner.js: Sandboxed iframe preview manager.
+    4. handbook_data.js: Pre-bundled 8-Chapter visual handbook data (instant offline).
+    5. curriculum_tree.js: Granular Chapter -> Topic -> Subtopic tree.
+    6. app.js: Master state controller, bilingual engine, event listeners, and UI logic.
+  -->
+  <script src="js/audio.js"></script>
+  <script src="js/pyodide_runner.js"></script>
+  <script src="js/html_runner.js"></script>
+  <script src="js/handbook_data.js"></script>
+  <script src="js/curriculum_tree.js"></script>
+  <!-- CodeMirror 5 Syntax Highlighter (Python, HTML, JS, CSS, Auto-closing brackets) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
+

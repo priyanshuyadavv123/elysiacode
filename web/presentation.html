@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elysia Code — Master Project Presentation (Deck)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070b14;
+      --card-bg: rgba(15, 23, 42, 0.85);
+      --card-border: rgba(56, 189, 248, 0.2);
+      --accent-cyan: #38bdf8;
+      --accent-purple: #a855f7;
+      --accent-green: #34d399;
+      --accent-amber: #fbbf24;
+      --accent-rose: #f43f5e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* Top Progress Bar */
+    #progress-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      z-index: 100;
+    }
+
+    #progress-bar {
+      height: 100%;
+      width: 7%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple), var(--accent-green));
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Slide Deck Container */
+    #deck {
+      flex: 1;
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 60px 80px 100px 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(0.96) translateY(20px);
+      transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s;
+      background: radial-gradient(circle at 50% 10%, rgba(56, 189, 248, 0.07), transparent 60%),
+                  radial-gradient(circle at 90% 90%, rgba(168, 85, 247, 0.06), transparent 50%),
+                  #070b14;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1) translateY(0);
+    }
+
+    /* Header & Taglines */
+    .slide-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      background: rgba(56, 189, 248, 0.1);
+      color: var(--accent-cyan);
+      width: fit-content;
+    }
+
+    .slide-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .slide-subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      margin-bottom: 30px;
+      max-width: 900px;
+      line-height: 1.5;
+    }
+
+    /* Content Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-glow-cyan { border-color: rgba(56, 189, 248, 0.35); }
+    .card-glow-purple { border-color: rgba(168, 85, 247, 0.35); }
+    .card-glow-green { border-color: rgba(52, 211, 153, 0.35); }
+    .card-glow-amber { border-color: rgba(251, 191, 36, 0.35); }
+
+    .card-icon {
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .card-desc {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    .card-pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 14px;
+    }
+
+    .micro-pill {
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #cbd5e1;
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Code Snippet Box */
+    .code-box {
+      background: #030712;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: #38bdf8;
+      line-height: 1.5;
+      overflow-x: auto;
+      margin-top: 12px;
+    }
+
+    /* Key Metrics Callout */
+    .metric-hero {
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Bottom Control Bar */
+    #deck-controls {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 70px;
+      background: rgba(10, 15, 29, 0.92);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      z-index: 90;
+    }
+
+    .deck-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-mark {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: #fff;
+    }
+
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--accent-cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent-cyan);
+    }
+
+    .slide-counter {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+
+    .nav-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--accent-cyan);
+      transform: translateY(-1px);
+    }
+
+    .nav-btn-primary {
+      background: linear-gradient(135deg, #0284c7, #7c3aed);
+      border: none;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+    }
+
+    .nav-btn-primary:hover {
+      box-shadow: 0 6px 20px rgba(2, 132, 199, 0.5);
+    }
+
+    /* Print Styles for PDF Export */
+    @media print {
+      body {
+        overflow: visible;
+        background: #000;
+      }
+      #progress-container, #deck-controls {
+        display: none !important;
+      }
+      #deck {
+        position: static;
+        width: 100%;
+        height: auto;
+      }
+      .slide {
+        position: relative !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: none !important;
+        page-break-after: always;
+        height: 100vh;
+        padding: 40px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Progress Bar -->
+  <div id="progress-container">
+    <div id="progress-bar"></div>
+  </div>
+
+  <!-- Slide Deck -->
+  <main id="deck">
+
+    <!-- SLIDE 1: Title & Hero -->
+    <section class="slide active" data-slide="1">
+      <div class="slide-badge">🚀 Master Engineering Presentation</div>
+      <h1 class="slide-title" style="font-size: 3.4rem;">ELYSIA CODE</h1>
+      <p class="slide-subtitle" style="font-size: 1.4rem; color: #cbd5e1;">
+        The Next-Generation Gamified Python Mastery & Zero-to-Advanced IDE Ecosystem
+      </p>
+
+      <div class="grid-3" style="margin-top: 10px;">
+        <div class="card card-glow-cyan">
+          <div class="card-icon">🧠</div>
+          <div class="card-title">Addictive Pedagogy</div>
+          <div class="card-desc">Re-engineering programming education using YouTube/Instagram habit psychology, ego-driven dopamine tiers, and zero intimidation.</div>
+          <div class="card-pill-row">
+            <span class="micro-pill">Ego Tiers</span>
+            <span class="micro-pill">Daily Streaks</span>
+            <span class="micro-pill">Confetti Physics</span>
+          </div>
+        </div>
+
+        <div class="card card-glow-purple">
+          <div class="card-icon">⚡</div>
+          <div class="card-title">Split-Screen Live IDE</div>
+          <div class="card-desc">Sub-15ms Python execution engine with dynamic stdin support, Pyodide WebAssembly fallback, and VS Code-grade keybindings.</div>
+          <div class="card-pill-row">
+            <span class="micro-pill">&lt;15ms Latency</span>
+            <span class="micro-pill">Interactive Stdin</span>
+            <span class="micro-pill">WASM Fallback</span>
+          </div>
+        </div>
+
+        <div class="card card-glow-green">
+          <div class="card-icon">📄</div>
+          <div class="card-title">1-Click Lab Exporter</div>
+          <div class="card-desc">Industry-first automated college laboratory practical manual generator complete with Aim, Algorithm, Code, Output, and Viva Q&A.</div>
+          <div class="card-pill-row">
+            <span class="micro-pill">A4 Print Ready</span>
+            <span class="micro-pill">Viva Prep</span>
+            <span class="micro-pill">Pure Python Core</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 30px; display: flex; gap: 20px; align-items: center;">
+        <span style="font-size: 0.88rem; color: #94a3b8;">Created & Architected by: <strong style="color: #fff;">Priyanshu Yadav</strong></span>
+        <span style="color: rgba(255,255,255,0.2);">|</span>
+        <span style="font-size: 0.88rem; color: #94a3b8;">Platform: <strong style="color: #38bdf8;">Standard Python 3 & Native Web Standards</strong></span>
+        <span style="color: rgba(255,255,255,0.2);">|</span>
+        <span style="font-size: 0.88rem; color: #34d399;">Status: <strong style="color: #34d399;">Live & Production-Ready</strong></span>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: Problem Statement -->
+    <section class="slide" data-slide="2">
+      <div class="slide-badge" style="color: var(--accent-rose); border-color: rgba(244, 63, 94, 0.3);">⚠️ The Core Problem</div>
+      <h2 class="slide-title">Why 90% of Coding Beginners Give Up</h2>
+      <p class="slide-subtitle">
+        Traditional computer science education treats beginners like compilers, ignoring cognitive science, human psychology, and fear of failure.
+      </p>
+
+      <div class="grid-4">
+        <div class="card" style="border-color: rgba(244, 63, 94, 0.3);">
+          <div class="card-icon">🛑</div>
+          <div class="card-title">Cognitive Friction</div>
+          <div class="card-desc">Complex setup hurdles (PATH errors, IDE crashes, package mismatches) exhaust student motivation before writing their first loop.</div>
+        </div>
+
+        <div class="card" style="border-color: rgba(251, 191, 36, 0.3);">
+          <div class="card-icon">📖</div>
+          <div class="card-title">Boring Wall of Text</div>
+          <div class="card-desc">500-page dense textbook PDFs with formal theoretical jargon. No real-world analogies, visual models, or interactive discovery.</div>
+        </div>
+
+        <div class="card" style="border-color: rgba(168, 85, 247, 0.3);">
+          <div class="card-icon">💀</div>
+          <div class="card-title">Cryptic Tracebacks</div>
+          <div class="card-desc">Errors like <code>IndexError</code> or <code>TypeError</code> terrify junior students without explaining <em>why</em> the bug happened in plain street English/Hindi.</div>
+        </div>
+
+        <div class="card" style="border-color: rgba(56, 189, 248, 0.3);">
+          <div class="card-icon">📉</div>
+          <div class="card-title">No Habit Engine</div>
+          <div class="card-desc">Zero positive reinforcement. No streak accountability, dopamine rewards, or ego satisfaction to keep students returning daily.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: The Elysia Philosophy & Habit Engineering -->
+    <section class="slide" data-slide="3">
+      <div class="slide-badge" style="color: var(--accent-purple); border-color: rgba(168, 85, 247, 0.3);">💡 Educational Philosophy</div>
+      <h2 class="slide-title">Habit Engineering & Psychological Hooks</h2>
+      <p class="slide-subtitle">
+        Borrowing the neurological retention mechanics of modern apps (TikTok, Instagram, Duolingo) to make learning Python irresistible.
+      </p>
+
+      <div class="grid-3">
+        <div class="card card-glow-purple">
+          <div class="card-icon">👑</div>
+          <div class="card-title">Ego-Driven Rank Ladder</div>
+          <div class="card-desc">
+            Students hate being called beginners. Elysia hurts the user's ego playfully, urging them to climb from <strong>NOOB (🐣)</strong> to <strong>KEYBOARD TOURIST (💻)</strong>, <strong>SYNTAX WARRIOR (⚔️)</strong>, and <strong>GRANDMASTER (👑)</strong>.
+          </div>
+        </div>
+
+        <div class="card card-glow-cyan">
+          <div class="card-icon">🔥</div>
+          <div class="card-title">Daily Streak Loss Aversion</div>
+          <div class="card-desc">
+            "Don't Break the Chain" psychological trigger. The navbar streak counter resets if a day is skipped, driving daily active study habit loops.
+          </div>
+        </div>
+
+        <div class="card card-glow-amber">
+          <div class="card-icon">🎉</div>
+          <div class="card-title">Dopamine Particle Physics</div>
+          <div class="card-desc">
+            Every passed test case triggers an explosion of 90 high-speed confetti particles, audio synthesizer fanfare, and instant XP credit (+50 XP).
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: Curriculum Architecture (Zero to Advanced) -->
+    <section class="slide" data-slide="4">
+      <div class="slide-badge">📚 Academic Structure</div>
+      <h2 class="slide-title">19 Granular Subtopics (Zero to Hero)</h2>
+      <p class="slide-subtitle">
+        Curriculum divided into 7 sequential modules structured so even a middle-school student can become an advanced Python architect.
+      </p>
+
+      <div class="grid-4" style="font-size: 0.88rem;">
+        <div class="card">
+          <div class="card-title" style="color: #38bdf8;">Unit 1: Foundations</div>
+          <ul style="color: #94a3b8; margin-left: 16px; line-height: 1.6;">
+            <li>Python Genesis & Setup</li>
+            <li>Variables & Memory Boxes</li>
+            <li>Data Types & Type Casting</li>
+            <li><code>print()</code>, <code>input()</code>, f-strings</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-title" style="color: #a855f7;">Unit 2: Logic & Decisions</div>
+          <ul style="color: #94a3b8; margin-left: 16px; line-height: 1.6;">
+            <li>Comparison Operators</li>
+            <li><code>if-elif-else</code> Roadblocks</li>
+            <li>Logical <code>and</code>, <code>or</code>, <code>not</code></li>
+            <li>Nested Conditional Logic</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-title" style="color: #34d399;">Unit 3: Loops & Iteration</div>
+          <ul style="color: #94a3b8; margin-left: 16px; line-height: 1.6;">
+            <li><code>while</code> Loops & Counters</li>
+            <li><code>for</code> Loops & <code>range()</code></li>
+            <li>Loop Control: <code>break</code> & <code>continue</code></li>
+            <li>Nested Patterns & Tables</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-title" style="color: #fbbf24;">Unit 4: Data Structures</div>
+          <ul style="color: #94a3b8; margin-left: 16px; line-height: 1.6;">
+            <li>Lists, Indexing & Slicing</li>
+            <li>Tuples (Immutable Locks)</li>
+            <li>Dictionaries (Key-Value)</li>
+            <li>Sets & Hash Lookups</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-top: 16px;">
+        <div class="card">
+          <div class="card-title" style="color: #38bdf8;">Unit 5: Functions & Scope</div>
+          <div class="card-desc"><code>def</code> keyword, positional & keyword arguments, return values, and local vs global variable scoping.</div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="color: #a855f7;">Unit 6: Object-Oriented OOP</div>
+          <div class="card-desc">Classes, blueprints, <code>__init__</code> constructors, <code>self</code> pointer, inheritance, and encapsulation.</div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="color: #f43f5e;">Unit 7: Exceptions & File I/O</div>
+          <div class="card-desc">Bulletproof error handling with <code>try-except-finally</code> and file read/write operations.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: Anatomy of a Subtopic -->
+    <section class="slide" data-slide="5">
+      <div class="slide-badge" style="color: var(--accent-green); border-color: rgba(52, 211, 153, 0.3);">🔬 Micro-Pedagogy</div>
+      <h2 class="slide-title">Anatomy of Every Subtopic Card</h2>
+      <p class="slide-subtitle">
+        Every single concept follows an identical 7-tier mastery blueprint to eliminate ambiguity and build unshakable muscle memory.
+      </p>
+
+      <div class="grid-2">
+        <div class="card card-glow-cyan">
+          <div class="card-title" style="color: #38bdf8;">1. Core Theory & Street Analogy</div>
+          <p class="card-desc" style="margin-bottom: 8px;">
+            Dual language explanation (English & Hinglish) paired with everyday relatable metaphors (e.g. Variables as labeled lunchboxes).
+          </p>
+
+          <div class="card-title" style="color: #a855f7; margin-top: 14px;">2. Golden Syntax Rule (Kanoon)</div>
+          <p class="card-desc" style="margin-bottom: 8px;">
+            Precise rule of why we use this syntax and what happens if a colon <code>:</code> or quotation mark is missed.
+          </p>
+
+          <div class="card-title" style="color: #34d399; margin-top: 14px;">3. Two Ready-to-Try Examples</div>
+          <p class="card-desc">
+            Complete with 1-click "Try Example 1" and "Try Example 2" buttons that auto-populate the interactive sandbox.
+          </p>
+        </div>
+
+        <div class="card card-glow-purple">
+          <div class="card-title" style="color: #fbbf24;">4. Live Coding Challenge</div>
+          <p class="card-desc" style="margin-bottom: 8px;">
+            Hands-on problem statement with explicit Expected Output test cases to verify code correctness.
+          </p>
+
+          <div class="card-title" style="color: #38bdf8; margin-top: 14px;">5. Senior Bhaiya Ego Cheer</div>
+          <p class="card-desc" style="margin-bottom: 8px;">
+            Humorous motivational feedback (e.g., <em>"Maan gaye Ustaad! Ab tumhare aage Python loops hath jodenge!"</em>).
+          </p>
+
+          <div class="card-title" style="color: #f43f5e; margin-top: 14px;">6. Hint Accordion & Hidden Solution</div>
+          <p class="card-desc">
+            Emergency reveal button with 1-click clipboard copy for students who get stuck, preventing dropouts.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: Split-Screen Live IDE -->
+    <section class="slide" data-slide="6">
+      <div class="slide-badge">⚡ Engineering Excellence</div>
+      <h2 class="slide-title">Split-Screen Live IDE Architecture</h2>
+      <p class="slide-subtitle">
+        Eliminates the friction of switching windows. Theory sits on the left, high-speed execution sandbox sits on the right.
+      </p>
+
+      <div class="grid-3">
+        <div class="card card-glow-cyan">
+          <div class="metric-hero">&lt;15ms</div>
+          <div class="card-title">Local Python Subprocess</div>
+          <div class="card-desc">Native OS Python execution with timeout safeguards (3.0s threshold) protecting against infinite recursion and while-loop freezes.</div>
+        </div>
+
+        <div class="card card-glow-green">
+          <div class="metric-hero">100%</div>
+          <div class="card-title">Interactive Stdin Engine</div>
+          <div class="card-desc">Dynamic terminal input bar supporting <code>input()</code> and <code>int(input())</code> without socket hangs or server blocking.</div>
+        </div>
+
+        <div class="card card-glow-purple">
+          <div class="metric-hero">WASM</div>
+          <div class="card-title">Pyodide WebAssembly</div>
+          <div class="card-desc">Zero-backend client fallback! Runs full CPython compiled into WebAssembly inside the browser for true offline use.</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 20px; background: rgba(3, 7, 18, 0.7);">
+        <div class="card-title" style="color: #38bdf8;">VS Code-Grade Keyboard Shortcuts & Utilities</div>
+        <div class="grid-4" style="margin-top: 8px; font-size: 0.85rem; color: #94a3b8;">
+          <div>⌨️ <strong>Tab Indent:</strong> 4 true spaces</div>
+          <div>⚡ <strong>Ctrl+Enter:</strong> Run Code</div>
+          <div>() <strong>Auto Brackets:</strong> Quotes & brackets</div>
+          <div>📍 <strong>Caret Tracker:</strong> Live Ln & Col</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: The Visual Handbook -->
+    <section class="slide" data-slide="7">
+      <div class="slide-badge" style="color: var(--accent-cyan); border-color: rgba(56, 189, 248, 0.3);">🎨 Visual Cognition</div>
+      <h2 class="slide-title">The Visual Handbook (Mental Models)</h2>
+      <p class="slide-subtitle">
+        Abstract programming concepts transformed into 8 spatial multimedia chapters using real-world mechanical diagrams.
+      </p>
+
+      <div class="grid-4">
+        <div class="card">
+          <div class="card-icon">🚀</div>
+          <div class="card-title">Ch 1: Python Superpower</div>
+          <div class="card-desc">Why Python reads like clean English while C++/Java require 10 lines of boilerplate.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">📦</div>
+          <div class="card-title">Ch 2: Memory Boxes</div>
+          <div class="card-desc">Variables visualized as labeled warehouse containers storing mutable payloads.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">🚥</div>
+          <div class="card-title">Ch 4: Traffic Signals</div>
+          <div class="card-desc">Control flow and <code>if-elif-else</code> visualized as railroad tracks and switches.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">🎡</div>
+          <div class="card-title">Ch 5: Ferris Wheels</div>
+          <div class="card-desc"><code>while</code> and <code>for</code> loops visualized as rotating carnival wheels with break pins.</div>
+        </div>
+      </div>
+
+      <div class="card card-glow-cyan" style="margin-top: 20px; display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+        <div>
+          <div class="card-title" style="margin-bottom: 2px;">1-Click Sandbox Transfer</div>
+          <div class="card-desc">Every slide has a "Send to Sandbox" button that loads its interactive code snippet into the editor instantly.</div>
+        </div>
+        <span class="slide-badge" style="margin: 0;">8 Chapters | 40+ Slides</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: Socratic Senior AI & Doubt Buster -->
+    <section class="slide" data-slide="8">
+      <div class="slide-badge" style="color: var(--accent-amber); border-color: rgba(251, 191, 36, 0.3);">🤖 Socratic AI Mentorship</div>
+      <h2 class="slide-title">Socratic Senior Bhaiya AI & 60s Doubt Buster</h2>
+      <p class="slide-subtitle">
+        Instead of spoon-feeding answers, Elysia acts as a street-smart senior who guides students through the debugging mindset.
+      </p>
+
+      <div class="grid-2">
+        <div class="card card-glow-amber">
+          <div class="card-icon">🕵️‍♂️</div>
+          <div class="card-title">Cryptic Traceback Decoder</div>
+          <div class="card-desc" style="margin-bottom: 12px;">
+            Automatically detects Python exceptions and translates them into intuitive Hinglish analogies:
+          </div>
+          <div class="code-box">
+# Traceback Detected: TypeError: can only concatenate str to str
+Senior Bhaiya: "Bhai! String aur Integer ko '+' se jodne ki koshish kar rahe ho?
+Ye waisa hi hai jaise Fevicol se Samosa chipkana!
+str() lagao ya f-string use karo!"
+          </div>
+        </div>
+
+        <div class="card card-glow-cyan">
+          <div class="card-icon">🔍</div>
+          <div class="card-title">60-Second Instant Doubt Buster</div>
+          <div class="card-desc" style="margin-bottom: 12px;">
+            Full-text search engine indexed across all 19 subtopics and question bank for instant last-minute exam recall:
+          </div>
+          <ul style="color: #94a3b8; margin-left: 20px; font-size: 0.9rem; line-height: 1.7;">
+            <li>Type <code>"input"</code>: Instant rule for <code>int(input())</code> vs string</li>
+            <li>Type <code>"slice"</code>: Visual slice formula <code>[start:stop:step]</code></li>
+            <li>Type <code>"colon"</code>: Syntax refresher on Python indentation</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: Question Bank & Mock Exam -->
+    <section class="slide" data-slide="9">
+      <div class="slide-badge">📝 Evaluation Engine</div>
+      <h2 class="slide-title">Question Bank & Semester Mock Exam Mode</h2>
+      <p class="slide-subtitle">
+        Transforming exam panic into confidence through multi-tier filtering and real-time timed assessments.
+      </p>
+
+      <div class="grid-2">
+        <div class="card card-glow-purple">
+          <div class="card-icon">🎯</div>
+          <div class="card-title">Dynamic Multi-Filter Question Bank</div>
+          <div class="card-desc" style="margin-bottom: 10px;">
+            Instant interactive practice with 4 granular filter vectors:
+          </div>
+          <div class="grid-2" style="font-size: 0.85rem; color: #cbd5e1;">
+            <div>• Track: Python / HTML</div>
+            <div>• Difficulty: Easy / Medium / Hard</div>
+            <div>• Topics: All 19 Subtopics</div>
+            <div>• Question Count: 5 / 10 / 20</div>
+          </div>
+          <p class="card-desc" style="margin-top: 10px;">
+            Features expandable Amber Senior Hints for each question without spoiling the answer.
+          </p>
+        </div>
+
+        <div class="card card-glow-cyan">
+          <div class="card-icon">⏱️</div>
+          <div class="card-title">25-Minute Timed Mock Exam</div>
+          <div class="card-desc" style="margin-bottom: 10px;">
+            Simulates university terminal semester exams:
+          </div>
+          <ul style="color: #94a3b8; margin-left: 20px; font-size: 0.9rem; line-height: 1.7;">
+            <li><strong>Section A:</strong> Core Conceptual MCQs</li>
+            <li><strong>Section B:</strong> Bug Squashing & Code Debugging</li>
+            <li><strong>Section C:</strong> Logic & Algorithm Building</li>
+            <li><strong>Section D:</strong> Rapid-Fire Viva Voce</li>
+          </ul>
+          <p class="card-desc" style="margin-top: 10px;">
+            Automated instant scoring report card with feedback.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: 1-Click College Lab File Exporter -->
+    <section class="slide" data-slide="10">
+      <div class="slide-badge" style="color: var(--accent-green); border-color: rgba(52, 211, 153, 0.3);">📄 Industry First Feature</div>
+      <h2 class="slide-title">1-Click Printable College Lab File (PDF)</h2>
+      <p class="slide-subtitle">
+        Solving the biggest frustration of engineering students: writing endless repetitive laboratory practical record sheets.
+      </p>
+
+      <div class="grid-3">
+        <div class="card card-glow-green">
+          <div class="card-icon">🎓</div>
+          <div class="card-title">University Standard Header</div>
+          <div class="card-desc">Auto-formats Student Name, Roll Number, Subject Code (e.g. CSE101), Date, and Experiment Index.</div>
+        </div>
+
+        <div class="card card-glow-cyan">
+          <div class="card-icon">📐</div>
+          <div class="card-title">Algorithm & Clean Code</div>
+          <div class="card-desc">Includes step-by-step pseudo-algorithm, formatted syntax-highlighted Python code, and terminal sample output.</div>
+        </div>
+
+        <div class="card card-glow-purple">
+          <div class="card-icon">🗣️</div>
+          <div class="card-title">Pre-Loaded Viva Voce</div>
+          <div class="card-desc">Includes professor's favorite oral viva questions and model answers corresponding directly to the experiment.</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 20px; text-align: center; border-color: rgba(52, 211, 153, 0.4);">
+        <p style="color: #34d399; font-weight: 700; font-size: 1.05rem;">
+          🖨️ Zero Word formatting needed! Click "Generate" ➔ Browser Print Preview opens ➔ Save as A4 PDF or Print directly!
+        </p>
+      </div>
+    </section>
+
+    <!-- SLIDE 11: Security & Authentication System -->
+    <section class="slide" data-slide="11">
+      <div class="slide-badge">🔐 Security & Profiles</div>
+      <h2 class="slide-title">Pure Python Auth & Profile Picture System</h2>
+      <p class="slide-subtitle">
+        Zero external database dependencies. Pure standard Python cryptographic hashing and multi-user persistence.
+      </p>
+
+      <div class="grid-3">
+        <div class="card card-glow-cyan">
+          <div class="card-icon">🛡️</div>
+          <div class="card-title">SHA-256 + Salt Hashing</div>
+          <div class="card-desc">Passwords are never saved in plain text. Stored securely with cryptographic random salt hex strings in <code>data/users.json</code>.</div>
+        </div>
+
+        <div class="card card-glow-purple">
+          <div class="card-icon">📸</div>
+          <div class="card-title">Profile Picture Engine</div>
+          <div class="card-desc">Upload custom device photos (Base64 file stream) or choose from 8 developer avatars with glowing preview circles.</div>
+        </div>
+
+        <div class="card card-glow-green">
+          <div class="card-icon">🔄</div>
+          <div class="card-title">Multi-User Progress Isolation</div>
+          <div class="card-desc">Each user account maintains separate XP, daily streak, completed subtopic checklists, and study stopwatch times.</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 20px; background: rgba(15, 23, 42, 0.6);">
+        <div class="card-title" style="color: #38bdf8;">Dynamic Navbar Capsule Experience</div>
+        <p class="card-desc">
+          When logged out: Navbar displays clean <code>"✨ Sign In / Log In"</code> button.<br>
+          When logged in: Switches to a personal coder pill displaying circular avatar, name, and current rank (e.g. <em>Syntax Warrior</em>).
+        </p>
+      </div>
+    </section>
+
+    <!-- SLIDE 12: Gamification & Social 3D Flex Card -->
+    <section class="slide" data-slide="12">
+      <div class="slide-badge" style="color: var(--accent-purple); border-color: rgba(168, 85, 247, 0.3);">🏆 Viral Growth Mechanics</div>
+      <h2 class="slide-title">Gamification & 3D Holographic Flex Card</h2>
+      <p class="slide-subtitle">
+        Built-in organic growth engine that encourages students to showcase their coding achievements on social media.
+      </p>
+
+      <div class="grid-2">
+        <div class="card card-glow-purple">
+          <div class="card-icon">🎴</div>
+          <div class="card-title">3D Holographic Parallax Card</div>
+          <div class="card-desc" style="margin-bottom: 12px;">
+            Spatial computing physics: Card responds to mouse cursor angle with real-time 3D tilt and specular lighting highlights.
+          </div>
+          <ul style="color: #94a3b8; margin-left: 20px; font-size: 0.9rem; line-height: 1.7;">
+            <li>Displays User Avatar & Real Name</li>
+            <li>Current Ego Rank (e.g. <strong>PYTHON SLAYER</strong>)</li>
+            <li>Total Subtopics Mastered & Daily Streak</li>
+            <li>Optimized aspect ratio for Instagram Stories & WhatsApp</li>
+          </ul>
+        </div>
+
+        <div class="card card-glow-cyan">
+          <div class="card-icon">⏱️</div>
+          <div class="card-title">Live Productivity Stopwatch</div>
+          <div class="card-desc" style="margin-bottom: 12px;">
+            Real-time tick-by-tick time counter tracking study duration:
+          </div>
+          <div class="metric-hero" style="font-size: 2.2rem;">HH:MM:SS</div>
+          <p class="card-desc">
+            Tracks both <em>Time Spent Today</em> and <em>All-Time Learning Time</em>, automatically syncing to user profile and flex card.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 13: System Architecture & Tech Stack -->
+    <section class="slide" data-slide="13">
+      <div class="slide-badge">⚙️ Technical Architecture</div>
+      <h2 class="slide-title">System Blueprint & Technical Stack</h2>
+      <p class="slide-subtitle">
+        Engineered with a radical "Zero Bloat" philosophy: High performance, zero heavy pip frameworks, and sub-15ms response times.
+      </p>
+
+      <div class="grid-3">
+        <div class="card card-glow-cyan">
+          <div class="card-title" style="color: #38bdf8;">Frontend Architecture</div>
+          <ul style="color: #94a3b8; font-size: 0.88rem; line-height: 1.7; margin-left: 16px;">
+            <li>Semantic HTML5 & 3D Glassmorphism</li>
+            <li>Vanilla ES6+ Class Controller (<code>app.js</code>)</li>
+            <li>Pyodide WebAssembly Sandbox</li>
+            <li>Web Audio API Synthesizer</li>
+            <li>HTML5 Canvas Confetti Engine</li>
+          </ul>
+        </div>
+
+        <div class="card card-glow-purple">
+          <div class="card-title" style="color: #a855f7;">Backend Engine</div>
+          <ul style="color: #94a3b8; font-size: 0.88rem; line-height: 1.7; margin-left: 16px;">
+            <li>Standard Python 3 <code>http.server</code></li>
+            <li>Subprocess Execution Worker</li>
+            <li>Threaded Non-blocking Server</li>
+            <li>SHA-256 + Salt Authentication</li>
+            <li>Dynamic JSON Store (<code>data/</code>)</li>
+          </ul>
+        </div>
+
+        <div class="card card-glow-green">
+          <div class="card-title" style="color: #34d399;">Reliability & Testing</div>
+          <ul style="color: #94a3b8; font-size: 0.88rem; line-height: 1.7; margin-left: 16px;">
+            <li>9/9 Automated Unit Tests (<code>tests/</code>)</li>
+            <li>Execution Time: 0.034s</li>
+            <li>100% Offline Capability</li>
+            <li>Zero SQL Server Overheads</li>
+            <li>Cross-Platform (Mac/Win/Linux)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 14: Future Roadmap & Conclusion -->
+    <section class="slide" data-slide="14">
+      <div class="slide-badge" style="color: var(--accent-green); border-color: rgba(52, 211, 153, 0.3);">🚀 Roadmap & Vision</div>
+      <h2 class="slide-title">The Future of Elysia Code</h2>
+      <p class="slide-subtitle">
+        From a standalone mastery platform to the world's most engaging computer science learning network.
+      </p>
+
+      <div class="grid-3">
+        <div class="card card-glow-cyan">
+          <div class="card-icon">⚔️</div>
+          <div class="card-title">Phase 2: 1v1 Code Duels</div>
+          <div class="card-desc">Real-time WebSocket multiplayer coding battles where students race to debug syntax errors and solve algorithms.</div>
+        </div>
+
+        <div class="card card-glow-purple">
+          <div class="card-icon">🌐</div>
+          <div class="card-title">Phase 3: Web Dev & AI Tracks</div>
+          <div class="card-desc">Expanding beyond Python to full interactive sandboxes for HTML/CSS/JS, SQL, and practical AI/Machine Learning.</div>
+        </div>
+
+        <div class="card card-glow-green">
+          <div class="card-icon">🏫</div>
+          <div class="card-title">Phase 4: College Portal</div>
+          <div class="card-desc">Professor dashboard for assigning weekly lab exercises, auto-grading submissions, and tracking batch-wide weak points.</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 24px; text-align: center; background: linear-gradient(135deg, rgba(2, 132, 199, 0.15), rgba(124, 58, 237, 0.15)); border-color: rgba(56, 189, 248, 0.4);">
+        <h3 style="font-size: 1.6rem; color: #fff; margin-bottom: 6px;">Thank You! Questions & Live Demo</h3>
+        <p style="color: #94a3b8; font-size: 1rem;">
+          Platform Live at: <strong style="color: #38bdf8;">http://localhost:8080</strong> | Press <strong>[Cmd+P / Ctrl+P]</strong> to Print to PDF!
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Deck Controls -->
+  <footer id="deck-controls">
+    <div class="deck-meta">
+      <div class="brand-mark">
+        <div class="brand-dot"></div>
+        <span>Elysia Code</span>
+      </div>
+      <div class="slide-counter" id="slide-num">Slide 1 / 14</div>
+    </div>
+
+    <div class="nav-btn-group">
+      <button class="nav-btn" onclick="prevSlide()">◀ Prev</button>
+      <button class="nav-btn nav-btn-primary" onclick="nextSlide()">Next ▶</button>
+      <button class="nav-btn" onclick="toggleFullScreen()">⛶ Fullscreen</button>
+      <button class="nav-btn" onclick="window.print()" style="background: rgba(52, 211, 153, 0.15); color: #34d399; border-color: rgba(52, 211, 153, 0.4);">🖨️ Export PDF</button>
+      <a href="/" class="nav-btn" style="text-decoration: none;">🏠 Back to App</a>
+    </div>
+  </footer>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 14;
+    const slides = document.querySelectorAll('.slide');
+    const progressBar = document.getElementById('progress-bar');
+    const counter = document.getElementById('slide-num');
+
+    function showSlide(index) {
+      if (index < 1) index = 1;
+      if (index > totalSlides) index = totalSlides;
+      currentSlide = index;
+
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active', (idx + 1) === currentSlide);
+      });
+
+      if (progressBar) {
+        progressBar.style.width = `${(currentSlide / totalSlides) * 100}%`;
+      }
+      if (counter) {
+        counter.textContent = `Slide ${currentSlide} / ${totalSlides}`;
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        showSlide(currentSlide + 1);
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        showSlide(currentSlide - 1);
+      }
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // Keyboard Shortcuts
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        showSlide(1);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        showSlide(totalSlides);
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullScreen();
+      }
+    });
+
+    // Touch Swipe Navigation for Tablets & Phones
+    let touchStartX = 0;
+    window.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    window.addEventListener('touchend', (e) => {
+      const touchEndX = e.changedTouches[0].screenX;
+      if (touchEndX < touchStartX - 50) nextSlide();
+      if (touchEndX > touchStartX + 50) prevSlide();
+    }, { passive: true });
+  </script>
+</body>
+</html>

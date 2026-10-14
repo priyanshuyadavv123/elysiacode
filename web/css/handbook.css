@@ -1,0 +1,252 @@
+/* ==========================================================================
+   ✨ ELYSIA CODE: VISUAL PYTHON HANDBOOK (E-BOOK) STYLES
+   ==========================================================================
+   📌 KYA KAAM HAI IS FILE KA (WHAT IT DOES):
+     Ye stylesheet Visual Python Handbook (E-Book) ke 180+ visual slides,
+     flowcharts, memory block diagrams aur chapter navigation ko style karta hai.
+
+   👁️ WEB PAGE PE KYA DIKHTA HAI:
+     Slide-by-slide visual presentation layout: Left side me visual diagrams
+     (boxes, arrows, memory pointers) aur Right side me deep notes, tips aur runnable code.
+
+   💡 KYUN USE KIYA (WHY WE USE THIS):
+     Boring flat PDF padhne ke badle interactive, glassmorphic presentation format
+     students ko coding concepts jaldi grasp karne me madad karta hai.
+
+   ⚠️ AGAR CHANGE/DELETE KAREIN TO:
+     Handbook ke slides toot jayenge, diagrams screen se bahar overflow honge,
+     aur chapter switching buttons ka look kharab ho jayega.
+   ========================================================================== */
+
+/* 
+  📌 E-BOOK TOP HEADER CARD (.handbook-header-card)
+  📌 KYA KAAM HAI:
+    E-Book ka title, subtitle, search bar aur chapter statistics ko frame karta hai.
+  👁️ WEB PAGE PE KYA DIKHTA HAI:
+    Frosted glass surface jisme luminous borders hain.
+*/
+.handbook-header-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xl);
+  padding: 24px 32px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* 
+  📌 CHAPTER NAVIGATION SCROLL STRIP (.handbook-chapter-strip & .handbook-chapter-btn)
+  📌 KYA KAAM HAI:
+    Saare 8 Chapters (Intro, Strings, Numbers, Logic, Conditionals, Loops, Data Structures, Functions)
+    ko ek horizontal scrollable menu strip me show karta hai.
+  👁️ WEB PAGE PE KYA DIKHTA HAI:
+    Dark glass capsule buttons jinko click karne par active chapter glowing Cyan ban jata hai.
+  💡 KYUN USE KIYA:
+    `overflow-x: auto` aur `white-space: nowrap` se buttons ek line me rehte hain 
+    aur touch screen ya mouse wheel se smoothly horizontal scroll hote hain.
+  ⚠️ AGAR CHANGE/DELETE KAREIN TO:
+    Chapters vertical stack ho jayenge aur screen ka bohot bada hissa gher lenge.
+*/
+.handbook-chapter-strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+  scrollbar-width: thin;
+}
+
+.handbook-chapter-btn {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 10px 18px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+
+.handbook-chapter-btn:hover, .handbook-chapter-btn.active {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(168, 85, 247, 0.2));
+  border-color: var(--accent-cyan);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+}
+
+/* 
+  ===========================================================================
+  📌 SLIDE VIEWER SPLIT LAYOUT (.slide-viewer-container)
+  ===========================================================================
+  📌 KYA KAAM HAI:
+    Screen ko do panels me divide karta hai: 
+    - Left side (1.1 fraction): Visual Mental Model Diagram
+    - Right side (1 fraction): In-Depth Notes & Executable Code Snippet
+  👁️ WEB PAGE PE KYA DIKHTA HAI:
+    PowerPoint / Keynote jaisa side-by-side balanced modern interactive presentation.
+  💡 KYUN USE KIYA:
+    `grid-template-columns: 1.1fr 1fr` diagram ko thoda extra width deta hai 
+    taaki flowcharts aur tables bina squeeze hue comfortable render hon.
+*/
+.slide-viewer-container {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+/* 
+  📌 LEFT PANEL: VISUAL DIAGRAM CARD (.slide-visual-card)
+  📌 KYA KAAM HAI:
+    Slide ke visual concept (Data With Baraa style diagrams) ko center me display karta hai.
+  👁️ WEB PAGE PE KYA DIKHTA HAI:
+    Deep dark space-black card with glowing border, jisme top par slide topic tag 
+    aur bottom par Previous/Next slide controls hote hain.
+*/
+.slide-visual-card {
+  background: rgba(10, 15, 30, 0.85);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid var(--border-glass-bright);
+  border-radius: var(--radius-xl);
+  padding: 30px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 520px;
+}
+
+/* 
+  📌 VISUAL DISPLAY CANVAS (.slide-visual-display)
+  📌 KYA KAAM HAI:
+    Diagram ke components (Nodes, Arrows, Matrix) ko perfectly center align karta hai.
+  👁️ WEB PAGE PE KYA DIKHTA HAI:
+    Darkest pitch-black rounded screen jiske andar flowchart float karta hai.
+  💡 KYUN USE KIYA:
+    `flex: 1` se ye box card ke andar bachi hui saari available vertical space le leta hai.
+*/
+.slide-visual-display {
+  background: rgba(3, 7, 18, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin: 16px 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 
+  📌 RIGHT PANEL: STRUCTURED NOTES CARD (.slide-notes-card)
+  📌 KYA KAAM HAI:
+    Current slide ke Key Takeaways, College Exam Tips, aur runnable Python code show karta hai.
+  👁️ WEB PAGE PE KYA DIKHTA HAI:
+    Frosted card with internal scrolling agar content lamba ho.
+  💡 KYUN USE KIYA:
+    `max-height: 700px` aur `overflow-y: auto` slide ko screen ke boundary ke andar lock rakhta hai.
+*/
+.slide-notes-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xl);
+  padding: 30px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-height: 700px;
+  overflow-y: auto;
+}
+
+/* 
+  📌 BOTTOM SLIDE NAVIGATION BAR (.slide-nav-bar & .slide-counter-badge)
+  📌 KYA KAAM HAI:
+    Previous aur Next slide buttons aur current page counter (e.g. Slide 3 of 12) render karta hai.
+  👁️ WEB PAGE PE KYA DIKHTA HAI:
+    Slide card ke bottom par clean border ke saath aligned navigation controls.
+*/
+.slide-nav-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border-glass);
+  padding-top: 16px;
+  margin-top: 12px;
+}
+
+.slide-counter-badge {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--accent-cyan);
+  font-weight: 700;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 4px 14px;
+  border-radius: 9999px;
+}
+
+/* 
+  ===========================================================================
+  📌 VISUAL MENTAL MODEL NODES & ARROWS (.diagram-node & .diagram-arrow)
+  ===========================================================================
+  📌 KYA KAAM HAI:
+    Diagrams ke andar process steps, variables, and logic connectors banata hai.
+  👁️ WEB PAGE PE KYA DIKHTA HAI:
+    Cyan border wale blocks jo Purple colored arrows (`➔`, `▼`) se jude hote hain.
+  💡 KYUN USE KIYA:
+    Text se zyada visual flowchart dimag me 10x tezi se retain hota hai.
+*/
+.diagram-node {
+  background: rgba(13, 20, 39, 0.9);
+  border: 2px solid var(--accent-cyan);
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.25);
+  display: inline-block;
+  margin: 6px;
+}
+
+.diagram-arrow {
+  color: var(--accent-purple);
+  font-size: 1.4rem;
+  font-weight: 900;
+  margin: 0 8px;
+  display: inline-block;
+}
+
+/* 
+  ===========================================================================
+  📌 MOBILE & TABLET RESPONSIVE RULES
+  ===========================================================================
+  📌 KYA KAAM HAI:
+    Jab screen 1024px se choti ho (mobile ya iPad portrait), to 2 columns ko 1 column me stack karta hai.
+  ⚠️ AGAR CHANGE/DELETE KAREIN TO:
+    Mobile screen par visual diagrams aur notes squeeze hokar ek doosre ke upar cut jayenge.
+*/
+@media (max-width: 1024px) {
+  .slide-viewer-container {
+    grid-template-columns: 1fr;
+  }
+}

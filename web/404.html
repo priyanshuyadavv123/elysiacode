@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 — Lost in Cyberspace | Elysia School</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #070913;
+      --panel-dark: rgba(13, 18, 36, 0.82);
+      --border-dark: rgba(255, 255, 255, 0.08);
+      --accent-primary: #818cf8;
+      --accent-cyan: #38bdf8;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --font-serif: 'Playfair Display', Georgia, serif;
+      --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow-x: hidden;
+      padding: 24px;
+    }
+
+    /* Ambient Celestial Glow */
+    .aurora-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .aurora-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.35;
+      animation: floatOrb 18s ease-in-out infinite alternate;
+    }
+    .orb-1 { width: 450px; height: 450px; background: #6366f1; top: 10%; left: 15%; }
+    .orb-2 { width: 400px; height: 400px; background: #0284c7; bottom: 10%; right: 15%; animation-duration: 22s; }
+    .orb-3 { width: 350px; height: 350px; background: #c084fc; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.2; }
+
+    @keyframes floatOrb {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(30px, 40px) scale(1.15); }
+    }
+
+    /* 404 Container */
+    .error-card {
+      position: relative;
+      z-index: 10;
+      max-width: 640px;
+      width: 100%;
+      background: var(--panel-dark);
+      backdrop-filter: blur(24px);
+      border: 1px solid var(--border-dark);
+      border-radius: 24px;
+      padding: 48px 36px;
+      text-align: center;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 40px rgba(99, 102, 241, 0.15);
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(129, 140, 248, 0.3);
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .error-code {
+      font-family: var(--font-serif);
+      font-size: clamp(5rem, 14vw, 7.5rem);
+      font-weight: 800;
+      line-height: 1;
+      background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+      letter-spacing: -2px;
+      filter: drop-shadow(0 4px 20px rgba(129, 140, 248, 0.3));
+    }
+
+    .error-title {
+      font-family: var(--font-serif);
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 12px;
+    }
+
+    .error-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 32px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .error-desc .hinglish-note {
+      display: block;
+      margin-top: 8px;
+      color: #cbd5e1;
+      font-size: 0.88rem;
+    }
+
+    /* Action Buttons */
+    .actions-grid {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 22px;
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 16px rgba(79, 70, 229, 0.35);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(79, 70, 229, 0.5);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-main);
+      border: 1px solid var(--border-dark);
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    /* Auto redirect timer */
+    .redirect-timer {
+      font-size: 0.82rem;
+      color: #64748b;
+      font-family: var(--font-mono);
+    }
+    .redirect-timer span {
+      color: var(--accent-cyan);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="aurora-container">
+    <div class="aurora-orb orb-1"></div>
+    <div class="aurora-orb orb-2"></div>
+    <div class="aurora-orb orb-3"></div>
+  </div>
+
+  <div class="error-card">
+    <div class="brand-badge">
+      <span>✨</span>
+      <span>ELYSIA SCHOOL ACADEMY</span>
+    </div>
+
+    <div class="error-code">404</div>
+    <h1 class="error-title">Lost in Cyberspace</h1>
+    
+    <p class="error-desc">
+      The chapter, challenge, or artifact you are looking for has either vanished or moved to a different coordinate.
+      <span class="hinglish-note">Lagta hai aap curriculum ke raste se bhatak kar digital void me aa gaye hain!</span>
+    </p>
+
+    <div class="actions-grid">
+      <a href="/" class="btn-primary">
+        <span>🏠</span> Return to Dashboard
+      </a>
+      <a href="/#course" class="btn-secondary">
+        <span>📖</span> Python Course
+      </a>
+      <a href="/#lab" class="btn-secondary">
+        <span>💻</span> Coding Lab
+      </a>
+    </div>
+
+    <div class="redirect-timer">
+      Auto-returning to campus in <span id="countdown">8</span> seconds... 
+      <a href="javascript:void(0)" onclick="stopTimer()" style="color:#94a3b8; text-decoration:underline; margin-left:6px;">Stay here</a>
+    </div>
+  </div>
+
+  <script>
+    let secondsLeft = 8;
+    let timerId = null;
+
+    function updateTimer() {
+      const el = document.getElementById('countdown');
+      if (!el) return;
+      secondsLeft--;
+      if (secondsLeft <= 0) {
+        clearInterval(timerId);
+        window.location.href = '/';
+      } else {
+        el.textContent = secondsLeft;
+      }
+    }
+
+    function stopTimer() {
+      if (timerId) clearInterval(timerId);
+      const timerEl = document.querySelector('.redirect-timer');
+      if (timerEl) timerEl.textContent = 'Auto-redirect paused. Explore at your own pace.';
+    }
+
+    timerId = setInterval(updateTimer, 1000);
+  </script>
+</body>
+</html>
