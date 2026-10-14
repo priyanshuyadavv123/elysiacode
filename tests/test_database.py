@@ -178,5 +178,228 @@ class TestDatabaseArchitecture(unittest.TestCase):
                 self.assertFalse(username.startswith("loadtest_"), f"Loadtest user found in production data: {username}")
 
 
+    def test_postgres_engine_detection(self):
+        """Verify PostgreSQL detection via DATABASE_URL and DB_TYPE without affecting defaults."""
+        old_url = os.environ.get("DATABASE_URL")
+        old_type = os.environ.get("DB_TYPE")
+        try:
+            # 1. postgresql:// url
+            os.environ["DATABASE_URL"] = "postgresql://user:pass@ep-cool-db.aws.supabase.com:6543/postgres"
+            os.environ.pop("DB_TYPE", None)
+            self.assertEqual(db.get_engine_type(), "postgres")
+            self.assertTrue(db.is_postgres_mode())
+            self.assertFalse(db.is_mysql_mode())
+
+            # 2. postgres:// url
+            os.environ["DATABASE_URL"] = "postgres://user:pass@localhost:5432/elysia"
+            self.assertEqual(db.get_engine_type(), "postgres")
+            self.assertTrue(db.is_postgres_mode())
+
+            # 3. DB_TYPE=postgres
+            os.environ.pop("DATABASE_URL", None)
+            os.environ["DB_TYPE"] = "postgres"
+            self.assertEqual(db.get_engine_type(), "postgres")
+            self.assertTrue(db.is_postgres_mode())
+
+            # 4. DB_TYPE=postgresql
+            os.environ["DB_TYPE"] = "postgresql"
+            self.assertEqual(db.get_engine_type(), "postgres")
+            self.assertTrue(db.is_postgres_mode())
+
+            # 5. Default remains sqlite
+            os.environ.pop("DB_TYPE", None)
+            self.assertEqual(db.get_engine_type(), "sqlite")
+            self.assertFalse(db.is_postgres_mode())
+            self.assertFalse(db.is_mysql_mode())
+        finally:
+            if old_url is not None:
+                os.environ["DATABASE_URL"] = old_url
+            else:
+                os.environ.pop("DATABASE_URL", None)
+            if old_type is not None:
+                os.environ["DB_TYPE"] = old_type
+            else:
+                os.environ.pop("DB_TYPE", None)
+
+    def test_postgres_url_sanitization_and_config(self):
+        """Verify get_postgres_config correctly extracts parameters and masks credentials."""
+        old_url = os.environ.get("DATABASE_URL")
+        try:
+            secret_url = "postgresql://supa_admin:super_secret_password_123@aws-0-ap-south-1.pooler.supabase.com:6543/postgres?sslmode=require"
+            os.environ["DATABASE_URL"] = secret_url
+            cfg = db.get_postgres_config()
+            self.assertEqual(cfg["host"], "aws-0-ap-south-1.pooler.supabase.com")
+            self.assertEqual(cfg["port"], 6543)
+            self.assertEqual(cfg["user"], "supa_admin")
+            self.assertEqual(cfg["password"], "super_secret_password_123")
+            self.assertEqual(cfg["database"], "postgres")
+            self.assertEqual(cfg["sslmode"], "require")
+
+            # Sanitization must NEVER show password
+            sanitized = db.sanitize_db_url(secret_url)
+            self.assertNotIn("super_secret_password_123", sanitized)
+            self.assertIn("supa_admin:***@", sanitized)
+            self.assertIn("aws-0-ap-south-1.pooler.supabase.com", sanitized)
+        finally:
+            if old_url is not None:
+                os.environ["DATABASE_URL"] = old_url
+            else:
+                os.environ.pop("DATABASE_URL", None)
+
+    def test_postgres_safe_failure_without_driver(self):
+        """Verify connecting to PostgreSQL when driver is absent raises clean error without falling back to SQLite."""
+        old_url = os.environ.get("DATABASE_URL")
+        try:
+            os.environ["DATABASE_URL"] = "postgresql://user:secret123@127.0.0.1:5432/elysia"
+            # If neither driver is installed, connect must fail explicitly
+            if not db.HAS_PSYCOPG2 and not db.HAS_PSYCOPG:
+                with self.assertRaises(RuntimeError) as cm:
+                    with db.connect():
+                        pass
+                err_msg = str(cm.exception)
+                self.assertIn("PostgreSQL engine is configured", err_msg)
+                self.assertNotIn("secret123", err_msg)
+        finally:
+            if old_url is not None:
+                os.environ["DATABASE_URL"] = old_url
+            else:
+                os.environ.pop("DATABASE_URL", None)
+
+    def test_sql_translation_for_postgres(self):
+        """Verify SQL translation preserves string literals while mapping placeholders and keywords."""
+        t = db.translate_sql_for_postgres
+
+        # 1. Placeholders outside vs inside strings
+        q1 = "SELECT * FROM users WHERE name = 'Why? What?' AND id = ?"
+        self.assertEqual(t(q1), "SELECT * FROM users WHERE name = 'Why? What?' AND id = %s")
+
+        # 2. Multiple placeholders
+        q2 = "UPDATE users SET xp = ?, streak = ? WHERE id = ?"
+        self.assertEqual(t(q2), "UPDATE users SET xp = %s, streak = %s WHERE id = %s")
+
+        # 3. Backtick identifier escaping
+        q3 = "SELECT `value` FROM meta WHERE `key` = ?"
+        self.assertEqual(t(q3), 'SELECT "value" FROM meta WHERE "key" = %s')
+
+        # 4. INSERT OR IGNORE INTO
+        q4 = "INSERT OR IGNORE INTO users (id, username) VALUES (?, ?);"
+        self.assertEqual(t(q4), "INSERT INTO users (id, username) VALUES (%s, %s) ON CONFLICT DO NOTHING;")
+
+        # 5. REPLACE INTO meta
+        q5 = "REPLACE INTO meta (`key`, `value`) VALUES (?, ?)"
+        self.assertEqual(t(q5), 'INSERT INTO meta ("key", "value") VALUES (%s, %s) ON CONFLICT ("key") DO UPDATE SET "value" = EXCLUDED."value"')
+
+        # 6. INSERT OR REPLACE INTO meta
+        q6 = "INSERT OR REPLACE INTO meta (`key`, `value`) VALUES (?, ?);"
+        self.assertEqual(t(q6), 'INSERT INTO meta ("key", "value") VALUES (%s, %s) ON CONFLICT ("key") DO UPDATE SET "value" = EXCLUDED."value";')
+
+        # 7. PRAGMA no-op
+        q7 = "PRAGMA foreign_keys = ON"
+        self.assertTrue(t(q7).startswith("-- PRAGMA_NOOP:"))
+
+    def test_postgres_row_wrapper_parity(self):
+        """Verify PostgresRow supports dict lookup, positional index, tuple cast, and keys."""
+        data_dict = {"id": "usr_abc123", "username": "priyanshu", "xp": 350}
+        data_tuple = ("usr_abc123", "priyanshu", 350)
+        row = db.PostgresRow(data_dict, data_tuple)
+
+        # Dict access (case-insensitive)
+        self.assertEqual(row["id"], "usr_abc123")
+        self.assertEqual(row["ID"], "usr_abc123")
+        self.assertEqual(row["username"], "priyanshu")
+        self.assertEqual(row["xp"], 350)
+
+        # Positional index access
+        self.assertEqual(row[0], "usr_abc123")
+        self.assertEqual(row[1], "priyanshu")
+        self.assertEqual(row[2], 350)
+
+        # Tuple conversion
+        self.assertEqual(tuple(row), ("usr_abc123", "priyanshu", 350))
+
+        # Length and keys
+        self.assertEqual(len(row), 3)
+        self.assertIn("id", row.keys())
+        self.assertIn("username", row.keys())
+
+        # Missing key raises KeyError
+        with self.assertRaises(KeyError):
+            _ = row["nonexistent_column"]
+
+    def test_postgres_simulated_connection_and_transaction(self):
+        """Verify PostgresConnectionWrapper transaction, commit, rollback, and cursor handling using simulated mocks."""
+        from unittest.mock import MagicMock
+
+        mock_raw_conn = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.description = [("id",), ("username",), ("xp",)]
+        mock_cursor.fetchone.return_value = ("usr_sim_1", "sim_coder", 100)
+        mock_cursor.fetchall.return_value = [("usr_sim_1", "sim_coder", 100)]
+        mock_raw_conn.cursor.return_value = mock_cursor
+
+        wrapper = db.PostgresConnectionWrapper(mock_raw_conn)
+
+        # 1. Execute query and fetchone
+        res = wrapper.execute("SELECT `id`, `username`, `xp` FROM users WHERE id = ?", ("usr_sim_1",))
+        row = res.fetchone()
+        self.assertIsNotNone(row)
+        self.assertEqual(row["id"], "usr_sim_1")
+        self.assertEqual(row["username"], "sim_coder")
+        self.assertEqual(row[0], "usr_sim_1")
+
+        # Verify underlying call translated SQL
+        mock_cursor.execute.assert_called_with('SELECT "id", "username", "xp" FROM users WHERE id = %s', ('usr_sim_1',))
+
+        # 2. PRAGMA must be a no-op
+        pragma_res = wrapper.execute("PRAGMA foreign_keys=ON")
+        self.assertIsNone(pragma_res.fetchone())
+        self.assertEqual(pragma_res.fetchall(), [])
+
+        # 3. Commit and rollback
+        wrapper.commit()
+        mock_raw_conn.commit.assert_called_once()
+        wrapper.rollback()
+        mock_raw_conn.rollback.assert_called_once()
+        wrapper.close()
+        mock_cursor.close.assert_called()
+
+    def test_postgres_pool_thread_safety_simulated(self):
+        """Verify _PostgresPool handles multi-threaded acquisitions and returns correctly."""
+        from unittest.mock import MagicMock
+        import threading
+
+        pool = db._PostgresPool(max_size=5)
+
+        # Populate pool with simulated connections
+        mock_conns = []
+        for i in range(5):
+            mc = MagicMock()
+            mc.closed = 0
+            mock_cur = MagicMock()
+            mc.cursor.return_value.__enter__.return_value = mock_cur
+            mock_conns.append(mc)
+            pool.put(mc)
+        pool._created_count = 5
+
+        errors = []
+
+        def worker():
+            try:
+                c = pool.get()
+                import time
+                time.sleep(0.005)
+                pool.put(c)
+            except Exception as e:
+                errors.append(e)
+
+        threads = [threading.Thread(target=worker) for _ in range(15)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        self.assertEqual(len(errors), 0)
+
+
 if __name__ == "__main__":
     unittest.main()

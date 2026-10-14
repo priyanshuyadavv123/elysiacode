@@ -1,2 +1,9 @@
-# Zero external dependencies required.
+# Zero external dependencies required for default SQLite operation.
 # Elysia Code runs purely on standard Python 3.8+!
+#
+# Optional production database drivers:
+# For Supabase / PostgreSQL:
+# pip install psycopg2-binary
+# For MySQL / MariaDB:
+# pip install pymysql
+

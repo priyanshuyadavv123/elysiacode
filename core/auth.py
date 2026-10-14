@@ -161,10 +161,14 @@ def reset_rate_limits_for_tests():
 # ----------------------------------------------------------------- helpers
 def _row_to_user(row) -> Dict[str, Any]:
     """Database row -> dict for the browser (never includes the password hash)."""
-    try:
-        completed = json.loads(row["completed_subtopics"] or "[]")
-    except Exception:
-        completed = []
+    raw_sub = row["completed_subtopics"] if row else "[]"
+    if isinstance(raw_sub, list):
+        completed = raw_sub
+    else:
+        try:
+            completed = json.loads(raw_sub or "[]")
+        except Exception:
+            completed = []
     return {
         "id": row["id"],
         "name": row["name"],
@@ -411,10 +415,14 @@ def sync_user_progress(identifier: str = "", xp: int = 0, streak: int = 1, compl
         row = conn.execute("SELECT * FROM users WHERE username=?", (ident,)).fetchone()
         if row is None:
             return {"success": False, "error": "User not found."}
-        try:
-            old_done = json.loads(row["completed_subtopics"] or "[]")
-        except Exception:
-            old_done = []
+        raw_old = row["completed_subtopics"] if row else "[]"
+        if isinstance(raw_old, list):
+            old_done = raw_old
+        else:
+            try:
+                old_done = json.loads(raw_old or "[]")
+            except Exception:
+                old_done = []
         merged = _clean_completed(list(dict.fromkeys(list(old_done) + done)))
         conn.execute(
             "UPDATE users SET xp=?, streak=?, completed_subtopics=?, today_seconds=?, total_seconds=? WHERE id=?",
