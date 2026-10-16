@@ -402,20 +402,9 @@ MANDATORY RULES:
                     if not q_data.get("xp"):
                         q_data["xp"] = 50
 
-                    # Verify Python solution_code locally to capture 100% accurate output
+                    # Verify Python solution_code safely in browser Pyodide (never on server)
                     if is_python and q_data.get("solution_code"):
-                        old_stdout = sys.stdout
-                        capture = StringIO()
-                        try:
-                            sys.stdout = capture
-                            exec(q_data["solution_code"], {})
-                            real_out = capture.getvalue().strip()
-                            if real_out:
-                                q_data["expected_output"] = real_out
-                        except Exception:
-                            pass
-                        finally:
-                            sys.stdout = old_stdout
+                        q_data["output_verified"] = False
 
                     # Verify HTML elements
                     if not is_python and not q_data.get("expected_html_elements"):

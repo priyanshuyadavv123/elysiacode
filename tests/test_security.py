@@ -372,5 +372,35 @@ class TestHttpServer(unittest.TestCase):
         self.assertNotIn("<script>alert(1)</script>", r["text"].split("</style>", 1)[1])
 
 
+class TestSecretsAndDeployment(unittest.TestCase):
+    def test_gitignore_and_dockerignore_exclude_secrets(self):
+        gitignore = (BASE_DIR / ".gitignore").read_text(encoding="utf-8")
+        dockerignore = (BASE_DIR / ".dockerignore").read_text(encoding="utf-8")
+
+        # Both must explicitly exclude .env
+        self.assertTrue(
+            any(line.strip() == ".env" or line.strip().startswith(".env") for line in gitignore.splitlines()),
+            ".gitignore must exclude .env"
+        )
+        self.assertTrue(
+            any(line.strip() == ".env" or line.strip().startswith(".env") for line in dockerignore.splitlines()),
+            ".dockerignore must exclude .env"
+        )
+
+        # Both must explicitly exclude data/*.db
+        self.assertTrue(
+            any("data/*.db" in line or "*.db" in line for line in gitignore.splitlines()),
+            ".gitignore must exclude data/*.db"
+        )
+        self.assertTrue(
+            any("data/*.db" in line or "*.db" in line for line in dockerignore.splitlines()),
+            ".dockerignore must exclude data/*.db"
+        )
+
+        # .env.example must not contain SESSION_SECRET
+        env_example = (BASE_DIR / ".env.example").read_text(encoding="utf-8")
+        self.assertNotIn("SESSION_SECRET", env_example)
+
+
 if __name__ == "__main__":
     unittest.main()

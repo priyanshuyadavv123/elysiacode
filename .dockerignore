@@ -1,0 +1,14 @@
+# Elysia Code Docker Build Exclusions
+.env
+.env.*
+!.env.example
+data/*.db*
+data/users.json*
+tests/
+*.bak
+__pycache__/
+.git/
+*.png
+*.pptx
+*.zip
+tools/

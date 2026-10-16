@@ -317,14 +317,6 @@ class ElysiaHandler(http.server.SimpleHTTPRequestHandler):
             questions = get_questions(subj, topic, diff, count)
             return self._send_json({"questions": questions, "count": len(questions)}) or True
 
-        elif path == "/api/questions/generate-ai":
-            subj = query.get("subject", ["python"])[0]
-            topic = query.get("topic", ["all"])[0]
-            diff = query.get("difficulty", ["Intermediate"])[0]
-            prompt = query.get("prompt", [""])[0]
-            res = ai_tutor.generate_question(subject=subj, topic=topic, difficulty=diff, prompt_hint=prompt)
-            return self._send_json(res) or True
-
         # ---------------------------------------------------------------------
         # 3. MOCK EXAM API: College practical CA1/CA2 exam format return karta hai
         # ---------------------------------------------------------------------
