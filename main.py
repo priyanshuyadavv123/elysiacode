@@ -440,6 +440,14 @@ class ElysiaHandler(http.server.SimpleHTTPRequestHandler):
             return self._send_json(decode_error(raw_err, lang, code=code))
 
         if path in ("/api/ai/tutor", "/api/questions/generate-ai"):
+            user = self._current_user()
+            if not user:
+                return self._send_json({"status": "error", "error": "Authentication required. Please log in to use AI."}, 401)
+
+            allowed, count = auth.check_and_increment_ai_quota(user["id"], limit=30)
+            if not allowed:
+                return self._send_json({"status": "rate_limited", "error": "Daily AI limit of 30 requests reached. Please try again tomorrow."}, 429)
+
             client_ip = self._client_ip()
             if _ai_limiter.blocked("ai:" + client_ip, AI_LIMIT_PER_MINUTE, 60):
                 return self._send_json({"status": "rate_limited", "error": "AI request limit exceeded. Please wait a minute."}, 429)

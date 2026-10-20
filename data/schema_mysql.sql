@@ -43,3 +43,13 @@ CREATE TABLE IF NOT EXISTS meta (
     `key`   VARCHAR(64) PRIMARY KEY,
     `value` LONGTEXT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 5. AI Usage & Daily Quotas (Rate limiting & quota per user per day)
+CREATE TABLE IF NOT EXISTS ai_usage (
+    user_id VARCHAR(64) NOT NULL,
+    day     VARCHAR(10) NOT NULL,
+    count   INT NOT NULL DEFAULT 0,
+    PRIMARY KEY (user_id, day),
+    CONSTRAINT fk_ai_usage_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+

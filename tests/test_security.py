@@ -224,6 +224,7 @@ class TestHttpServer(unittest.TestCase):
         auth.reset_rate_limits_for_tests()
         self.main.SERVER_EXEC_ENABLED = True
         self.main._exec_limiter._fails.clear()
+        self.main._ai_limiter._fails.clear()
 
     # --- tiny HTTP client that keeps cookies
     def call(self, method, path, body=None, cookie=None, headers=None, raw_body=None):
@@ -370,6 +371,45 @@ class TestHttpServer(unittest.TestCase):
     def test_lab_sheet_over_http_is_escaped(self):
         r = self.call("POST", "/api/generate-lab-sheet", {"student_name": "<script>alert(1)</script>", "code": "</pre><script>x()</script>"})
         self.assertNotIn("<script>alert(1)</script>", r["text"].split("</style>", 1)[1])
+
+    def test_ai_endpoints_require_login(self):
+        # Anonymous POST /api/questions/generate-ai returns 401
+        r = self.call("POST", "/api/questions/generate-ai", {"subject": "python"})
+        self.assertEqual(r["status"], 401)
+        self.assertIn("Authentication required", r["json"]["error"])
+
+        # Anonymous POST /api/ai/tutor returns 401
+        r2 = self.call("POST", "/api/ai/tutor", {"query": "hello"})
+        self.assertEqual(r2["status"], 401)
+        self.assertIn("Authentication required", r2["json"]["error"])
+
+    def test_ai_endpoints_quota_and_rate_limit(self):
+        from unittest.mock import patch
+        name, cookie, _ = self.signup("ai_user")
+
+        mock_q = {
+            "status": "success",
+            "question": {
+                "id": "q_test",
+                "title_en": "Test Question",
+                "solution_code": "print('ok')",
+                "expected_output": "ok\n",
+                "output_verified": True
+            }
+        }
+        with patch.object(self.main.ai_tutor, "generate_question", return_value=mock_q):
+            # Calls 1 to 30 should succeed
+            for i in range(30):
+                self.main._ai_limiter._fails.clear()
+                r = self.call("POST", "/api/questions/generate-ai", {"subject": "python"}, cookie=cookie)
+                self.assertEqual(r["status"], 200, f"Call {i+1} failed with status {r['status']}: {r['text']}")
+                self.assertEqual(r["json"]["status"], "success")
+
+            # The 31st call should return 429 daily quota exceeded
+            self.main._ai_limiter._fails.clear()
+            r31 = self.call("POST", "/api/questions/generate-ai", {"subject": "python"}, cookie=cookie)
+            self.assertEqual(r31["status"], 429)
+            self.assertIn("Daily AI limit of 30 requests reached", r31["json"]["error"])
 
 
 class TestSecretsAndDeployment(unittest.TestCase):

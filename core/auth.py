@@ -435,3 +435,28 @@ def sync_user_progress(identifier: str = "", xp: int = 0, streak: int = 1, compl
         row = conn.execute("SELECT * FROM users WHERE id=?", (row["id"],)).fetchone()
     _invalidate_cached_user(ident)
     return {"success": True, "user": _row_to_user(row)}
+
+
+def check_and_increment_ai_quota(user_id: str, limit: int = 30) -> Tuple[bool, int]:
+    """
+    Checks and increments the user's daily AI quota atomically in the database.
+    Returns (allowed: bool, count: int).
+    If user has already reached the limit for today, returns (False, count) without incrementing.
+    """
+    if not user_id:
+        return False, 0
+    day = time.strftime("%Y-%m-%d")
+    with db.connect() as conn:
+        row = conn.execute("SELECT count FROM ai_usage WHERE user_id=? AND day=?", (user_id, day)).fetchone()
+        current = int(row["count"]) if row else 0
+        if current >= limit:
+            return False, current
+        if current == 0:
+            try:
+                conn.execute("INSERT INTO ai_usage (user_id, day, count) VALUES (?, ?, 1)", (user_id, day))
+            except db.IntegrityError:
+                conn.execute("UPDATE ai_usage SET count = count + 1 WHERE user_id=? AND day=?", (user_id, day))
+        else:
+            conn.execute("UPDATE ai_usage SET count = count + 1 WHERE user_id=? AND day=?", (user_id, day))
+        return True, current + 1
+

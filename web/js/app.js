@@ -2706,6 +2706,10 @@ class ElysiaApp {
    */
   async generateAIQuestion() {
     window.elysiaAudio.playClick();
+    if (!this.currentUser) {
+      this.openAuthModal();
+      return;
+    }
     const btn = document.getElementById("btn-ai-generate-qbank");
     const promptInput = document.getElementById("qbank-ai-custom-prompt");
     const statusMsg = document.getElementById("qbank-ai-status-msg");
@@ -3900,9 +3904,14 @@ class ElysiaApp {
     const rankEl = document.getElementById("nav-profile-rank");
     const avatarImgEl = document.getElementById("nav-user-avatar-img");
     const avatarEmojiEl = document.getElementById("nav-user-avatar-emoji");
+    const aiQBtn = document.getElementById("btn-ai-generate-qbank");
     const tier = this.getEgoTier();
 
     if (this.currentUser) {
+      if (aiQBtn) {
+        aiQBtn.innerHTML = `<span>✨</span> Generate with Groq AI`;
+        aiQBtn.onclick = () => this.generateAIQuestion();
+      }
       if (authBtn) authBtn.style.display = "none";
       if (profileBtn) profileBtn.style.display = "inline-flex";
       if (nameEl) nameEl.textContent = this.currentUser.name || this.currentUser.username || "Coder";
@@ -3943,6 +3952,10 @@ class ElysiaApp {
         }
       }
     } else {
+      if (aiQBtn) {
+        aiQBtn.innerHTML = `<span>🔒</span> Log in to generate AI questions`;
+        aiQBtn.onclick = () => this.openAuthModal();
+      }
       if (authBtn) authBtn.style.display = "inline-flex";
       if (profileBtn) profileBtn.style.display = "none";
     }

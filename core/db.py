@@ -105,6 +105,12 @@ CREATE TABLE IF NOT EXISTS meta (
     `key`   TEXT PRIMARY KEY,
     `value` TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS ai_usage (
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    day     TEXT NOT NULL,
+    count   INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (user_id, day)
+);
 """
 
 SCHEMA_MYSQL = """
@@ -141,6 +147,14 @@ CREATE TABLE IF NOT EXISTS meta (
     `key`   VARCHAR(64) PRIMARY KEY,
     `value` LONGTEXT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS ai_usage (
+    user_id VARCHAR(64) NOT NULL,
+    day     VARCHAR(10) NOT NULL,
+    count   INT NOT NULL DEFAULT 0,
+    PRIMARY KEY (user_id, day),
+    CONSTRAINT fk_ai_usage_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 """
 
 SCHEMA_POSTGRES = """
@@ -176,6 +190,13 @@ CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
 CREATE TABLE IF NOT EXISTS meta (
     "key"   VARCHAR(64) PRIMARY KEY,
     "value" TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS ai_usage (
+    user_id VARCHAR(64) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    day     VARCHAR(10) NOT NULL,
+    count   INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (user_id, day)
 );
 """
 
