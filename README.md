@@ -67,3 +67,16 @@ python3 -m unittest discover -s tests -v
 * **Local use:** server-side execution is on for speed. It is limited (timeout, memory, output cap, empty environment) but is *hardening, not a sandbox*.
 * Passwords: scrypt. Sessions: random token in an `HttpOnly` cookie. Login attempts are rate limited.
 * Old `data/users.json` accounts are imported into SQLite automatically on first start (old SHA-256 hashes are upgraded at the next login).
+
+---
+
+## 📋 Production Deployment Checklist
+
+Before going live on Render, Railway, Fly.io, or an Ubuntu VPS:
+
+- [ ] **Attach Persistent Disk for Database Storage:** Set `ELYSIA_DATA_DIR` to a mounted persistent volume path (e.g., `/var/data` or `/data`). Ephemeral container disks will wipe SQLite databases on restart.
+- [ ] **Ensure Server Execution is Disabled:** Set `ELYSIA_ALLOW_SERVER_EXEC=0`. Verify by opening `/api/config` on your production URL — it must return `{"server_exec": false}`.
+- [ ] **Rotate AI API Keys:** Generate fresh keys for Groq and Gemini. Supply them via your platform's environment variables dashboard (`GROQ_API_KEY`, `GEMINI_API_KEY`).
+- [ ] **Never Commit `.env` or Credentials:** Verify `.env` is never staged or committed to Git. `.gitignore` and `.dockerignore` both exclude `.env`, `.env.*`, `data/*.db*`, and `data/users.json*`.
+- [ ] **Configure Reverse Proxy Trust:** Set `ELYSIA_TRUST_PROXY=1` when running behind a cloud load balancer or reverse proxy (Render, Cloudflare, Nginx) so that brute-force protection correctly inspects `X-Forwarded-For`.
+- [ ] **Run Full Test Suite:** Execute `python3 -m unittest discover -s tests -v` on your build container to verify all 77 tests pass before traffic is routed.

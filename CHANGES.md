@@ -1,3 +1,66 @@
+# Elysia Code — Changelog & Remediation Log
+
+## Security & Quality Remediation (Comprehensive 8-Phase Update)
+
+### Step 0: Prerequisite Security Gate
+- Removed raw `exec()` call on model output in `core/ai_tutor.py`.
+- Removed dangerous GET route for `/api/questions/generate-ai` from `main.py`.
+- Created `tests/test_ai_safety.py` enforcing AST quarantine of `exec()` and `eval()` strictly to `core/limited_runner.py`.
+- Verified 69 unit tests passing.
+
+### Phase 1: Secrets and Deployment
+- Added `.dockerignore` excluding `.env`, `.env.*`, `data/*.db*`, `data/users.json*`, `tests/`, `*.bak`, `__pycache__/`, `.git/`, `*.png`, `*.pptx`, `*.zip`.
+- Removed deprecated `SESSION_SECRET` variable from `.env.example`.
+- Added unit test `test_gitignore_and_dockerignore_exclude_secrets` to `tests/test_security.py`.
+
+### Phase 2: Verify AI Answers in the Browser
+- Implemented client-side Pyodide Web Worker validation for AI question cards (`output_verified === false`).
+- Added real-time badge updates: "✔ Verified in your browser" vs "⚠️ AI answer differs - trust your own run" (displaying the student's actual output).
+- Enforced worker-side execution timeout with zero server round-trips.
+- Added automated Chrome DevTools Protocol test (`tools/test_browser_ai_verify.js`) validating matching and mismatched AI questions.
+
+### Phase 3: Access Control and Daily Quota for AI Routes
+- Gated `POST /api/questions/generate-ai` and `POST /api/ai/tutor` behind active session authentication (`auth.user_for_token`). Anonymous requests return HTTP 401.
+- Created `ai_usage` table in SQLite schema (`core/db.py`), `data/schema_mysql.sql`, and PostgreSQL schema.
+- Implemented atomic per-user daily quota of 30 AI calls, returning HTTP 429 when exceeded while retaining per-IP rate limiting.
+- Updated frontend UI to show "Log in to generate AI questions" for unauthenticated guests.
+- Added unit tests for 401 anonymous block, 200 authenticated call, and 429 quota exhaustion.
+
+### Phase 4: Frontend Bugs and Curriculum Examples
+- Replaced inline `onclick` handler in `renderMockExam()` with `data-*` attributes and a delegated listener, eliminating SyntaxErrors when explanations contain single quotes/apostrophes (e.g. `'b = a'` in `python_ca1`).
+- Escaped MCQ question code and option text so HTML tags (e.g. `<div class='nav'>` in `html_ca1`) render cleanly as literal text.
+- Updated `_escapeHtml()` to escape single quotes (`&#39;`).
+- Made curriculum examples 100% deterministic:
+  - `ch11_sub1`: sorted set output representation.
+  - `ch1_sub3` & `ch1_sub6`: removed OS, Python version, and path-dependent outputs.
+  - `ch21_sub4` & `ch22_sub2`: removed non-deterministic float timing values.
+  - `ch25`: tagged Tkinter GUI examples as `desktop_only` with clear explanatory notices.
+- Built `tools/verify_curriculum_outputs.py` running all 140 subtopics (418 passed / 2 skipped / 0 failed).
+- Added automated CDP test `tools/test_browser_mock_exam.js`.
+
+### Phase 5: Auth and Rate Limiting
+- Keyed failed login tracking on dual-layer `(username, client_ip)` (`LOGIN_LIMIT_PER_USER_IP = 5`) with a higher global threshold across all IPs combined (`LOGIN_LIMIT_PER_USER_GLOBAL = 25`), completely preventing cross-IP DoS lockout attacks.
+- Replaced catastrophic 50,000-key cache wipes in `_RateLimiter` with an LRU `OrderedDict` oldest-key eviction mechanism.
+- Added unit tests verifying legitimate users on IP A cannot be locked out by attackers on IP B, and that active entries survive cache eviction.
+
+### Phase 6: Code Hygiene and Tooling
+- Created `core/config.py` as the centralized single source of truth for `.env` loading, removing duplicate loaders in `main.py` and `core/ai_tutor.py`.
+- Replaced all unlogged `except Exception: pass` blocks across `core/` and `main.py` with structured `logger.warning` entries.
+- Upgraded MySQL adapter in `core/db.py` with an intelligent state-machine query translator that preserves `?` in string literals and comments, and escapes `%` wildcards to `%%` when query parameters are supplied.
+- Verified `sys.stdout` is never reassigned globally.
+- Relocated 6 standalone generation and maintenance scripts to `tools/` with comprehensive documentation in `tools/README.md`.
+
+### Phase 7: Mobile Layout and Load Time
+- Sanitized responsive layouts at 390x844 (mobile) and 768x1024 (tablet), achieving zero page-level horizontal scroll (`hasHorizontalScroll: false`) and zero overflowing elements (`pageOverflows: []`).
+- Restructured mobile header with collapsible preferences drawer (`#mobile-prefs-collapse`) toggled via `⚙️ Options ▾`, housing language toggles (`Hinglish`/`English`), track toggles (`Python 3`/`HTML5`), and sound FX.
+- Expanded search bar to full width on mobile (370px) and tablet (748px), completely eliminating placeholder text truncation.
+- Resized floating Senior AI Tutor FAB to a compact 46x46px glowing circular icon docked to the bottom-right corner respecting `safe-area-inset`, eliminating overlap with cards and CTAs.
+- Added static gzip compression to `main.py` (`_serve_static_file` & `do_HEAD`), delivering pre-compressed [`web/js/curriculum_tree.js.gz`](file:///Users/priyanshuyadav/.gemini/antigravity/scratch/elysia-code/web/js/curriculum_tree.js.gz) (395 KB vs 1.5 MB uncompressed, 74% data reduction).
+- Automated Fast 3G first-render benchmark via CDP (`tools/measure_mobile_phase7.js`): FCP improved to **1,080 ms**; DOM content loaded improved by **~10 seconds**.
+- Saved before and after comparison screenshots to `docs/screenshots/`.
+
+---
+
 # Elysia Code - Security & Stability Update (Step 1)
 
 ## Problems found in the original code (all reproduced before fixing)

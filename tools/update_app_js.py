@@ -305,7 +305,7 @@ reference_methods = """
 
     parts.forEach((part, partIdx) => {
       const partNum = part.part_number;
-      const partTitle = part.part_title.replace(/^PART\s*\d+\s*:\s*/i, '');
+      const partTitle = part.part_title.replace(/^PART\\s*\\d+\\s*:\\s*/i, '');
       const chapters = part.chapters || [];
 
       // Check if current chapter belongs to this part

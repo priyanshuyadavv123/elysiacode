@@ -57,11 +57,12 @@ async function runTest() {
       } catch (e) {}
     }
 
-    if (!targets || !targets[0] || !targets[0].webSocketDebuggerUrl) {
+    const pageTarget = targets.find((t) => t.type === "page") || targets[0];
+    if (!pageTarget || !pageTarget.webSocketDebuggerUrl) {
       throw new Error("Could not connect to Chrome debugging target");
     }
 
-    const wsUrl = targets[0].webSocketDebuggerUrl;
+    const wsUrl = pageTarget.webSocketDebuggerUrl;
     console.log("2. Connected to Chrome CDP target:", wsUrl);
 
     const ws = new WebSocket(wsUrl);

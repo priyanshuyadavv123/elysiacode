@@ -311,11 +311,17 @@ class AITutor:
             "You must return ONLY a single valid JSON object without any markdown wrapping or extra commentary."
         )
 
+        expected_field_spec = (
+            '"expected_output": "The exact string printed by solution_code (no trailing newline)",'
+            if is_python
+            else '"expected_html_elements": ["element1", "element2"],'
+        )
+        hint_line = f"Custom Context/Idea: {prompt_hint}" if prompt_hint else ""
         user_prompt = f"""Generate a brand new, creative coding problem for an engineering student.
 Subject: {subject}
 Topic: {topic_clean} ({target_topic})
 Difficulty: {target_diff}
-{f'Custom Context/Idea: {prompt_hint}' if prompt_hint else ''}
+{hint_line}
 
 Return a single JSON object with EXACTLY these keys:
 {{
@@ -330,7 +336,7 @@ Return a single JSON object with EXACTLY these keys:
   "desc_hi": "Problem statement in natural, friendly college Hinglish.",
   "starter_code": "Clean starter code template with comments for the student.",
   "solution_code": "Complete working solution that prints the exact expected output.",
-  {"\"expected_output\": \"The exact string printed by solution_code (no trailing newline)\"," if is_python else "\"expected_html_elements\": [\"element1\", \"element2\"],"}
+  {expected_field_spec}
   "hint_en": "Helpful conceptual hint in English.",
   "hint_hi": "Helpful conceptual hint in Hinglish."
 }}
