@@ -14,6 +14,7 @@ Design note: limits are applied by a tiny bootstrap script INSIDE the child
 process (not with preexec_fn, which is unsafe in multi-threaded servers).
 """
 
+import logging
 import os
 import shutil
 import signal
@@ -21,6 +22,8 @@ import subprocess
 import sys
 import tempfile
 import threading
+
+logger = logging.getLogger("elysia")
 
 MAX_OUTPUT_BYTES = 100_000     # stdout and stderr together
 MAX_CODE_CHARS = 50_000
@@ -70,8 +73,8 @@ def _kill_group(proc):
     except Exception:
         try:
             proc.kill()
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("Failed to kill process group: %s", exc)
 
 
 def run_python(code, stdin_text="", timeout=3.0, max_output=MAX_OUTPUT_BYTES):
@@ -136,8 +139,8 @@ def run_python(code, stdin_text="", timeout=3.0, max_output=MAX_OUTPUT_BYTES):
             try:
                 proc.stdin.write(stdin_text.encode("utf-8", "replace"))
                 proc.stdin.close()
-            except Exception:
-                pass                                   # program ended before reading input
+            except Exception as exc:
+                logger.warning("Error writing to stdin (process may have completed): %s", exc)
 
         threads = [threading.Thread(target=reader, args=(proc.stdout, "out"), daemon=True),
                    threading.Thread(target=reader, args=(proc.stderr, "err"), daemon=True),
@@ -158,8 +161,8 @@ def run_python(code, stdin_text="", timeout=3.0, max_output=MAX_OUTPUT_BYTES):
         for stream in (proc.stdout, proc.stderr, proc.stdin):     # do not leak file descriptors
             try:
                 stream.close()
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning("Error closing process stream: %s", exc)
 
         out = b"".join(chunks["out"]).decode("utf-8", "replace")
         err = b"".join(chunks["err"]).decode("utf-8", "replace")

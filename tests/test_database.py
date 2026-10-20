@@ -400,6 +400,25 @@ class TestDatabaseArchitecture(unittest.TestCase):
 
         self.assertEqual(len(errors), 0)
 
+    def test_mysql_cursor_translator_string_awareness_and_escaping(self):
+        """Verify MySQLCursorWrapper translates ? to %s string-aware and escapes % to %% when params are present."""
+        from unittest.mock import MagicMock
+
+        mock_cursor = MagicMock()
+        wrapper = db.MySQLCursorWrapper(mock_cursor)
+
+        # 1. ? inside single-quoted string literal must NOT be converted to %s
+        wrapper.execute("SELECT * FROM questions WHERE prompt = 'Why?' AND id = ?", (42,))
+        mock_cursor.execute.assert_called_with("SELECT * FROM questions WHERE prompt = 'Why?' AND id = %s", (42,))
+
+        # 2. LIKE '%x%' must escape literal % to %% when params are passed
+        wrapper.execute("SELECT * FROM users WHERE name LIKE '%x%' AND xp > ?", (100,))
+        mock_cursor.execute.assert_called_with("SELECT * FROM users WHERE name LIKE '%%x%%' AND xp > %s", (100,))
+
+        # 3. Without params, % is preserved and execute is called without params tuple
+        wrapper.execute("SELECT * FROM users WHERE name LIKE '%x%'")
+        mock_cursor.execute.assert_called_with("SELECT * FROM users WHERE name LIKE '%x%'")
+
 
 if __name__ == "__main__":
     unittest.main()

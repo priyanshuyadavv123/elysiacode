@@ -30,6 +30,7 @@ Security summary (what this file enforces)
 import http.cookies
 import http.server
 import json
+import logging
 import os
 import socketserver
 import sys
@@ -37,9 +38,13 @@ import threading
 import urllib.parse
 from pathlib import Path
 
+logger = logging.getLogger("elysia")
+
 BASE_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE_DIR))
 
+from core import config
+from core.config import get_env_flag as _env_flag
 from core.curriculum import CURRICULUM_DATA
 from core.curriculum_builder import PARTS_REGISTRY, get_all_chapters as get_all_curriculum_chapters
 from core.ai_tutor import ai_tutor
@@ -54,32 +59,6 @@ from core.limited_runner import run_python
 
 
 # ----------------------------------------------------------------- configuration
-def _load_env():
-    env_file = BASE_DIR / ".env"
-    if env_file.is_file():
-        try:
-            with open(env_file, "r", encoding="utf-8") as f:
-                for line in f:
-                    line = line.strip()
-                    if not line or line.startswith("#") or "=" not in line:
-                        continue
-                    k, v = line.split("=", 1)
-                    k, v = k.strip(), v.strip().strip("'\"")
-                    if k and k not in os.environ:
-                        os.environ[k] = v
-        except Exception:
-            pass
-
-_load_env()
-
-def _env_flag(name, default):
-    raw = os.environ.get(name)
-    if raw is None or raw.strip() == "":
-        return default
-    return raw.strip().lower() in ("1", "true", "yes", "on")
-
-
-
 PORT = int(os.environ.get("PORT", 8080))
 HOST = os.environ.get("HOST", "127.0.0.1")
 WEB_DIR = BASE_DIR / "web"
@@ -157,8 +136,8 @@ class ElysiaHandler(http.server.SimpleHTTPRequestHandler):
                     self.end_headers()
                     self.wfile.write(content)
                     return
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.warning("Failed to serve custom 404 page: %s", exc)
         super().send_error(code, message=message, explain=explain)
 
     def end_headers(self):

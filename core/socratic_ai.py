@@ -23,9 +23,12 @@
 =============================================================================
 """
 
+import logging
 import os
 import re
 from typing import Dict, Any
+
+logger = logging.getLogger("elysia")
 
 ERROR_PATTERNS = [
     {
@@ -77,8 +80,8 @@ def decode_error(raw_error: str, language: str = "hi", code: str = "", offline: 
                 ai_res = ai_tutor.diagnose_error(raw_error, code=code, lang=language)
                 if ai_res.get("matched"):
                     return ai_res
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("Groq AI debugger diagnostics failed, falling back to local patterns: %s", exc)
 
     # 2. Fallback to instant local regex patterns
     for item in ERROR_PATTERNS:

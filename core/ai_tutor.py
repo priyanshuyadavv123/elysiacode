@@ -8,6 +8,7 @@ No hardcoded API keys.
 
 import os
 import json
+import logging
 import urllib.request
 import urllib.error
 import time
@@ -17,34 +18,15 @@ from io import StringIO
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 
+from core.config import load_env
+
+logger = logging.getLogger("elysia")
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-_env_loaded = False
-
 def _ensure_env_loaded():
-    """Reads .env into os.environ if present once at module import (zero external dependencies)."""
-    global _env_loaded
-    if _env_loaded:
-        return
-    _env_loaded = True
-    if os.environ.get("ELYSIA_TESTING") == "1":
-        # In test mode, do not auto-load production/development .env credentials
-        return
-    env_file = BASE_DIR / ".env"
-    if env_file.is_file():
-        try:
-            with open(env_file, "r", encoding="utf-8") as f:
-                for line in f:
-                    line = line.strip()
-                    if not line or line.startswith("#") or "=" not in line:
-                        continue
-                    k, v = line.split("=", 1)
-                    k = k.strip()
-                    v = v.strip().strip("'\"")
-                    if k and k not in os.environ:
-                        os.environ[k] = v
-        except Exception:
-            pass
+    """Reads .env into os.environ via centralized core.config loader."""
+    load_env()
 
 _ensure_env_loaded()
 
@@ -239,8 +221,8 @@ class AITutor:
                 err_body = ""
                 try:
                     err_body = e.read().decode("utf-8")
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.warning("Could not decode HTTP error body: %s", exc)
                 last_error = f"HTTP {e.code}: {err_body or e.reason}"
                 # If model not found or quota issue, continue loop to try fallback model
                 if e.code in (404, 400) and ("model" in err_body or "not exist" in err_body):
@@ -420,8 +402,8 @@ MANDATORY RULES:
                 err_body = ""
                 try:
                     err_body = e.read().decode("utf-8")
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.warning("Could not decode HTTP error body: %s", exc)
                 last_error = f"HTTP {e.code}: {err_body or e.reason}"
                 if e.code == 429:
                     time.sleep(1.0)
@@ -446,8 +428,8 @@ MANDATORY RULES:
                     "notice": "Groq AI free tier rate limit was reached. Loaded a matching curriculum challenge!",
                     "question": fb_q
                 }
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("Question bank fallback lookup failed: %s", exc)
 
         return {
             "status": "error",

@@ -14,6 +14,7 @@ Why Dual-Engine Architecture?
 """
 
 import json
+import logging
 import os
 import queue
 import re
@@ -23,6 +24,8 @@ import time
 from contextlib import contextmanager
 from pathlib import Path
 from urllib.parse import urlparse, unquote
+
+logger = logging.getLogger("elysia")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -309,15 +312,16 @@ def _migrate_legacy_json(conn):
         done = conn.execute("SELECT `value` FROM meta WHERE `key`='legacy_json_imported'").fetchone()
         if done:
             return
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.warning("Could not check legacy migration metadata: %s", exc)
 
     path = legacy_json_path()
     imported = 0
     if path.exists():
         try:
             users = json.loads(path.read_text(encoding="utf-8"))
-        except Exception:
+        except Exception as exc:
+            logger.warning("Could not parse legacy users.json: %s", exc)
             users = {}
         for ident, u in (users or {}).items():
             if not isinstance(u, dict):
@@ -348,13 +352,14 @@ def _migrate_legacy_json(conn):
                     ),
                 )
                 imported += 1
-            except Exception:
+            except Exception as exc:
+                logger.warning("Failed importing user %s during legacy migration: %s", username, exc)
                 continue
     try:
         conn.execute("REPLACE INTO meta (`key`, `value`) VALUES ('legacy_json_imported', ?)",
                      (str(imported),))
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.warning("Could not save legacy migration meta flag: %s", exc)
 
 
 # ----------------------------------------------------------------- PostgreSQL Connection Pool & Adapter
@@ -557,8 +562,8 @@ class PostgresCursorWrapper:
     def close(self):
         try:
             self._cursor.close()
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("Error closing Postgres cursor: %s", exc)
 
 
 class PostgresNoOpCursor:
@@ -604,8 +609,8 @@ class PostgresConnectionWrapper:
         for c in self._cursors:
             try:
                 c.close()
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning("Error closing cursor: %s", exc)
         self._cursors.clear()
 
 
@@ -676,8 +681,8 @@ class _PostgresPool:
                 self._created_count -= 1
         try:
             conn.close()
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("Error safely closing connection: %s", exc)
 
     def get(self, timeout=10.0):
         # 1. Try to get an idle connection from the pool without blocking
@@ -752,6 +757,97 @@ def _init_postgres(raw_conn):
 
 
 # ----------------------------------------------------------------- MySQL Connection Pool & Adapter
+def _translate_sqlite_to_mysql(sql: str, has_params: bool = False) -> str:
+    """
+    Translates SQLite SQL statements to MySQL syntax:
+    1. INSERT OR IGNORE INTO -> INSERT IGNORE INTO
+    2. INSERT OR REPLACE INTO -> REPLACE INTO
+    3. State-machine parses SQL outside of string literals:
+       - Replaces ? parameter placeholders with %s
+       - Does NOT replace ? inside single or double-quoted string literals
+       - When params are passed (has_params=True), escapes literal % as %% so MySQL DB-API
+         format string substitution does not fail on LIKE patterns (e.g. LIKE '%x%').
+    """
+    clean_sql = sql.strip()
+    if re.match(r"^\s*INSERT\s+OR\s+IGNORE\s+INTO\s+", clean_sql, re.IGNORECASE):
+        clean_sql = re.sub(r"^\s*INSERT\s+OR\s+IGNORE\s+INTO\s+", "INSERT IGNORE INTO ", clean_sql, flags=re.IGNORECASE)
+    elif re.match(r"^\s*INSERT\s+OR\s+REPLACE\s+INTO\s+", clean_sql, re.IGNORECASE):
+        clean_sql = re.sub(r"^\s*INSERT\s+OR\s+REPLACE\s+INTO\s+", "REPLACE INTO ", clean_sql, flags=re.IGNORECASE)
+
+    out = []
+    in_single_quote = False
+    in_double_quote = False
+    in_comment = False
+    i = 0
+    n = len(clean_sql)
+
+    while i < n:
+        c = clean_sql[i]
+
+        # Handle line comments (-- ...)
+        if not in_single_quote and not in_double_quote and c == '-' and i + 1 < n and clean_sql[i+1] == '-':
+            in_comment = True
+            out.append(c)
+            i += 1
+            continue
+        if in_comment:
+            out.append(c)
+            if c == '\n':
+                in_comment = False
+            i += 1
+            continue
+
+        # Single quote tracking
+        if c == "'" and not in_double_quote:
+            in_single_quote = not in_single_quote
+            out.append(c)
+            i += 1
+            continue
+
+        # Double quote tracking
+        if c == '"' and not in_single_quote:
+            in_double_quote = not in_double_quote
+            out.append(c)
+            i += 1
+            continue
+
+        # Inside quoted string:
+        if in_single_quote or in_double_quote:
+            if has_params and c == '%':
+                if i + 1 < n and clean_sql[i+1] == '%':
+                    out.append('%%')
+                    i += 2
+                    continue
+                else:
+                    out.append('%%')
+                    i += 1
+                    continue
+            out.append(c)
+            i += 1
+            continue
+
+        # Outside strings:
+        if c == '?':
+            out.append('%s')
+            i += 1
+            continue
+
+        if has_params and c == '%':
+            if i + 1 < n and clean_sql[i+1] == '%':
+                out.append('%%')
+                i += 2
+                continue
+            else:
+                out.append('%%')
+                i += 1
+                continue
+
+        out.append(c)
+        i += 1
+
+    return "".join(out)
+
+
 class MySQLCursorWrapper:
     """Wraps MySQL cursor to provide a unified API matching SQLite syntax and row access."""
 
@@ -759,17 +855,10 @@ class MySQLCursorWrapper:
         self._cursor = cursor
 
     def execute(self, sql, params=None):
-        clean_sql = sql
-        # Adapt common SQLite syntax to MySQL
-        if "INSERT OR IGNORE INTO" in clean_sql:
-            clean_sql = clean_sql.replace("INSERT OR IGNORE INTO", "INSERT IGNORE INTO")
-        if "INSERT OR REPLACE INTO" in clean_sql:
-            clean_sql = clean_sql.replace("INSERT OR REPLACE INTO", "REPLACE INTO")
-        # Replace ? with %s for MySQL parameter binding
-        if params is not None and "?" in clean_sql:
-            clean_sql = clean_sql.replace("?", "%s")
+        has_params = params is not None
+        clean_sql = _translate_sqlite_to_mysql(sql, has_params=has_params)
 
-        if params is not None:
+        if has_params:
             self._cursor.execute(clean_sql, params)
         else:
             self._cursor.execute(clean_sql)
@@ -784,8 +873,8 @@ class MySQLCursorWrapper:
     def close(self):
         try:
             self._cursor.close()
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("Error closing Postgres cursor: %s", exc)
 
 
 class MySQLConnectionWrapper:
@@ -817,8 +906,8 @@ class MySQLConnectionWrapper:
         for c in self._cursors:
             try:
                 c.close()
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning("Error closing cursor: %s", exc)
         self._cursors.clear()
 
 
@@ -872,8 +961,8 @@ class _MySQLPool:
                 except Exception:
                     try:
                         conn.close()
-                    except Exception:
-                        pass
+                    except Exception as exc:
+                        logger.warning("Error closing dead connection from pool: %s", exc)
             except queue.Empty:
                 break
         return self._create_connection()
@@ -884,8 +973,8 @@ class _MySQLPool:
         except queue.Full:
             try:
                 conn.close()
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning("Error closing excess pooled connection: %s", exc)
 
 
 _mysql_pool_instance = None
