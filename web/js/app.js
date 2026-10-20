@@ -2446,6 +2446,23 @@ class ElysiaApp {
               <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
                 <span class="q-diff-badge ${diffClass}">${q.difficulty}</span>
                 ${isAI ? `<span style="font-size:0.75rem; color:#c084fc; background:rgba(168,85,247,0.18); border:1px solid rgba(168,85,247,0.4); padding:2px 8px; border-radius:9999px; font-weight:800;">✨ Groq AI</span>` : ''}
+                ${isAI && isPython ? `
+                  <span id="q-verify-badge-${q.id}" class="q-verify-badge" style="font-size:0.75rem; padding:2px 8px; border-radius:9999px; font-weight:700; transition:all 0.2s ease; ${
+                    q.output_verified === true
+                      ? 'color:#34d399; background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4);'
+                      : (q.output_verified === 'differs'
+                      ? 'color:#fbbf24; background:rgba(245,158,11,0.18); border:1px solid rgba(245,158,11,0.4);'
+                      : 'color:#94a3b8; background:rgba(148,163,184,0.12); border:1px solid rgba(148,163,184,0.25);')
+                  }">
+                    ${
+                      q.output_verified === true
+                        ? '✔ Verified in your browser'
+                        : (q.output_verified === 'differs'
+                        ? '⚠️ AI answer differs - trust your own run'
+                        : '⏳ Verifying in browser...')
+                    }
+                  </span>
+                ` : ''}
                 ${q.fallback_mode ? `<span style="font-size:0.75rem; color:#fbbf24; background:rgba(245,158,11,0.18); border:1px solid rgba(245,158,11,0.4); padding:2px 8px; border-radius:9999px; font-weight:800;">⚡ Bank (AI Cooldown)</span>` : ''}
                 <span style="font-size:0.75rem; color:#38bdf8; background:rgba(56,189,248,0.12); padding:2px 8px; border-radius:9999px; font-weight:700;">⭐ +${xp} XP</span>
                 <span id="q-solved-badge-${q.id}" class="solved-badge" style="display:${isSolved ? 'inline-block' : 'none'};">✔ Solved</span>
@@ -2460,6 +2477,13 @@ class ElysiaApp {
               <div style="margin-bottom:12px; font-size:0.78rem; background:rgba(15,23,42,0.7); border:1px solid #334155; border-radius:8px; padding:8px 12px;">
                 <span style="color:#94a3b8; font-weight:700;">🎯 Expected Output:</span>
                 <pre style="margin:4px 0 0; color:#38bdf8; font-family:var(--font-mono); font-size:0.76rem; white-space:pre-wrap; max-height:80px; overflow-y:auto;">${this._escapeHtml(q.expected_output)}</pre>
+              </div>
+            ` : ''}
+
+            ${isAI && isPython ? `
+              <div id="q-verify-diff-${q.id}" style="${q.output_verified === 'differs' ? 'display:block;' : 'display:none;'} margin-bottom:12px; font-size:0.78rem; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:8px; padding:8px 12px; color:#fde68a;">
+                <span style="font-weight:700;">⚠️ Actual Browser Output:</span>
+                <pre id="q-verify-diff-out-${q.id}" style="margin:4px 0 0; color:#fbbf24; font-family:var(--font-mono); font-size:0.76rem; white-space:pre-wrap; max-height:80px; overflow-y:auto;">${this._escapeHtml(q.actual_browser_output || "")}</pre>
               </div>
             ` : ''}
 
@@ -2547,6 +2571,60 @@ class ElysiaApp {
             ${p}
           </button>
         `).join("");
+      }
+    }
+
+    // Phase 2: Verify unverified AI questions client-side in the Pyodide Web Worker
+    pageQuestions.forEach(q => {
+      if (q.ai_generated && q.output_verified === false && q.solution_code && q.subject === "python") {
+        this.verifyAIQuestionInBrowser(q);
+      }
+    });
+  }
+
+  async verifyAIQuestionInBrowser(q) {
+    if (!q || !q.solution_code || q.subject !== "python") return;
+    const badge = document.getElementById(`q-verify-badge-${q.id}`);
+    const diffBox = document.getElementById(`q-verify-diff-${q.id}`);
+    const diffOut = document.getElementById(`q-verify-diff-out-${q.id}`);
+
+    try {
+      if (!window.pyodideManager) return;
+      // Run solution_code in background Web Worker (never touches server)
+      const res = await window.pyodideManager.run(q.solution_code, "", 4000);
+      const actualOut = (res.stdout || "").trimEnd();
+      const expectedOut = (q.expected_output || "").trimEnd();
+
+      if (res.success && actualOut === expectedOut) {
+        q.output_verified = true;
+        if (badge) {
+          badge.innerHTML = "✔ Verified in your browser";
+          badge.style.color = "#34d399";
+          badge.style.background = "rgba(16,185,129,0.15)";
+          badge.style.border = "1px solid rgba(16,185,129,0.4)";
+        }
+        if (diffBox) diffBox.style.display = "none";
+      } else {
+        q.output_verified = "differs";
+        q.actual_browser_output = actualOut || res.stderr || "(no output)";
+        if (badge) {
+          badge.innerHTML = "⚠️ AI answer differs - trust your own run";
+          badge.style.color = "#fbbf24";
+          badge.style.background = "rgba(245,158,11,0.18)";
+          badge.style.border = "1px solid rgba(245,158,11,0.4)";
+        }
+        if (diffBox && diffOut) {
+          diffBox.style.display = "block";
+          diffOut.textContent = q.actual_browser_output;
+        }
+      }
+    } catch (e) {
+      console.warn("Browser verification error:", e);
+      if (badge) {
+        badge.innerHTML = "⚠️ AI answer differs - trust your own run";
+        badge.style.color = "#fbbf24";
+        badge.style.background = "rgba(245,158,11,0.18)";
+        badge.style.border = "1px solid rgba(245,158,11,0.4)";
       }
     }
   }
