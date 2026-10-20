@@ -195,18 +195,18 @@ CHAPTERS = [
                     }
                 ],
                 "example_1": {
-                    "title": "Checking Python Version",
-                    "title_hi": "Python version check karna",
-                    "code": "import sys\nprint('Running on Python:', sys.version.split()[0])",
-                    "expected_output": "Running on Python: 3.14.7",
-                    "explanation_en": "Imports sys to verify the exact active Python version.",
-                    "explanation_hi": "sys module se pata chalta hai ki active Python version kya hai."
+                    "title": "Verifying Python 3 Environment",
+                    "title_hi": "Python 3 environment verify karna",
+                    "code": "import sys\nprint('Python 3 active:', sys.version_info.major >= 3)",
+                    "expected_output": "Python 3 active: True",
+                    "explanation_en": "Imports sys to verify that Python 3 environment is active.",
+                    "explanation_hi": "sys module se confirm karta hai ki Python 3 environment active hai."
                 },
                 "example_2": {
-                    "title": "System Platform Identification",
-                    "title_hi": "Operating System detect karna",
-                    "code": "import platform\nprint('Platform detected:', platform.system())",
-                    "expected_output": "Platform detected: Darwin",
+                    "title": "Built-in Platform Module Check",
+                    "title_hi": "Built-in platform module check",
+                    "code": "import platform\nprint('Platform module loaded:', bool(platform.system()))",
+                    "expected_output": "Platform module loaded: True",
                     "explanation_en": "Demonstrates built-in library availability right out of the box.",
                     "explanation_hi": "Dikhata hai ki Python install hote hi built-in libraries ready ho jaati hain."
                 },
@@ -394,10 +394,10 @@ CHAPTERS = [
                 "example_2": {
                     "title": "Command-Line Arguments Emulation",
                     "title_hi": "Terminal arguments access karna",
-                    "code": "import sys\nprint('Script name:', sys.argv[0])",
-                    "expected_output": "Script name: main.py",
-                    "explanation_en": "sys.argv contains arguments passed from the command line.",
-                    "explanation_hi": "sys.argv me terminal se pass kiye gaye arguments aate hain."
+                    "code": "import sys\nprint('Command arguments list loaded:', isinstance(sys.argv, list))",
+                    "expected_output": "Command arguments list loaded: True",
+                    "explanation_en": "sys.argv contains arguments passed from the command line as a list.",
+                    "explanation_hi": "sys.argv me terminal se pass kiye gaye arguments list ke form me aate hain."
                 },
                 "challenge": {
                     "prompt_en": "Print: Terminal mastery unlocked!",

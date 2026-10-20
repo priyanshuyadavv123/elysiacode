@@ -1322,8 +1322,8 @@ CHAPTERS = [
                 "example_1": {
                     "title": "Automatic Duplicate Elimination",
                     "title_hi": "Duplicates ka apne aap gayab hona",
-                    "code": "tags = {'python', 'code', 'python', 'ai', 'ai'}\nprint('Unique tags set:', tags)\nprint('Total unique count:', len(tags))",
-                    "expected_output": "Unique tags set: {'ai', 'code', 'python'}\nTotal unique count: 3",
+                    "code": "tags = {'python', 'code', 'python', 'ai', 'ai'}\nprint('Unique tags sorted:', sorted(tags))\nprint('Total unique count:', len(tags))",
+                    "expected_output": "Unique tags sorted: ['ai', 'code', 'python']\nTotal unique count: 3",
                     "explanation_en": "Duplicates 'python' and 'ai' were automatically collapsed into single entries.",
                     "explanation_hi": "Duplicates apne aap hat gaye aur sirf 3 unique tags bache."
                 },

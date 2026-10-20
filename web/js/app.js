@@ -2984,19 +2984,31 @@ class ElysiaApp {
       mcqContainer.innerHTML = exam.section_a_mcq.map((mcq, idx) => `
         <div style="margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 16px; border-radius: var(--radius-md);">
           <div style="font-size:0.95rem; font-weight:700; color:#fff; margin-bottom:8px;">
-            Q${idx+1}: ${isHi ? mcq.question_hi : mcq.question_en} (${mcq.marks} Marks)
+            Q${idx+1}: ${isHi ? this._escapeHtml(mcq.question_hi) : this._escapeHtml(mcq.question_en)} (${mcq.marks} Marks)
           </div>
-          <pre class="code-textarea" style="min-height: 80px; padding: 10px; background:#000; border-radius: 8px; margin-bottom: 10px;">${mcq.code}</pre>
+          <pre class="code-textarea" style="min-height: 80px; padding: 10px; background:#000; border-radius: 8px; margin-bottom: 10px;">${this._escapeHtml(mcq.code)}</pre>
           <div class="mcq-options-grid">
             ${mcq.options.map((opt, optIdx) => `
-              <button class="mcq-option-btn" onclick="window.elysiaApp.selectMcqOption(this, ${optIdx}, ${mcq.correct_index}, '${this._escapeHtml(isHi ? mcq.explanation_hi : mcq.explanation_en)}')">
-                ${String.fromCharCode(65 + optIdx)}. ${opt}
+              <button class="mcq-option-btn" data-opt-idx="${optIdx}" data-correct-idx="${mcq.correct_index}" data-explanation="${this._escapeHtml(isHi ? mcq.explanation_hi : mcq.explanation_en)}">
+                ${String.fromCharCode(65 + optIdx)}. ${this._escapeHtml(opt)}
               </button>
             `).join("")}
           </div>
           <div class="mcq-feedback" style="margin-top: 10px; font-size: 0.85rem; display:none;"></div>
         </div>
       `).join("");
+
+      if (!mcqContainer._hasMcqListener) {
+        mcqContainer.addEventListener("click", (e) => {
+          const btn = e.target.closest(".mcq-option-btn");
+          if (!btn || !mcqContainer.contains(btn)) return;
+          const optIdx = parseInt(btn.dataset.optIdx, 10);
+          const correctIdx = parseInt(btn.dataset.correctIdx, 10);
+          const explanation = btn.dataset.explanation || "";
+          this.selectMcqOption(btn, optIdx, correctIdx, explanation);
+        });
+        mcqContainer._hasMcqListener = true;
+      }
     }
 
     // Render Section B: Doctor Mode (Find & Fix bugs)
@@ -3051,11 +3063,11 @@ class ElysiaApp {
     if (chosen === correct) {
       window.elysiaAudio.playSuccess();
       feedbackEl.style.color = "#34d399";
-      feedbackEl.innerHTML = `✅ Correct! ${explanation}`;
+      feedbackEl.innerHTML = `✅ Correct! ${this._escapeHtml(explanation)}`;
     } else {
       window.elysiaAudio.playError();
       feedbackEl.style.color = "#fb7185";
-      feedbackEl.innerHTML = `❌ Incorrect. ${explanation}`;
+      feedbackEl.innerHTML = `❌ Incorrect. ${this._escapeHtml(explanation)}`;
     }
   }
 
@@ -3705,7 +3717,12 @@ class ElysiaApp {
    */
   _escapeHtml(str) {
     if (!str) return "";
-    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    return str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   }
 
   // =========================================================================

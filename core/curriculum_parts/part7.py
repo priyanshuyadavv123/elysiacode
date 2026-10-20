@@ -442,12 +442,14 @@ CHAPTERS = [
                     }
                 ],
                 "example_1": {
-                    "title": "Tkinter Window Initialization Blueprint",
-                    "title_hi": "Tkinter window setup blueprint",
+                    "title": "Tkinter Window Initialization Blueprint [Desktop Only]",
+                    "title_hi": "Tkinter window setup blueprint [Desktop Only]",
+                    "desktop_only": True,
+                    "desktop_only_note": "Requires a local desktop display server with Tkinter (X11/Wayland/Aqua). Run locally on your computer to view the GUI window.",
                     "code": "import tkinter as tk\n\ndef create_app_window():\n    root = tk.Tk()\n    root.title('Elysia Desktop Studio')\n    root.geometry('400x300')\n    print('Window created with title:', root.title())\n    root.destroy()\n\ntry:\n    create_app_window()\nexcept Exception:\n    print('Window created with title: Elysia Desktop Studio')",
                     "expected_output": "Window created with title: Elysia Desktop Studio",
-                    "explanation_en": "Instantiates root window, configures title and geometry dimensions cleanly.",
-                    "explanation_hi": "Window create karke uska title aur dimensions set karta hai."
+                    "explanation_en": "Instantiates root window, configures title and geometry dimensions cleanly. Note: Requires a desktop GUI environment.",
+                    "explanation_hi": "Window create karke uska title aur dimensions set karta hai. Note: Iske liye desktop GUI environment chahiye."
                 },
                 "example_2": {
                     "title": "Window Configuration Wrapper Class",
@@ -508,12 +510,14 @@ CHAPTERS = [
                     }
                 ],
                 "example_1": {
-                    "title": "Assembling Core Tkinter Widgets",
-                    "title_hi": "Label, Entry aur Button assemble karna",
+                    "title": "Assembling Core Tkinter Widgets [Desktop Only]",
+                    "title_hi": "Label, Entry aur Button assemble karna [Desktop Only]",
+                    "desktop_only": True,
+                    "desktop_only_note": "Requires a local desktop display server with Tkinter (X11/Wayland/Aqua). Run locally on your computer to view the GUI window.",
                     "code": "import tkinter as tk\n\ndef setup_widgets():\n    root = tk.Tk()\n    label = tk.Label(root, text='Enter Name:')\n    label.pack()\n    entry = tk.Entry(root)\n    entry.pack()\n    btn = tk.Button(root, text='Submit')\n    btn.pack()\n    print('Widgets assembled: Label, Entry, Button')\n    root.destroy()\n\ntry:\n    setup_widgets()\nexcept Exception:\n    print('Widgets assembled: Label, Entry, Button')",
                     "expected_output": "Widgets assembled: Label, Entry, Button",
-                    "explanation_en": "Instantiates and packs Label, Entry, and Button into the root window.",
-                    "explanation_hi": "Label, Entry aur Button ko create aur pack karta hai."
+                    "explanation_en": "Instantiates and packs Label, Entry, and Button into the root window. Note: Requires a desktop GUI environment.",
+                    "explanation_hi": "Label, Entry aur Button ko create aur pack karta hai. Note: Iske liye desktop GUI environment chahiye."
                 },
                 "example_2": {
                     "title": "Retrieving User Text with Entry.get()",
@@ -647,7 +651,7 @@ CHAPTERS = [
                     "title": "Tkinter Desktop Calculator Full GUI Structure",
                     "title_hi": "Tkinter calculator ki GUI structure",
                     "code": "calculator_source = '''\nimport tkinter as tk\n\nclass DesktopCalculator:\n    def __init__(self, root):\n        self.root = root\n        self.root.title(\"Elysia Calculator\")\n        self.expression = \"\"\n        self.display_var = tk.StringVar(value=\"0\")\n        display = tk.Entry(root, textvariable=self.display_var, font=(\"Arial\", 24))\n        display.grid(row=0, column=0, columnspan=4)\n        buttons = [\n            ('7', 1, 0), ('8', 1, 1), ('9', 1, 2), ('/', 1, 3),\n            ('4', 2, 0), ('5', 2, 1), ('6', 2, 2), ('*', 2, 3),\n            ('1', 3, 0), ('2', 3, 1), ('3', 3, 2), ('-', 3, 3),\n            ('C', 4, 0), ('0', 4, 1), ('=', 4, 2), ('+', 4, 3)\n        ]\n        for (text, row, col) in buttons:\n            btn = tk.Button(root, text=text, command=lambda t=text: self.on_press(t))\n            btn.grid(row=row, column=col, sticky=\"nsew\")\n'''\nprint('Calculator source lines:', len(calculator_source.splitlines()))",
-                    "expected_output": "Calculator source lines: 23",
+                    "expected_output": "Calculator source lines: 20",
                     "explanation_en": "Shows full Tkinter code architecture with 4x4 button grid layout.",
                     "explanation_hi": "4x4 grid layout ke saath desktop window ka structure banata hai."
                 },
@@ -878,7 +882,7 @@ CHAPTERS = [
                     "title": "Essential Python .gitignore Rules Template",
                     "title_hi": ".gitignore template rules",
                     "code": "gitignore_template = '''\n# Byte-compiled files\n__pycache__/\n*.py[cod]\n\n# Virtual environments\nvenv/\nenv/\n\n# Secrets\n.env\n'''\nprint('.gitignore rules count:', len(gitignore_template.strip().splitlines()))",
-                    "expected_output": ".gitignore rules count: 9",
+                    "expected_output": ".gitignore rules count: 10",
                     "explanation_en": "Excludes caches, virtual environments, and secrets from version tracking.",
                     "explanation_hi": "Caches aur secrets ko Git me upload hone se block karta hai."
                 },
@@ -952,7 +956,7 @@ CHAPTERS = [
                 "example_2": {
                     "title": "Verifying Expected Exceptions in Unit Tests",
                     "title_hi": "Exceptions ko test karna",
-                    "code": "def test_negative_income_raises():\n    try:\n        calculate_tax(-500)\n        raised = False\n    except ValueError:\n        raised = True\n    assert raised is True\n\ntest_negative_income_raises()\nprint('Exception test passed!')",
+                    "code": "def calculate_tax(income):\n    if income < 0:\n        raise ValueError('Income cannot be negative')\n    return income * 0.10\n\ndef test_negative_income_raises():\n    try:\n        calculate_tax(-500)\n        raised = False\n    except ValueError:\n        raised = True\n    assert raised is True\n\ntest_negative_income_raises()\nprint('Exception test passed!')",
                     "expected_output": "Exception test passed!",
                     "explanation_en": "Verifies that invalid input properly triggers a ValueError.",
                     "explanation_hi": "Galat input par expected error aane ko verify karta hai."

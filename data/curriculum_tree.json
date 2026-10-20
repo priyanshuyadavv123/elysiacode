@@ -191,18 +191,18 @@
           }
         ],
         "example_1": {
-          "title": "Checking Python Version",
-          "title_hi": "Python version check karna",
-          "code": "import sys\nprint('Running on Python:', sys.version.split()[0])",
-          "expected_output": "Running on Python: 3.14.7",
-          "explanation_en": "Imports sys to verify the exact active Python version.",
-          "explanation_hi": "sys module se pata chalta hai ki active Python version kya hai."
+          "title": "Verifying Python 3 Environment",
+          "title_hi": "Python 3 environment verify karna",
+          "code": "import sys\nprint('Python 3 active:', sys.version_info.major >= 3)",
+          "expected_output": "Python 3 active: True",
+          "explanation_en": "Imports sys to verify that Python 3 environment is active.",
+          "explanation_hi": "sys module se confirm karta hai ki Python 3 environment active hai."
         },
         "example_2": {
-          "title": "System Platform Identification",
-          "title_hi": "Operating System detect karna",
-          "code": "import platform\nprint('Platform detected:', platform.system())",
-          "expected_output": "Platform detected: Darwin",
+          "title": "Built-in Platform Module Check",
+          "title_hi": "Built-in platform module check",
+          "code": "import platform\nprint('Platform module loaded:', bool(platform.system()))",
+          "expected_output": "Platform module loaded: True",
           "explanation_en": "Demonstrates built-in library availability right out of the box.",
           "explanation_hi": "Dikhata hai ki Python install hote hi built-in libraries ready ho jaati hain."
         },
@@ -396,10 +396,10 @@
         "example_2": {
           "title": "Command-Line Arguments Emulation",
           "title_hi": "Terminal arguments access karna",
-          "code": "import sys\nprint('Script name:', sys.argv[0])",
-          "expected_output": "Script name: main.py",
-          "explanation_en": "sys.argv contains arguments passed from the command line.",
-          "explanation_hi": "sys.argv me terminal se pass kiye gaye arguments aate hain."
+          "code": "import sys\nprint('Command arguments list loaded:', isinstance(sys.argv, list))",
+          "expected_output": "Command arguments list loaded: True",
+          "explanation_en": "sys.argv contains arguments passed from the command line as a list.",
+          "explanation_hi": "sys.argv me terminal se pass kiye gaye arguments list ke form me aate hain."
         },
         "challenge": {
           "prompt_en": "Print: Terminal mastery unlocked!",
@@ -4559,8 +4559,8 @@
         "example_1": {
           "title": "Automatic Duplicate Elimination",
           "title_hi": "Duplicates ka apne aap gayab hona",
-          "code": "tags = {'python', 'code', 'python', 'ai', 'ai'}\nprint('Unique tags set:', tags)\nprint('Total unique count:', len(tags))",
-          "expected_output": "Unique tags set: {'ai', 'code', 'python'}\nTotal unique count: 3",
+          "code": "tags = {'python', 'code', 'python', 'ai', 'ai'}\nprint('Unique tags sorted:', sorted(tags))\nprint('Total unique count:', len(tags))",
+          "expected_output": "Unique tags sorted: ['ai', 'code', 'python']\nTotal unique count: 3",
           "explanation_en": "Duplicates 'python' and 'ai' were automatically collapsed into single entries.",
           "explanation_hi": "Duplicates apne aap hat gaye aur sirf 3 unique tags bache."
         },
@@ -8402,8 +8402,8 @@
         "example_1": {
           "title": "Performance Execution Benchmark Decorator",
           "title_hi": "Execution timing measure karne wala decorator",
-          "code": "import time\n\ndef measure_time(func):\n    def wrapper(*args, **kwargs):\n        start = time.perf_counter()\n        result = func(*args, **kwargs)\n        elapsed = time.perf_counter() - start\n        print(f'{func.__name__} finished in {elapsed:.4f}s')\n        return result\n    return wrapper\n\n@measure_time\ndef compute_sum(n):\n    return sum(range(n))\n\nprint('Total:', compute_sum(100000) > 0)",
-          "expected_output": "compute_sum finished in 0.00\nTotal: True",
+          "code": "import time\n\ndef measure_time(func):\n    def wrapper(*args, **kwargs):\n        start = time.perf_counter()\n        result = func(*args, **kwargs)\n        elapsed = time.perf_counter() - start\n        print(f'{func.__name__} finished (benchmarked: {elapsed >= 0})')\n        return result\n    return wrapper\n\n@measure_time\ndef compute_sum(n):\n    return sum(range(n))\n\nprint('Total:', compute_sum(100000) > 0)",
+          "expected_output": "compute_sum finished (benchmarked: True)\nTotal: True",
           "explanation_en": "Measures elapsed high-resolution execution time before and after function invocation.",
           "explanation_hi": "Function run hone se pehle aur baad ka exact time calculate karta hai."
         },
@@ -8561,8 +8561,8 @@
         "example_1": {
           "title": "Stopwatch Timer Context Manager",
           "title_hi": "Execution stopwatch timer",
-          "code": "import time\n\nclass Timer:\n    def __enter__(self):\n        self.start = time.perf_counter()\n        return self\n    def __exit__(self, exc_type, exc_val, exc_tb):\n        self.elapsed = time.perf_counter() - self.start\n        print(f'Execution took {self.elapsed:.4f} seconds')\n\nwith Timer():\n    total = sum(i for i in range(50000))",
-          "expected_output": "Execution took 0.00",
+          "code": "import time\n\nclass Timer:\n    def __enter__(self):\n        self.start = time.perf_counter()\n        return self\n    def __exit__(self, exc_type, exc_val, exc_tb):\n        self.elapsed = time.perf_counter() - self.start\n        print(f'Execution completed (timer recorded: {self.elapsed >= 0})')\n\nwith Timer():\n    total = sum(i for i in range(50000))",
+          "expected_output": "Execution completed (timer recorded: True)",
           "explanation_en": "Measures block execution duration using __enter__ and __exit__ hooks.",
           "explanation_hi": "Block ke enter aur exit hone ke samay ka difference calculate karta hai."
         },
@@ -9396,12 +9396,14 @@
           }
         ],
         "example_1": {
-          "title": "Tkinter Window Initialization Blueprint",
-          "title_hi": "Tkinter window setup blueprint",
+          "title": "Tkinter Window Initialization Blueprint [Desktop Only]",
+          "title_hi": "Tkinter window setup blueprint [Desktop Only]",
+          "desktop_only": true,
+          "desktop_only_note": "Requires a local desktop display server with Tkinter (X11/Wayland/Aqua). Run locally on your computer to view the GUI window.",
           "code": "import tkinter as tk\n\ndef create_app_window():\n    root = tk.Tk()\n    root.title('Elysia Desktop Studio')\n    root.geometry('400x300')\n    print('Window created with title:', root.title())\n    root.destroy()\n\ntry:\n    create_app_window()\nexcept Exception:\n    print('Window created with title: Elysia Desktop Studio')",
           "expected_output": "Window created with title: Elysia Desktop Studio",
-          "explanation_en": "Instantiates root window, configures title and geometry dimensions cleanly.",
-          "explanation_hi": "Window create karke uska title aur dimensions set karta hai."
+          "explanation_en": "Instantiates root window, configures title and geometry dimensions cleanly. Note: Requires a desktop GUI environment.",
+          "explanation_hi": "Window create karke uska title aur dimensions set karta hai. Note: Iske liye desktop GUI environment chahiye."
         },
         "example_2": {
           "title": "Window Configuration Wrapper Class",
@@ -9464,12 +9466,14 @@
           }
         ],
         "example_1": {
-          "title": "Assembling Core Tkinter Widgets",
-          "title_hi": "Label, Entry aur Button assemble karna",
+          "title": "Assembling Core Tkinter Widgets [Desktop Only]",
+          "title_hi": "Label, Entry aur Button assemble karna [Desktop Only]",
+          "desktop_only": true,
+          "desktop_only_note": "Requires a local desktop display server with Tkinter (X11/Wayland/Aqua). Run locally on your computer to view the GUI window.",
           "code": "import tkinter as tk\n\ndef setup_widgets():\n    root = tk.Tk()\n    label = tk.Label(root, text='Enter Name:')\n    label.pack()\n    entry = tk.Entry(root)\n    entry.pack()\n    btn = tk.Button(root, text='Submit')\n    btn.pack()\n    print('Widgets assembled: Label, Entry, Button')\n    root.destroy()\n\ntry:\n    setup_widgets()\nexcept Exception:\n    print('Widgets assembled: Label, Entry, Button')",
           "expected_output": "Widgets assembled: Label, Entry, Button",
-          "explanation_en": "Instantiates and packs Label, Entry, and Button into the root window.",
-          "explanation_hi": "Label, Entry aur Button ko create aur pack karta hai."
+          "explanation_en": "Instantiates and packs Label, Entry, and Button into the root window. Note: Requires a desktop GUI environment.",
+          "explanation_hi": "Label, Entry aur Button ko create aur pack karta hai. Note: Iske liye desktop GUI environment chahiye."
         },
         "example_2": {
           "title": "Retrieving User Text with Entry.get()",
@@ -9607,7 +9611,7 @@
           "title": "Tkinter Desktop Calculator Full GUI Structure",
           "title_hi": "Tkinter calculator ki GUI structure",
           "code": "calculator_source = '''\nimport tkinter as tk\n\nclass DesktopCalculator:\n    def __init__(self, root):\n        self.root = root\n        self.root.title(\"Elysia Calculator\")\n        self.expression = \"\"\n        self.display_var = tk.StringVar(value=\"0\")\n        display = tk.Entry(root, textvariable=self.display_var, font=(\"Arial\", 24))\n        display.grid(row=0, column=0, columnspan=4)\n        buttons = [\n            ('7', 1, 0), ('8', 1, 1), ('9', 1, 2), ('/', 1, 3),\n            ('4', 2, 0), ('5', 2, 1), ('6', 2, 2), ('*', 2, 3),\n            ('1', 3, 0), ('2', 3, 1), ('3', 3, 2), ('-', 3, 3),\n            ('C', 4, 0), ('0', 4, 1), ('=', 4, 2), ('+', 4, 3)\n        ]\n        for (text, row, col) in buttons:\n            btn = tk.Button(root, text=text, command=lambda t=text: self.on_press(t))\n            btn.grid(row=row, column=col, sticky=\"nsew\")\n'''\nprint('Calculator source lines:', len(calculator_source.splitlines()))",
-          "expected_output": "Calculator source lines: 23",
+          "expected_output": "Calculator source lines: 20",
           "explanation_en": "Shows full Tkinter code architecture with 4x4 button grid layout.",
           "explanation_hi": "4x4 grid layout ke saath desktop window ka structure banata hai."
         },
@@ -9840,7 +9844,7 @@
           "title": "Essential Python .gitignore Rules Template",
           "title_hi": ".gitignore template rules",
           "code": "gitignore_template = '''\n# Byte-compiled files\n__pycache__/\n*.py[cod]\n\n# Virtual environments\nvenv/\nenv/\n\n# Secrets\n.env\n'''\nprint('.gitignore rules count:', len(gitignore_template.strip().splitlines()))",
-          "expected_output": ".gitignore rules count: 9",
+          "expected_output": ".gitignore rules count: 10",
           "explanation_en": "Excludes caches, virtual environments, and secrets from version tracking.",
           "explanation_hi": "Caches aur secrets ko Git me upload hone se block karta hai."
         },
@@ -9916,7 +9920,7 @@
         "example_2": {
           "title": "Verifying Expected Exceptions in Unit Tests",
           "title_hi": "Exceptions ko test karna",
-          "code": "def test_negative_income_raises():\n    try:\n        calculate_tax(-500)\n        raised = False\n    except ValueError:\n        raised = True\n    assert raised is True\n\ntest_negative_income_raises()\nprint('Exception test passed!')",
+          "code": "def calculate_tax(income):\n    if income < 0:\n        raise ValueError('Income cannot be negative')\n    return income * 0.10\n\ndef test_negative_income_raises():\n    try:\n        calculate_tax(-500)\n        raised = False\n    except ValueError:\n        raised = True\n    assert raised is True\n\ntest_negative_income_raises()\nprint('Exception test passed!')",
           "expected_output": "Exception test passed!",
           "explanation_en": "Verifies that invalid input properly triggers a ValueError.",
           "explanation_hi": "Galat input par expected error aane ko verify karta hai."
