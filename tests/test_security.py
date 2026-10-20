@@ -87,6 +87,65 @@ class TestPasswords(unittest.TestCase):
         self.assertFalse(blocked["success"])
         self.assertTrue(blocked.get("rate_limited"))
 
+    def test_attacker_ip_cannot_lockout_user_on_different_ip(self):
+        name = uname("user_ip")
+        auth.register_user(name="Alice", username=name, password="realpassword123")
+
+        ip_attacker = "198.51.100.42"
+        ip_legit = "203.0.113.88"
+
+        # Attacker on IP B tries 5 wrong passwords
+        for _ in range(5):
+            res = auth.login_user(identifier=name, password="wrongpassword", client_ip=ip_attacker)
+            self.assertFalse(res["success"])
+
+        # Attacker on IP B is now locked out
+        attacker_blocked = auth.login_user(identifier=name, password="realpassword123", client_ip=ip_attacker)
+        self.assertFalse(attacker_blocked["success"])
+        self.assertTrue(attacker_blocked.get("rate_limited"))
+
+        # Legitimate user on IP A logs in with correct password: must SUCCEED!
+        legit_login = auth.login_user(identifier=name, password="realpassword123", client_ip=ip_legit)
+        self.assertTrue(legit_login["success"], f"Legitimate user was locked out! {legit_login}")
+        self.assertEqual(legit_login["user"]["username"], name)
+
+    def test_global_user_threshold_blocks_distributed_attack(self):
+        name = uname("distrib")
+        auth.register_user(name="Bob", username=name, password="realpassword123")
+
+        # Attackers across distinct IPs fail up to the global limit
+        for i in range(auth.LOGIN_LIMIT_PER_USER_GLOBAL):
+            ip = f"192.0.2.{(i % 250) + 1}"
+            auth.login_user(identifier=name, password="wrongpassword", client_ip=ip)
+
+        # Global lockout kicks in even from a new IP
+        blocked = auth.login_user(identifier=name, password="realpassword123", client_ip="192.0.2.254")
+        self.assertFalse(blocked["success"])
+        self.assertTrue(blocked.get("rate_limited"))
+
+    def test_rate_limiter_evicts_oldest_keys_preserving_recent(self):
+        # Create a RateLimiter with capacity 3 to test eviction
+        limiter = auth._RateLimiter(max_keys=3)
+
+        limiter.fail("oldest_key", 60)
+        limiter.fail("oldest_key", 60)
+        limiter.fail("recent_key", 60)
+        limiter.fail("recent_key", 60)
+
+        # Both keys are currently blocked (limit=2)
+        self.assertTrue(limiter.blocked("oldest_key", 2, 60))
+        self.assertTrue(limiter.blocked("recent_key", 2, 60))
+
+        # Add 2 new keys (pushes count past max_keys=3)
+        limiter.fail("filler_1", 60)
+        limiter.fail("filler_2", 60)
+
+        # The oldest entry ("oldest_key") must have been evicted and is no longer blocked
+        self.assertFalse(limiter.blocked("oldest_key", 2, 60))
+
+        # The recent entry ("recent_key") must survive eviction and remain blocked!
+        self.assertTrue(limiter.blocked("recent_key", 2, 60))
+
     def test_progress_is_clamped_and_garbage_safe(self):
         name = uname("sync")
         auth.register_user(name="A", username=name, password="longenough1")

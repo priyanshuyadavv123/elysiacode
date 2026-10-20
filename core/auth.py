@@ -24,7 +24,7 @@ import secrets
 import sqlite3
 import threading
 import time
-from collections import defaultdict, deque
+from collections import OrderedDict, deque
 from typing import Any, Dict, Optional, Tuple
 
 from core import db
@@ -84,26 +84,39 @@ _DUMMY_HASH = _hash_password("not-a-real-password")
 class _RateLimiter:
     """Keeps recent failures in memory: key -> timestamps. Thread-safe."""
 
-    def __init__(self):
+    def __init__(self, max_keys: int = 50_000):
         self._lock = threading.Lock()
-        self._fails = defaultdict(deque)
+        self._fails = OrderedDict()
+        self.max_keys = max_keys
 
     def _trim(self, key, window, now):
-        dq = self._fails[key]
+        dq = self._fails.get(key)
+        if dq is None:
+            dq = deque()
+            self._fails[key] = dq
         while dq and now - dq[0] > window:
             dq.popleft()
         return dq
 
     def blocked(self, key: str, limit: int, window: int) -> bool:
         with self._lock:
-            return len(self._trim(key, window, time.time())) >= limit
+            if key not in self._fails:
+                return False
+            dq = self._trim(key, window, time.time())
+            if not dq:
+                self._fails.pop(key, None)
+                return False
+            return len(dq) >= limit
 
     def fail(self, key: str, window: int):
         with self._lock:
             now = time.time()
-            self._trim(key, window, now).append(now)
-            if len(self._fails) > 50_000:      # memory guard
-                self._fails.clear()
+            dq = self._trim(key, window, now)
+            dq.append(now)
+            self._fails.move_to_end(key)
+            # Evict only the oldest keys if capacity exceeded
+            while len(self._fails) > self.max_keys:
+                self._fails.popitem(last=False)
 
     def reset(self, key: str):
         with self._lock:
@@ -111,10 +124,12 @@ class _RateLimiter:
 
 
 _limiter = _RateLimiter()
-LOGIN_WINDOW = 300          # seconds
-LOGIN_LIMIT_PER_USER = 5    # wrong passwords per username per window
-LOGIN_LIMIT_PER_IP = 20     # wrong passwords per IP per window
-REGISTER_LIMIT_PER_IP = 10  # accounts per IP per hour
+LOGIN_WINDOW = 300                 # seconds (5 minutes)
+LOGIN_LIMIT_PER_USER_IP = 5        # wrong passwords per (username, IP) per window
+LOGIN_LIMIT_PER_USER_GLOBAL = 25   # wrong passwords per username across all IPs per window
+LOGIN_LIMIT_PER_USER = 5           # backward-compatibility alias for tests
+LOGIN_LIMIT_PER_IP = 20            # wrong passwords per IP per window
+REGISTER_LIMIT_PER_IP = 10         # accounts per IP per hour
 
 
 # ----------------------------------------------------------------- in-memory session cache
@@ -306,9 +321,13 @@ def login_user(identifier: str = "", password: str = "", username: str = "", ema
     if len(ident) > 128 or len(password) > MAX_PASSWORD_LEN:
         return {"success": False, "error": "Invalid username or password. Please try again."}
 
-    user_key, ip_key = "user:" + ident, "ip:" + client_ip
-    if _limiter.blocked(user_key, LOGIN_LIMIT_PER_USER, LOGIN_WINDOW) or \
-            (client_ip and _limiter.blocked(ip_key, LOGIN_LIMIT_PER_IP, LOGIN_WINDOW)):
+    user_ip_key = f"user_ip:{ident}:{client_ip}"
+    global_user_key = f"user_global:{ident}"
+    ip_key = f"ip:{client_ip}" if client_ip else ""
+
+    if _limiter.blocked(user_ip_key, LOGIN_LIMIT_PER_USER_IP, LOGIN_WINDOW) or \
+            _limiter.blocked(global_user_key, LOGIN_LIMIT_PER_USER_GLOBAL, LOGIN_WINDOW) or \
+            (ip_key and _limiter.blocked(ip_key, LOGIN_LIMIT_PER_IP, LOGIN_WINDOW)):
         return {"success": False, "rate_limited": True,
                 "error": "Too many failed attempts. Please wait 5 minutes and try again."}
 
@@ -321,15 +340,16 @@ def login_user(identifier: str = "", password: str = "", username: str = "", ema
             ok, upgrade = _verify_password(password, row["password_hash"])
 
         if not ok:
-            _limiter.fail(user_key, LOGIN_WINDOW)
-            if client_ip:
+            _limiter.fail(user_ip_key, LOGIN_WINDOW)
+            _limiter.fail(global_user_key, LOGIN_WINDOW)
+            if ip_key:
                 _limiter.fail(ip_key, LOGIN_WINDOW)
             return {"success": False, "error": "Invalid username or password. Please try again."}
 
         if upgrade:   # old SHA-256 hash -> modern scrypt, silently
             conn.execute("UPDATE users SET password_hash=? WHERE id=?", (_hash_password(password), row["id"]))
 
-    _limiter.reset(user_key)
+    _limiter.reset(user_ip_key)
     return {"success": True, "message": "Welcome back, %s!" % row["name"], "user": _row_to_user(row)}
 
 
