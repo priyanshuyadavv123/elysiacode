@@ -94,6 +94,12 @@ def compile_curriculum_tree():
     with open(js_path, "w", encoding="utf-8") as f:
         f.write(js_content)
 
+    # 3. Write pre-compressed gzip cache for high-speed serving
+    import gzip
+    gz_path = base_dir / "web" / "js" / "curriculum_tree.js.gz"
+    with gzip.open(gz_path, "wb", compresslevel=9) as gf:
+        gf.write(js_content.encode("utf-8"))
+
     print(f"Compiled {len(all_chapters)} chapters across {len(PARTS_REGISTRY)} parts.")
     total_subtopics = sum(len(ch["subtopics"]) for ch in all_chapters)
     print(f"Total subtopics: {total_subtopics}")

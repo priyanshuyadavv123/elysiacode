@@ -963,6 +963,29 @@ class ElysiaApp {
       });
     }
 
+    // 0a. Mobile Language & Track Preferences Collapsible Menu
+    const btnMobilePrefs = document.getElementById("btn-mobile-prefs-toggle");
+    const mobilePrefsCollapse = document.getElementById("mobile-prefs-collapse");
+    if (btnMobilePrefs && mobilePrefsCollapse) {
+      btnMobilePrefs.addEventListener("click", () => {
+        window.elysiaAudio?.playClick();
+        const isOpen = mobilePrefsCollapse.classList.toggle("open");
+        btnMobilePrefs.setAttribute("aria-expanded", String(isOpen));
+        mobilePrefsCollapse.setAttribute("aria-hidden", String(!isOpen));
+        const arrow = btnMobilePrefs.querySelector(".mobile-prefs-arrow");
+        if (arrow) arrow.textContent = isOpen ? "▴" : "▾";
+      });
+    }
+
+    const mobileAudioBtn = document.getElementById("mobile-audio-toggle-btn");
+    const mainAudioBtn = document.getElementById("audio-toggle-btn");
+    if (mobileAudioBtn && mainAudioBtn) {
+      mobileAudioBtn.addEventListener("click", () => {
+        mainAudioBtn.click();
+        mobileAudioBtn.textContent = mainAudioBtn.textContent;
+      });
+    }
+
     // 0b. Tree Panel Collapse Toggle
     document.querySelectorAll(".tree-toggle-btn").forEach(treeBtn => {
       treeBtn.addEventListener("click", () => {

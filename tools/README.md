@@ -24,6 +24,8 @@ This directory houses utility generator scripts, offline presentation builders, 
 | `verify_curriculum_outputs.py` | Executes every code example (`example_1`, `example_2`) and challenge solution across all 26 chapters (140 subtopics) in `data/curriculum_tree.json` and verifies that runtime `stdout` matches `expected_output` deterministically. Skips display-dependent desktop Tkinter examples with explicit notices. |
 | `test_browser_ai_verify.js` | Headless Google Chrome test via Chrome DevTools Protocol (CDP) that evaluates client-side Pyodide WebAssembly validation of AI-generated questions in `web/js/app.js`. |
 | `test_browser_mock_exam.js` | Headless Google Chrome test via CDP verifying that mock exam Section A renders properly, option clicks with single quotes (e.g. `'b = a'`) run without SyntaxErrors, and HTML option tags (e.g. `<div class='nav'>`) are safely escaped. |
+| `measure_mobile_baseline.js` | Diagnostic CDP tool to benchmark baseline mobile/tablet layout overflow and uncompressed Fast 3G load time. |
+| `measure_mobile_phase7.js` | Automated CDP test for Phase 7: verifies zero horizontal scroll at 390x844 & 768x1024, checks full-width search input, validates collapsed Senior AI Tutor button docking, tests collapsible preferences menu, and benchmarks gzipped Fast 3G first-render time. |
 
 ---
 

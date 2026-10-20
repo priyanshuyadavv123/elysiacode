@@ -141,29 +141,36 @@
             <span>PYTHON: ZERO TO PEAK</span>
           </button>
           
-          <!-- Bilingual Engine Toggle -->
-          <div class="pill-group top-lang-pill-group">
+          <!-- Bilingual Engine Toggle (Desktop) -->
+          <div class="pill-group top-lang-pill-group desktop-only-controls">
             <button class="pill-btn lang-btn active" data-lang="hi">🇮🇳 Hinglish</button>
             <button class="pill-btn lang-btn" data-lang="en">🇬🇧 English</button>
           </div>
 
-          <!-- Track Switcher -->
-          <div class="pill-group top-track-pill-group">
+          <!-- Track Switcher (Desktop) -->
+          <div class="pill-group top-track-pill-group desktop-only-controls">
             <button class="pill-btn track-btn active" data-track="python">🐍 Python 3</button>
             <button class="pill-btn track-btn" data-track="html">🌐 HTML5</button>
           </div>
 
-          <!-- Tactile Sound Effect (SFX) -->
-          <button id="audio-toggle-btn" class="icon-btn-3d" title="Toggle Tactile Audio Sound">🔊</button>
+          <!-- Tactile Sound Effect (SFX - Desktop) -->
+          <button id="audio-toggle-btn" class="icon-btn-3d desktop-only-controls" title="Toggle Tactile Audio Sound">🔊</button>
+        </div>
+
+        <!-- Search Bar with cmd+K shortcut (Full-width on mobile, inline on desktop) -->
+        <div class="hero-search-box">
+          <span class="search-lens-icon">🔍</span>
+          <input type="text" id="hero-global-search" placeholder="Search lessons, topics or projects..." />
+          <kbd class="kbd-shortcut">⌘ K</kbd>
         </div>
 
         <div class="viewport-top-right">
-          <!-- Search Bar with cmd+K shortcut -->
-          <div class="hero-search-box">
-            <span class="search-lens-icon">🔍</span>
-            <input type="text" id="hero-global-search" placeholder="Search lessons, topics or projects..." />
-            <kbd class="kbd-shortcut">⌘ K</kbd>
-          </div>
+          <!-- Mobile Options / Preferences Trigger (visible only on <= 768px) -->
+          <button id="btn-mobile-prefs-toggle" class="mobile-prefs-toggle-btn" title="Language & Track Options" aria-expanded="false">
+            <span>⚙️</span>
+            <span class="mobile-prefs-btn-text">Options</span>
+            <span class="mobile-prefs-arrow">▾</span>
+          </button>
 
           <!-- Quick Theme Toggle Button -->
           <button class="hero-icon-round-btn" id="btn-quick-theme-toggle" title="Switch Theme">☀️</button>
@@ -197,6 +204,30 @@
             <span id="nav-profile-rank"></span>
             <button id="btn-open-exporter"></button>
             <button id="btn-open-flex"></button>
+          </div>
+        </div>
+
+        <!-- Collapsible Menu for Mobile (< 768px) -->
+        <div id="mobile-prefs-collapse" class="mobile-prefs-collapse" aria-hidden="true">
+          <div class="mobile-prefs-inner">
+            <div class="mobile-prefs-item">
+              <span class="mobile-prefs-label">Language:</span>
+              <div class="pill-group">
+                <button class="pill-btn lang-btn active" data-lang="hi">🇮🇳 Hinglish</button>
+                <button class="pill-btn lang-btn" data-lang="en">🇬🇧 English</button>
+              </div>
+            </div>
+            <div class="mobile-prefs-item">
+              <span class="mobile-prefs-label">Track:</span>
+              <div class="pill-group">
+                <button class="pill-btn track-btn active" data-track="python">🐍 Python 3</button>
+                <button class="pill-btn track-btn" data-track="html">🌐 HTML5</button>
+              </div>
+            </div>
+            <div class="mobile-prefs-item">
+              <span class="mobile-prefs-label">Sound FX:</span>
+              <button id="mobile-audio-toggle-btn" class="icon-btn-3d" title="Toggle Tactile Audio Sound">🔊</button>
+            </div>
           </div>
         </div>
       </header>

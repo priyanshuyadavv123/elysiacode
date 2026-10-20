@@ -36,6 +36,8 @@ import socketserver
 import sys
 import threading
 import urllib.parse
+import gzip
+import mimetypes
 from pathlib import Path
 
 logger = logging.getLogger("elysia")
@@ -242,11 +244,83 @@ class ElysiaHandler(http.server.SimpleHTTPRequestHandler):
         return body if isinstance(body, dict) else {}
 
     # ------------------------------------------------------------- GET
+    def _serve_static_file(self, is_head=False):
+        parsed = urllib.parse.urlparse(self.path)
+        clean_path = parsed.path.lstrip("/")
+        if not clean_path or clean_path.endswith("/"):
+            clean_path = (clean_path + "index.html").lstrip("/")
+
+        try:
+            target_path = (WEB_DIR / clean_path).resolve()
+            if not str(target_path).startswith(str(WEB_DIR.resolve())):
+                self.send_error(404, "Not found")
+                return True
+        except Exception:
+            self.send_error(404, "Not found")
+            return True
+
+        if not target_path.is_file():
+            return False
+
+        accept_encoding = self.headers.get("Accept-Encoding", "").lower()
+        supports_gzip = "gzip" in accept_encoding
+        ext = target_path.suffix.lower()
+
+        compressible_exts = {".js", ".css", ".json", ".html", ".svg", ".txt"}
+        if supports_gzip and ext in compressible_exts:
+            gz_path = target_path.with_name(target_path.name + ".gz")
+            if gz_path.is_file() and gz_path.stat().st_mtime >= target_path.stat().st_mtime:
+                content_len = gz_path.stat().st_size
+                content = None if is_head else gz_path.read_bytes()
+            else:
+                raw_bytes = target_path.read_bytes()
+                if len(raw_bytes) > 256:
+                    gzipped = gzip.compress(raw_bytes, compresslevel=6)
+                    content_len = len(gzipped)
+                    content = None if is_head else gzipped
+                else:
+                    content_len = len(raw_bytes)
+                    content = None if is_head else raw_bytes
+                    supports_gzip = False
+
+            mime_type, _ = mimetypes.guess_type(str(target_path))
+            if not mime_type:
+                mime_type = "application/octet-stream"
+            if mime_type.startswith("text/") or mime_type in ("application/javascript", "application/json"):
+                mime_type += "; charset=utf-8"
+
+            self.send_response(200)
+            self.send_header("Content-Type", mime_type)
+            if supports_gzip:
+                self.send_header("Content-Encoding", "gzip")
+                self.send_header("Vary", "Accept-Encoding")
+            self.send_header("Content-Length", str(content_len))
+            self.end_headers()
+            if not is_head and content:
+                self.wfile.write(content)
+            return True
+
+        return False
+
+    def do_HEAD(self):
+        try:
+            if self._is_suspicious_bot():
+                return self._send_json({"error": "Automated security scanning blocked."}, 403)
+            if self._serve_static_file(is_head=True):
+                return
+            return super().do_HEAD()
+        except (BrokenPipeError, ConnectionResetError):
+            return
+        except Exception as exc:
+            logger.warning("HEAD error: %s", exc)
+
     def do_GET(self):
         try:
             if self._is_suspicious_bot():
                 return self._send_json({"error": "Automated security scanning blocked."}, 403)
             if self._handle_get_api():
+                return
+            if self._serve_static_file():
                 return
             return super().do_GET()
         except (BrokenPipeError, ConnectionResetError):

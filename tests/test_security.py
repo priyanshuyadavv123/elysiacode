@@ -299,8 +299,12 @@ class TestHttpServer(unittest.TestCase):
         h.update(headers or {})
         c.request(method, path, body=data, headers=h)
         r = c.getresponse()
-        text = r.read().decode("utf-8", "replace")
-        out = {"status": r.status, "headers": {k.lower(): v for k, v in r.getheaders()}, "text": text}
+        raw_bytes = r.read()
+        try:
+            text = raw_bytes.decode("utf-8")
+        except UnicodeDecodeError:
+            text = raw_bytes.decode("utf-8", "replace")
+        out = {"status": r.status, "headers": {k.lower(): v for k, v in r.getheaders()}, "text": text, "raw": raw_bytes}
         try:
             out["json"] = json.loads(text)
         except Exception:
@@ -389,6 +393,22 @@ class TestHttpServer(unittest.TestCase):
         r = self.call("GET", "/%2e%2e/core/auth.py")
         self.assertNotIn("def register_user", r["text"])
         self.assertEqual(self.call("GET", "/")["status"], 200)
+
+    def test_static_gzip_serving(self):
+        import gzip
+        # 1. Request with Accept-Encoding: gzip
+        r = self.call("GET", "/js/curriculum_tree.js", headers={"Accept-Encoding": "gzip"})
+        self.assertEqual(r["status"], 200)
+        self.assertEqual(r["headers"].get("content-encoding"), "gzip")
+        self.assertEqual(r["headers"].get("vary"), "Accept-Encoding")
+        decompressed = gzip.decompress(r["raw"]).decode("utf-8")
+        self.assertIn("PYTHON_CURRICULUM_PARTS", decompressed)
+
+        # 2. Request without gzip
+        r_plain = self.call("GET", "/js/curriculum_tree.js")
+        self.assertEqual(r_plain["status"], 200)
+        self.assertNotIn("content-encoding", r_plain["headers"])
+        self.assertIn("PYTHON_CURRICULUM_PARTS", r_plain["text"])
 
     def test_execute_gate(self):
         self.main.SERVER_EXEC_ENABLED = False
