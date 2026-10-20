@@ -3842,21 +3842,27 @@ body[data-theme="light"] .theme-select-box option {
 .hero-back-tag {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: transparent;
-  border: none;
-  color: #94a3b8;
-  font-size: 0.74rem;
+  gap: 6px;
+  background: rgba(56, 189, 248, 0.06);
+  border: 1px solid rgba(56, 189, 248, 0.18);
+  border-radius: 9999px;
+  color: #38bdf8;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
-  cursor: pointer;
-  padding: 0;
-  transition: color 0.2s;
+  cursor: default;
+  padding: 3px 10px;
+  transition: all 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 180px;
+  text-overflow: ellipsis;
 }
 
 .hero-back-tag:hover {
-  color: #ffffff;
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.35);
 }
 
 .viewport-top-right {
@@ -4121,13 +4127,7 @@ body[data-theme="light"] .theme-select-box option {
 }
 
 .hero-character-quote-tag {
-  font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.6);
-  font-style: italic;
-  line-height: 1.4;
-  margin-right: 310px;
-  text-align: right;
-  z-index: 4;
+  display: none; /* Removed: floating italic text was visually cluttered and had no purpose */
 }
 
 /* 5. Keep Going Panel & Upper-Right Floating Quote Block */
@@ -5494,10 +5494,11 @@ body[data-theme="light"] .theme-select-box option {
 /* =========================================================================
    8. LOWER SHOWCASE PREVIEWS ROW (Original Dark Cosmic Cards)
    ========================================================================= */
+/* Now 2 cards only (Mobile View & Theme Switch filler cards removed) */
 .bottom-showcase-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -6154,6 +6155,14 @@ body[data-theme="light"] .educational-tip-box {
     grid-template-columns: 1fr;
     width: 100% !important;
     max-width: 100% !important;
+  }
+  /* Hide ⌘K shortcut on mobile (touchscreen, no Cmd key) */
+  .kbd-shortcut {
+    display: none !important;
+  }
+  /* Hide hero back tag on mobile to save header space */
+  .hero-back-tag {
+    display: none !important;
   }
   .showcase-card {
     width: 100% !important;

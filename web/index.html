@@ -96,14 +96,7 @@
           <span class="side-nav-icon">📝</span>
           <span class="side-nav-label">Notes & Records</span>
         </button>
-        <button class="side-nav-btn" data-dest="community">
-          <span class="side-nav-icon">🌐</span>
-          <span class="side-nav-label">Community</span>
-        </button>
-        <button class="side-nav-btn" data-dest="privacy" onclick="window.elysiaApp.openModal('modal-privacy-policy')">
-          <span class="side-nav-icon">🔒</span>
-          <span class="side-nav-label">Privacy Policy</span>
-        </button>
+        <!-- Privacy Policy accessible via footer settings gear -->
       </nav>
 
       <!-- Bottom User Profile Chip in Sidebar -->
@@ -136,11 +129,6 @@
           <!-- Mobile Hamburger Drawer Button -->
           <button class="mobile-sidebar-toggle-btn" id="btn-mobile-sidebar-toggle" title="Open Navigation Menu">☰</button>
 
-          <button class="hero-back-tag" id="btn-hero-back" title="Course Track">
-            <span>←</span>
-            <span>PYTHON: ZERO TO PEAK</span>
-          </button>
-          
           <!-- Bilingual Engine Toggle (Desktop) -->
           <div class="pill-group top-lang-pill-group desktop-only-controls">
             <button class="pill-btn lang-btn active" data-lang="hi">🇮🇳 Hinglish</button>
@@ -152,9 +140,6 @@
             <button class="pill-btn track-btn active" data-track="python">🐍 Python 3</button>
             <button class="pill-btn track-btn" data-track="html">🌐 HTML5</button>
           </div>
-
-          <!-- Tactile Sound Effect (SFX - Desktop) -->
-          <button id="audio-toggle-btn" class="icon-btn-3d desktop-only-controls" title="Toggle Tactile Audio Sound">🔊</button>
         </div>
 
         <!-- Search Bar with cmd+K shortcut (Full-width on mobile, inline on desktop) -->
@@ -185,9 +170,6 @@
             <option value="light">☀️ Light</option>
           </select>
 
-          <!-- Notification Bell -->
-          <button class="hero-icon-round-btn" id="btn-notifications" title="Notifications">🔔</button>
-
           <!-- User Avatar Circle -->
           <button class="hero-avatar-round-btn" id="btn-hero-profile" title="My Profile">P</button>
 
@@ -204,6 +186,8 @@
             <span id="nav-profile-rank"></span>
             <button id="btn-open-exporter"></button>
             <button id="btn-open-flex"></button>
+            <!-- Removed: btn-notifications (no notification system), kept hidden for compat -->
+            <button id="btn-notifications"></button>
           </div>
         </div>
 
@@ -789,42 +773,6 @@
                 <div class="exam-card-sub">Chapters 8–11</div>
                 <div class="exam-card-meta">⏱️ 20 Questions</div>
                 <button class="btn-start-exam">Start Test</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 3: Mobile View (Responsive) Preview -->
-          <div class="showcase-card showcase-device-preview mobile-preview-card">
-            <div class="preview-badge-header">Mobile View (Responsive)</div>
-            <div class="device-mockup-frame">
-              <div class="mockup-header-bar">
-                <span class="mockup-logo">⚡ ELYSIA CODE</span>
-                <span class="mockup-menu-icon">☰</span>
-              </div>
-              <div class="mockup-body">
-                <div class="mockup-greet">Good evening,<br><strong>Priyanshu 👑</strong></div>
-                <button class="mockup-hero-btn" onclick="window.elysiaApp.focusEditor()">Continue Learning →</button>
-                <div class="mockup-course-title">Python Course</div>
-                <div class="mockup-part-row"><span>Part 1: The Absolute Basics</span> <span class="part-prog">1/5</span></div>
-                <div class="mockup-ch-row"><span>Chapter 1: Welcome to the World of Python</span> <span class="ch-prog">3/7</span></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 4: Theme Switch (Adaptive) Preview -->
-          <div class="showcase-card showcase-device-preview light-theme-preview-card">
-            <div class="preview-badge-header">Theme Switch (Adaptive)</div>
-            <div class="device-mockup-frame light-frame">
-              <div class="mockup-header-bar light">
-                <span class="mockup-logo">⚡ ELYSIA CODE</span>
-                <span class="mockup-menu-icon">☀️</span>
-              </div>
-              <div class="mockup-body light">
-                <div class="mockup-greet light">Good evening,<br><strong>Priyanshu 👑</strong></div>
-                <button class="mockup-hero-btn light-btn" onclick="window.elysiaApp.toggleThemeQuick()">Switch to Light Theme →</button>
-                <div class="mockup-course-title light">Python Course</div>
-                <div class="mockup-part-row light"><span>Part 1: The Absolute Basics</span> <span class="part-prog light">1/5</span></div>
-                <div class="mockup-ch-row light"><span>Chapter 1: Welcome to the World of Python</span> <span class="ch-prog light">3/7</span></div>
               </div>
             </div>
           </div>
