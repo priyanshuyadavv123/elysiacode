@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: elysia-school
+    name: elysiacode
     env: python
     buildCommand: ""
     startCommand: python3 main.py
@@ -20,3 +20,5 @@ services:
         value: "1"
       - key: ELYSIA_DATA_DIR
         value: /var/data
+      - key: GROQ_API_KEY
+        sync: false
