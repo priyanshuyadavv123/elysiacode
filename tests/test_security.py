@@ -410,6 +410,22 @@ class TestHttpServer(unittest.TestCase):
         self.assertNotIn("content-encoding", r_plain["headers"])
         self.assertIn("PYTHON_CURRICULUM_PARTS", r_plain["text"])
 
+    def test_https_redirection_and_hsts_behind_proxy(self):
+        orig_trust = self.main.TRUST_PROXY
+        try:
+            self.main.TRUST_PROXY = True
+            # 1. HTTP forwarded -> 301 to HTTPS
+            r_http = self.call("GET", "/api/health", headers={"X-Forwarded-Proto": "http"})
+            self.assertEqual(r_http["status"], 301)
+            self.assertTrue(r_http["headers"].get("location", "").startswith("https://"))
+
+            # 2. HTTPS forwarded -> 200 + HSTS
+            r_https = self.call("GET", "/api/health", headers={"X-Forwarded-Proto": "https"})
+            self.assertEqual(r_https["status"], 200)
+            self.assertIn("max-age=31536000", r_https["headers"].get("strict-transport-security", ""))
+        finally:
+            self.main.TRUST_PROXY = orig_trust
+
     def test_execute_gate(self):
         self.main.SERVER_EXEC_ENABLED = False
         self.assertEqual(self.call("GET", "/api/config")["json"], {"server_exec": False})

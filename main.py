@@ -147,6 +147,9 @@ class ElysiaHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("X-Frame-Options", "SAMEORIGIN")
         self.send_header("Referrer-Policy", "same-origin")
+        self.send_header("Permissions-Policy", "geolocation=(), camera=(), microphone=()")
+        if self._is_https():
+            self.send_header("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
         parsed = urllib.parse.urlparse(self.path)
         if not parsed.path.startswith("/api/"):
             ext = os.path.splitext(parsed.path)[1].lower()
@@ -157,6 +160,21 @@ class ElysiaHandler(http.server.SimpleHTTPRequestHandler):
     def list_directory(self, path):
         self.send_error(404, "Not found")          # never show folder listings
         return None
+
+    def _should_redirect_to_https(self):
+        if not TRUST_PROXY:
+            return False
+        return self.headers.get("X-Forwarded-Proto", "").lower() == "http"
+
+    def _redirect_to_https(self):
+        host = self.headers.get("Host", "")
+        if not host:
+            return False
+        self.send_response(301)
+        self.send_header("Location", "https://%s%s" % (host, self.path))
+        self.send_header("Connection", "close")
+        self.end_headers()
+        return True
 
     def _client_ip(self):
         if TRUST_PROXY:
@@ -304,6 +322,8 @@ class ElysiaHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_HEAD(self):
         try:
+            if self._should_redirect_to_https():
+                return self._redirect_to_https()
             if self._is_suspicious_bot():
                 return self._send_json({"error": "Automated security scanning blocked."}, 403)
             if self._serve_static_file(is_head=True):
@@ -316,6 +336,8 @@ class ElysiaHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         try:
+            if self._should_redirect_to_https():
+                return self._redirect_to_https()
             if self._is_suspicious_bot():
                 return self._send_json({"error": "Automated security scanning blocked."}, 403)
             if self._handle_get_api():
@@ -333,6 +355,9 @@ class ElysiaHandler(http.server.SimpleHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
         query = urllib.parse.parse_qs(parsed.query)
+
+        if path in ("/api/health", "/healthz"):
+            return self._send_json({"status": "ok", "app": "elysia-school", "version": "1.0.0"}) or True
 
         if path == "/api/config":
             return self._send_json({"server_exec": SERVER_EXEC_ENABLED}) or True

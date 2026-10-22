@@ -30,3 +30,4 @@ build/
 *.egg-info/
 .pytest_cache/
 *.bak
+backups/

@@ -6447,6 +6447,89 @@ body[data-theme="light"] .mobile-prefs-label {
   color: #475569;
 }
 
+/* 9. Light Mode: Bottom Showcase Cards (Projects & Mock Exams) */
+body[data-theme="light"] .showcase-card {
+  background: #ffffff !important;
+  background-image: none !important;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+body[data-theme="light"] .sc-title {
+  color: #0f172a;
+}
+body[data-theme="light"] .sc-subtitle {
+  color: #64748b;
+}
+body[data-theme="light"] .sc-tab {
+  background: #f1f5f9;
+  color: #64748b;
+}
+body[data-theme="light"] .sc-tab.active {
+  background: #0284c7;
+  color: #ffffff;
+}
+body[data-theme="light"] .sc-item-box {
+  background: #f8fafc;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+body[data-theme="light"] .sc-item-box:hover {
+  background: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.1);
+}
+body[data-theme="light"] .sc-item-title {
+  color: #0f172a;
+}
+body[data-theme="light"] .sc-item-meta {
+  color: #64748b;
+}
+body[data-theme="light"] .sc-item-box .btn-start-test,
+body[data-theme="light"] .sc-item-box .btn-open-proj {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body[data-theme="light"] .sc-exam-card {
+  background: #f8fafc !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+body[data-theme="light"] .sc-exam-card:hover {
+  background: #ffffff !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.1) !important;
+}
+body[data-theme="light"] .exam-card-title {
+  color: #0f172a !important;
+}
+body[data-theme="light"] .exam-card-sub,
+body[data-theme="light"] .exam-card-meta {
+  color: #64748b !important;
+}
+body[data-theme="light"] .btn-start-exam {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+body[data-theme="light"] .btn-start-exam:hover {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+body[data-theme="light"] .app-footer {
+  background: #ffffff !important;
+  border-top-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.02) !important;
+}
+body[data-theme="light"] .app-footer span,
+body[data-theme="light"] .app-footer a,
+body[data-theme="light"] .app-footer p {
+  color: #475569 !important;
+}
+body[data-theme="light"] .app-footer div > div > span:first-child {
+  color: #0f172a !important;
+}
+
 /* ===========================================================================
    10. RESPONSIVE DESIGN SPECIFICATION (Desktop, Laptop, Tablet, Mobile)
    =========================================================================== */
