@@ -2,13 +2,16 @@ services:
   - type: web
     name: elysiacode
     env: python
-    buildCommand: ""
-    startCommand: python3 main.py
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python3 main.py"
     healthCheckPath: /api/health
-    disk:
-      name: elysia-data
-      mountPath: /var/data
-      sizeGB: 1
+    # Note: Disks are only available on Render Paid/Starter plans.
+    # To enable persistent disk on a paid plan, uncomment the block below:
+    # disk:
+    #   name: elysia-data
+    #   mountPath: /var/data
+    #   sizeGB: 1
     envVars:
       - key: PORT
         value: 8080
@@ -18,7 +21,5 @@ services:
         value: "0"
       - key: ELYSIA_TRUST_PROXY
         value: "1"
-      - key: ELYSIA_DATA_DIR
-        value: /var/data
       - key: GROQ_API_KEY
         sync: false
