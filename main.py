@@ -357,7 +357,7 @@ class ElysiaHandler(http.server.SimpleHTTPRequestHandler):
         query = urllib.parse.parse_qs(parsed.query)
 
         if path in ("/api/health", "/healthz"):
-            return self._send_json({"status": "ok", "app": "elysia-school", "version": "1.0.0"}) or True
+            return self._send_json({"status": "ok", "app": "elysiacode", "version": "1.0.0"}) or True
 
         if path == "/api/config":
             return self._send_json({"server_exec": SERVER_EXEC_ENABLED}) or True
@@ -520,7 +520,11 @@ class ElysiaHandler(http.server.SimpleHTTPRequestHandler):
         if path in ("/api/ai/tutor", "/api/questions/generate-ai"):
             user = self._current_user()
             if not user:
-                return self._send_json({"status": "error", "error": "Authentication required. Please log in to use AI."}, 401)
+                return self._send_json({
+                    "status": "error",
+                    "error": "Authentication required. Please log in to use AI.",
+                    "message": "Authentication required. Please log in to use AI."
+                }, 401)
 
             allowed, count = auth.check_and_increment_ai_quota(user["id"], limit=30)
             if not allowed:
@@ -662,7 +666,7 @@ def run():
 
     shown = "localhost" if LOCAL_ONLY else HOST
     print("==================================================")
-    print("Elysia School server running on %s:%d" % (HOST, port))
+    print("ElysiaCode server running on %s:%d" % (HOST, port))
     print("Open: http://%s:%d" % (shown, port))
     print("Server-side code execution:", "ON (local use)" if SERVER_EXEC_ENABLED else "OFF (browser Pyodide)")
     print("==================================================")

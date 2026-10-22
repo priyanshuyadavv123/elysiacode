@@ -1,5 +1,5 @@
 """
-Elysia School - Pluggable Storage Layer (SQLite + MySQL/MariaDB).
+ElysiaCode - Pluggable Storage Layer (SQLite + MySQL/MariaDB).
 
 Why Dual-Engine Architecture?
   1. Zero Setup for Development:

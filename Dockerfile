@@ -19,5 +19,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
   CMD python3 -c "import urllib.request, os; urllib.request.urlopen('http://127.0.0.1:' + os.environ.get('PORT', '8080') + '/api/health')" || exit 1
 
-# Run Elysia School production server
+# Run ElysiaCode production server
 CMD ["python3", "main.py"]

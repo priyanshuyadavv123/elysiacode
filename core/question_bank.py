@@ -1,5 +1,5 @@
 """
-Elysia School: Dynamic Question Bank Engine
+ElysiaCode: Dynamic Question Bank Engine
 Generates customized problem sets by subject, topic, difficulty, and count.
 Includes real-world college scenarios, test cases, and bilingual hints.
 """

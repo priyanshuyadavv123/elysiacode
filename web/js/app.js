@@ -2315,12 +2315,14 @@ class ElysiaApp {
       const data = await res.json();
       if (loadingDiv.parentNode) loadingDiv.parentNode.removeChild(loadingDiv);
 
-      if (data.status === "success" && data.response) {
+      if (res.status === 401 || (data.error && data.error.includes("Authentication required"))) {
+        this._appendAIChatMessage("bot", `🔒 <strong>Pehle Login / Sign Up kar lo bhai!</strong> (Free hai)<br><p style="margin:6px 0 10px 0; font-size:0.86rem; color:#64748b;">AI Senior Tutor se baat karne aur doubt poochne ke liye free account zaroori hai taaki tumhari daily chat limit aur coding progress save rahe.</p><button class="pill-btn active" style="padding:6px 14px; cursor:pointer;" onclick="window.elysiaApp.openAuthModal()">🔑 Login / Sign Up Karein</button>`);
+      } else if (data.status === "success" && data.response) {
         this._appendAIChatMessage("bot", data.response);
       } else if (data.status === "unconfigured") {
         this._appendAIChatMessage("bot", data.message || "AI Tutor key not configured in .env.");
       } else {
-        this._appendAIChatMessage("bot", `Arre bhai! API issue aayi: ${data.message || "Unknown error"}`);
+        this._appendAIChatMessage("bot", `Arre bhai! API issue aayi: ${data.message || data.error || "Unknown error"}`);
       }
     } catch (err) {
       if (loadingDiv.parentNode) loadingDiv.parentNode.removeChild(loadingDiv);
