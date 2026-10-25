@@ -109,6 +109,7 @@ class PyodideManager {
             stderr: m.stderr || "",
             error: m.stderr || null,
             timedOut: false,
+            vars: m.vars || {},
           });
         }
       };

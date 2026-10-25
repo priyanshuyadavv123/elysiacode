@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Elysia Next — The Living IDE & Interactive Programming Laboratory</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+
+  <!-- Elysia Next Bespoke Design System Stylesheet -->
+  <link rel="stylesheet" href="css/elysia_next.css">
+
+  <!-- CodeMirror Dark IDE Theme -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+</head>
+<body data-theme="dark">
+
+  <div class="next-app-container">
+
+    <!-- =======================================================================
+         1. TOP COMMAND BAR
+         ======================================================================= -->
+    <header class="next-command-bar">
+      <div class="next-bar-left">
+        <a href="next.html" class="next-brand-logo">
+          <span>⚡ ELYSIA</span>
+          <span class="next-brand-badge">NEXT</span>
+        </a>
+
+        <div class="next-divider-vertical"></div>
+
+        <nav class="next-breadcrumbs" aria-label="Breadcrumb">
+          <span class="next-bc-crumb" id="next-bc-part">Part 1</span>
+          <span class="next-bc-sep">/</span>
+          <span class="next-bc-crumb" id="next-bc-ch">Chapter 1</span>
+          <span class="next-bc-sep">/</span>
+          <span class="next-bc-crumb active" id="next-bc-sub">Welcome to Python</span>
+        </nav>
+      </div>
+
+      <!-- Quick Command Search Trigger -->
+      <button class="next-search-trigger" onclick="window.elysiaNext.openCommandPalette()">
+        <span>🔍 Search lessons, syntax...</span>
+        <kbd class="next-search-kbd">⌘ K</kbd>
+      </button>
+
+      <div class="next-bar-right">
+        <!-- Language Switcher -->
+        <div class="next-pill-switch">
+          <button class="next-switch-btn active" data-lang="hi" onclick="window.elysiaNext.setLanguage('hi')">🇮🇳 Hinglish</button>
+          <button class="next-switch-btn" data-lang="en" onclick="window.elysiaNext.setLanguage('en')">🇬🇧 English</button>
+        </div>
+
+        <!-- Track Switcher -->
+        <div class="next-pill-switch">
+          <button class="next-switch-btn active" data-track="python" onclick="window.elysiaNext.setTrack('python')">🐍 Python</button>
+          <button class="next-switch-btn" data-track="html" onclick="window.elysiaNext.setTrack('html')">🌐 HTML5</button>
+        </div>
+
+        <!-- Gamification HUD -->
+        <div class="next-hud-container">
+          <div class="next-hud-chip streak" title="Daily Learning Streak">
+            <span>🔥</span>
+            <span id="next-hud-streak-val">1d</span>
+          </div>
+          <div class="next-hud-chip level" title="Current Mastery Level">
+            <span id="next-hud-level-val">Lv. 1</span>
+          </div>
+          <div class="next-hud-chip xp" title="Total Experience Points">
+            <span>⚡</span>
+            <span id="next-hud-xp-val">120 XP</span>
+          </div>
+        </div>
+
+        <!-- Ask AI Direct Action -->
+        <button class="next-tool-btn ai-glow" onclick="window.elysiaNext.openAI('tutor')" title="Ask Senior AI Tutor">
+          <span>🧠 Ask AI</span>
+        </button>
+
+        <!-- Theme Toggle -->
+        <button class="next-action-icon-btn" id="next-theme-toggle-btn" onclick="window.elysiaNext.toggleTheme()" title="Toggle Theme">
+          ☀️
+        </button>
+
+        <!-- Classic UI Link -->
+        <a href="index.html" class="next-classic-switch-link" title="Switch back to Classic View">
+          ↺ Classic UI
+        </a>
+      </div>
+    </header>
+
+    <!-- =======================================================================
+         2. MULTI-PANEL LIVING IDE WORKSPACE
+         ======================================================================= -->
+    <main class="next-workspace-stage" id="next-workspace-stage">
+
+      <!-- PANEL 1: CURRICULUM EXPLORER RAIL (Left) -->
+      <aside class="next-explorer-rail" id="next-explorer-rail">
+        <div class="next-explorer-header">
+          <span class="next-explorer-title">📚 Curriculum Explorer</span>
+        </div>
+        <div class="next-explorer-search">
+          <div class="next-search-input-wrap">
+            <span>🔍</span>
+            <input type="text" placeholder="Filter 26 chapters..." oninput="window.elysiaNext.filterExplorer(this.value)">
+          </div>
+        </div>
+        <div class="next-tree-scrollable" id="next-tree-container">
+          <!-- Populated dynamically by elysia_next.js -->
+        </div>
+      </aside>
+
+      <!-- PANEL 2: CONTENT DECK & VISUAL LEARNING ENGINE (Center) -->
+      <section class="next-content-deck" id="next-content-deck">
+        <div class="next-lesson-inner-wrap">
+          
+          <div class="next-lesson-header-meta">
+            <span class="next-ch-pill" id="next-lesson-ch-pill">🐍 Chapter 1 • 35 mins</span>
+          </div>
+
+          <h1 class="next-lesson-h1" id="next-lesson-title">Welcome to the World of Python</h1>
+          <p class="next-lesson-lead" id="next-lesson-lead">
+            Python is the world's most versatile programming language. Let's see how memory, syntax, and execution unite.
+          </p>
+
+          <!-- VISUAL LEARNING ENGINE: Interactive Laboratory -->
+          <div class="next-visual-lab-card">
+            <div class="next-lab-head">
+              <div class="next-lab-title-group">
+                <span class="next-lab-pill">Live Visual Engine</span>
+                <h3 class="next-lab-h3">🧠 Variable Memory Inspector (RAM)</h3>
+              </div>
+            </div>
+
+            <!-- Dynamic RAM Cells -->
+            <div class="next-ram-visualizer">
+              <div class="next-ram-cells-row" id="next-ram-cells-grid">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <!-- Stepper Controls -->
+            <div class="next-stepper-bar">
+              <div class="next-step-controls">
+                <button class="next-step-btn primary" onclick="window.elysiaNext.stepForward()">
+                  <span>Step Forward ▶</span>
+                </button>
+                <button class="next-step-btn" onclick="window.elysiaNext.stepReset()">
+                  <span>↺ Reset Stepper</span>
+                </button>
+              </div>
+              <span class="next-step-indicator" id="next-step-indicator">Line 0 of 0</span>
+            </div>
+          </div>
+
+          <!-- THEMATIC CALLOUT CARDS -->
+          <!-- Why We Need It -->
+          <div class="next-concept-card why" id="next-card-why">
+            <div class="next-card-label">💡 WHY DO WE NEED IT</div>
+            <div class="next-card-body"></div>
+          </div>
+
+          <!-- Syntax Blueprint -->
+          <div class="next-concept-card syntax" id="next-card-syntax">
+            <div class="next-card-label">📐 SYNTAX BLUEPRINT & LAWS</div>
+            <div class="next-card-body"></div>
+          </div>
+
+          <!-- Code Examples -->
+          <div id="next-examples-container"></div>
+
+          <!-- Golden Rules -->
+          <div class="next-concept-card rules" id="next-card-rules">
+            <div class="next-card-label">⚡ COMPILER LAWS & GOLDEN RULES</div>
+            <div class="next-card-body"></div>
+          </div>
+
+          <!-- Mental Model / Analogy -->
+          <div class="next-concept-card" id="next-card-analogy" style="border-left: 3px solid var(--next-cyan);">
+            <div class="next-card-label">🌍 RELATABLE MENTAL MODEL</div>
+            <div class="next-card-body"></div>
+          </div>
+
+          <!-- Challenge Card -->
+          <div id="next-challenge-container"></div>
+
+        </div>
+      </section>
+
+      <!-- PANEL 3: IDE WORKBENCH & TERMINAL (Right) -->
+      <section class="next-ide-workbench" id="next-ide-workbench">
+        
+        <!-- IDE Header Tabs -->
+        <div class="next-ide-header">
+          <div class="next-ide-tabs-group">
+            <button class="next-ide-tab active" data-tab="code">
+              <span>🐍 Python Code</span>
+            </button>
+            <button class="next-ide-tab" id="tab-ide-preview" data-tab="preview" style="display:none;">
+              <span>🌐 Live HTML</span>
+            </button>
+          </div>
+
+          <div class="next-ide-tools">
+            <button class="next-tool-btn ai-glow" id="next-btn-ai-mentor" onclick="window.elysiaNext.openAI('tutor')" title="Ask Senior AI Mentor">
+              <span>🧠 AI Mentor</span>
+            </button>
+            <button class="next-tool-btn" id="next-btn-ai-doctor" onclick="window.elysiaNext.diagnoseCodeWithAI()" title="Scan Code for Bugs with AI Doctor">
+              <span>🔍 AI Doctor</span>
+            </button>
+            <button class="next-tool-btn" onclick="window.elysiaNext.copyCode()" title="Copy Code to Clipboard">
+              <span>📋 Copy</span>
+            </button>
+            <button class="next-tool-btn" onclick="window.elysiaNext.resetCode()" title="Reset Starter Code">
+              <span>↺ Reset</span>
+            </button>
+            <select id="next-engine-select" style="background:transparent; border:none; color:var(--next-cyan); font-size:0.72rem; font-weight:700; cursor:pointer;" onchange="window.elysiaNext.execEngine = this.value">
+              <option value="pyodide" selected>⚡ Pyodide WASM (Local)</option>
+              <option value="server">🖥️ Server Python 3.12</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- CodeMirror Editor Surface -->
+        <div class="next-editor-surface-wrap">
+          <textarea id="next-code-textarea" spellcheck="false"></textarea>
+          <iframe id="next-html-preview-frame" style="display:none; width:100%; height:100%; border:none; background:#ffffff;"></iframe>
+        </div>
+
+        <!-- Prominent Run & Test Bar -->
+        <div class="next-run-bar">
+          <div class="next-run-buttons-group">
+            <button class="next-btn-run-prominent" id="next-btn-run" onclick="window.elysiaNext.runCode()" title="Run Code in Pyodide WASM (⌘↵)">
+              <span>▶ Run Code</span>
+              <span class="next-run-shortcut-tip">⌘↵</span>
+            </button>
+            <button class="next-btn-test-prominent" id="next-btn-test" onclick="window.elysiaNext.runTests()" title="Run Test Cases & Verify Challenge (⌘⇧↵)">
+              <span>🧪 Run Tests</span>
+              <span class="next-test-status-pill" id="next-test-summary-badge">1 Spec</span>
+            </button>
+            <button class="next-btn-step-bar" onclick="window.elysiaNext.stepForward()" title="Step through code line-by-line">
+              <span>⚡ Step</span>
+            </button>
+          </div>
+          <div style="font-size:0.7rem; color:var(--next-text-muted);">
+            Sub-15ms Browser Engine
+          </div>
+        </div>
+
+        <!-- Integrated Console & Terminal -->
+        <div class="next-console-terminal">
+          <div class="next-console-tabs-bar">
+            <div class="next-console-tabs">
+              <button class="next-c-tab active" data-tab="output" onclick="window.elysiaNext.setConsoleTab('output')">Output</button>
+              <button class="next-c-tab" data-tab="tests" onclick="window.elysiaNext.setConsoleTab('tests')">
+                <span>🧪 Test Cases</span>
+                <span class="next-tab-badge" id="next-tests-tab-badge">1</span>
+              </button>
+              <button class="next-c-tab" data-tab="errors" onclick="window.elysiaNext.setConsoleTab('errors')">Errors</button>
+              <button class="next-c-tab" data-tab="ai" onclick="window.elysiaNext.setConsoleTab('ai')">
+                <span>🧠 AI Mentor</span>
+                <span class="next-ai-online-dot" title="Live AI Online">●</span>
+              </button>
+              <button class="next-c-tab" data-tab="repl" onclick="window.elysiaNext.setConsoleTab('repl')">Interactive REPL</button>
+            </div>
+            <div class="next-c-tools">
+              <span class="next-exec-status" id="next-exec-status">Ready</span>
+              <button style="cursor:pointer;" onclick="window.elysiaNext.clearConsole()" title="Clear Console">🗑️</button>
+            </div>
+          </div>
+
+          <!-- Console Body Views -->
+          <div class="next-console-body">
+            <!-- 1. Standard Output -->
+            <div id="next-console-output-view">
+              <pre id="next-stdout" style="font-family:var(--font-mono); white-space:pre-wrap; color:var(--next-text-primary);">[Console ready. Press Run Code to execute]</pre>
+            </div>
+
+            <!-- 2. Test Cases Suite View -->
+            <div id="next-console-tests-view" style="display:none;">
+              <div class="next-tests-container">
+                <div class="next-tests-header">
+                  <div class="next-tests-title">
+                    <span>🎯 Challenge Test Suite</span>
+                    <span id="next-tests-overall-badge" class="next-status-tag pending">Ready to verify</span>
+                  </div>
+                  <button class="next-btn-micro-primary" onclick="window.elysiaNext.runTests()">🧪 Run All Tests</button>
+                </div>
+
+                <!-- Test Case 1: Primary Output Match -->
+                <div class="next-testcase-card" id="next-tc-card-1">
+                  <div class="next-tc-header">
+                    <div class="next-tc-label">
+                      <span class="next-tc-dot" id="next-tc1-dot">●</span>
+                      <strong>Test Case 1:</strong> Expected Terminal Output
+                    </div>
+                    <span class="next-tc-badge" id="next-tc1-badge">Pending</span>
+                  </div>
+                  <div class="next-tc-grid">
+                    <div class="next-tc-block">
+                      <span class="next-tc-block-title">Target Expected Output:</span>
+                      <pre class="next-tc-code" id="next-tc1-expected">Loading expected output...</pre>
+                    </div>
+                    <div class="next-tc-block">
+                      <span class="next-tc-block-title">Your Actual Output:</span>
+                      <pre class="next-tc-code" id="next-tc1-actual">[Not run yet — click Run Tests]</pre>
+                    </div>
+                  </div>
+                  <div class="next-tc-feedback" id="next-tc1-feedback" style="display:none;"></div>
+                </div>
+
+                <!-- Test Case 2: Code Completeness & Safety -->
+                <div class="next-testcase-card" id="next-tc-card-2">
+                  <div class="next-tc-header">
+                    <div class="next-tc-label">
+                      <span class="next-tc-dot" id="next-tc2-dot">●</span>
+                      <strong>Test Case 2:</strong> Syntax Integrity & Clean Execution
+                    </div>
+                    <span class="next-tc-badge" id="next-tc2-badge">Pending</span>
+                  </div>
+                  <div class="next-tc-detail" id="next-tc2-detail">
+                    Verifies Python syntax rules and ensures required keywords/variables exist without runtime crashes.
+                  </div>
+                </div>
+
+                <!-- Success Banner when 100% Passed -->
+                <div class="next-tests-success-banner" id="next-tests-success-banner" style="display:none;">
+                  <div style="font-size:1.3rem;">🎉</div>
+                  <div>
+                    <strong>All Test Cases Passed! (+50 XP)</strong>
+                    <div style="font-size:0.8rem; color:var(--next-text-secondary); margin-top:2px;">
+                      Great work! Your solution matches the curriculum specification perfectly.
+                    </div>
+                  </div>
+                  <button class="next-btn-micro-primary" onclick="window.elysiaNext.nextSubtopic()" style="margin-left:auto;">
+                    Next Subtopic →
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Errors with AI Banner -->
+            <div id="next-console-errors-view" style="display:none;">
+              <div id="next-error-ai-banner" class="next-error-ai-banner" style="display:none;">
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <span>⚡</span>
+                  <span>Python traceback detected. Need guidance without spoilers?</span>
+                </div>
+                <button class="next-btn-ai-decode" onclick="window.elysiaNext.decodeErrorWithAI()">
+                  🧠 Ask Senior AI to Explain
+                </button>
+              </div>
+              <pre id="next-stderr" style="font-family:var(--font-mono); white-space:pre-wrap; color:var(--next-rose);"></pre>
+            </div>
+
+            <!-- 4. Senior AI Mentor Chat View -->
+            <div id="next-console-ai-view" style="display:none;">
+              <div class="next-console-ai-container">
+                <div class="next-ai-status-strip">
+                  <div class="next-ai-status-left">
+                    <span class="next-ai-online-pulse"></span>
+                    <span style="font-weight:700; color:var(--next-text-primary);">Senior AI Mentor</span>
+                    <span class="next-ai-tag">⚡ Powered by Groq / Gemini</span>
+                  </div>
+                  <span style="font-size:0.7rem; color:var(--next-text-muted);">Socratic Guidance • Zero Spoilers</span>
+                </div>
+
+                <!-- Quick Prompt Chips -->
+                <div class="next-ai-quick-strip">
+                  <button class="next-ai-chip" onclick="window.elysiaNext.quickAskAI('debug')">🔍 Diagnose My Code</button>
+                  <button class="next-ai-chip" onclick="window.elysiaNext.quickAskAI('explain')">💡 Explain Concept</button>
+                  <button class="next-ai-chip" onclick="window.elysiaNext.quickAskAI('analogy')">🍕 Give Analogy</button>
+                  <button class="next-ai-chip" onclick="window.elysiaNext.quickAskAI('hint')">🎯 Challenge Hint</button>
+                </div>
+
+                <!-- Chat Thread -->
+                <div class="next-console-ai-thread" id="next-console-ai-thread">
+                  <div class="next-ai-msg bot">
+                    Hey there! I am your Senior Socratic AI Tutor. Whether you have an error in your code, need a clearer mental model, or want a hint for the challenge, ask me below!
+                  </div>
+                </div>
+
+                <!-- Input Row -->
+                <div class="next-console-ai-input-wrap">
+                  <input type="text" id="next-console-ai-input" placeholder="Ask AI Mentor anything about your code..." onkeydown="if(event.key==='Enter')window.elysiaNext.sendConsoleAIMessage()">
+                  <button class="next-btn-ai-send" onclick="window.elysiaNext.sendConsoleAIMessage()">Send ↵</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. Interactive REPL -->
+            <div id="next-console-repl-view" style="display:none;">
+              <div id="next-repl-history" style="font-family:var(--font-mono); margin-bottom:8px;"></div>
+              <div class="next-repl-input-row">
+                <span class="next-repl-prompt">&gt;&gt;&gt;</span>
+                <input type="text" class="next-repl-input" id="next-repl-input" placeholder="Type python statement..." onkeydown="if(event.key==='Enter')window.elysiaNext.runCode()">
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- =======================================================================
+       3. COMMAND PALETTE MODAL (⌘ K)
+       ======================================================================= -->
+  <div class="next-modal-backdrop" id="next-palette-modal" onclick="if(event.target===this)window.elysiaNext.closeCommandPalette()">
+    <div class="next-palette-card">
+      <div class="next-palette-search-row">
+        <span>🔍</span>
+        <input type="text" id="next-palette-input" placeholder="Type to search chapters, subtopics, or shortcuts..." oninput="window.elysiaNext.filterPalette(this.value)">
+        <kbd class="next-search-kbd">ESC to close</kbd>
+      </div>
+      <div class="next-palette-results" id="next-palette-results">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       4. SOCRATIC AI COMPANION DRAWER & FAB
+       ======================================================================= -->
+  <button class="next-ai-fab" onclick="window.elysiaNext.toggleAIDrawer()" title="Ask Socratic AI Mentor">
+    🧠
+  </button>
+
+  <div class="next-ai-drawer" id="next-ai-drawer">
+    <div class="next-ai-header">
+      <div class="next-ai-title">
+        <span>🧠</span>
+        <span>Socratic AI Mentor</span>
+      </div>
+      <button class="next-ai-close-btn" onclick="window.elysiaNext.toggleAIDrawer()">✕</button>
+    </div>
+    <div class="next-ai-chat-body" id="next-ai-chat-body">
+      <div class="next-ai-msg bot">
+        Hello! I'm your Socratic coding tutor. Got a doubt, need a conceptual hint, or stuck on a syntax error? Ask me anything!
+      </div>
+    </div>
+    <div class="next-ai-input-row">
+      <input type="text" id="next-ai-input" placeholder="Ask a question or request hint..." onkeydown="if(event.key==='Enter')window.elysiaNext.sendAIMessage()">
+      <button class="next-ai-send-btn" onclick="window.elysiaNext.sendAIMessage()">Send</button>
+    </div>
+  </div>
+
+  <!-- Global Confetti Canvas for Victory Achievements -->
+  <canvas id="next-confetti-canvas" style="position:fixed; top:0; left:0; width:100vw; height:100vh; pointer-events:none; z-index:99999;"></canvas>
+
+  <!-- =======================================================================
+       5. EXTERNAL RUNNERS & SCRIPTS
+       ======================================================================= -->
+  <script src="js/audio.js"></script>
+  <script src="js/pyodide_runner.js"></script>
+  <script src="js/html_runner.js"></script>
+  <script src="js/handbook_data.js"></script>
+  <script src="js/curriculum_tree.js"></script>
+
+  <!-- CodeMirror 5 Syntax Highlighter -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+
+  <!-- Elysia Next Application Engine -->
+  <script src="js/elysia_next.js"></script>
+</body>
+</html>

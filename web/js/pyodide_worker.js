@@ -88,15 +88,36 @@ self.onmessage = async (event) => {
   const ns = pyodide.globals.get("dict")();
   ns.set("__name__", "__main__");
   let stderr = "";
+  const userVars = {};
   try {
     await pyodide.runPythonAsync(String(msg.code || ""), { globals: ns });
     stderr = stderrBuf.join("\n");
+    try {
+      const keys = Array.from(ns.keys());
+      for (const k of keys) {
+        if (!k.startsWith("__")) {
+          const v = ns.get(k);
+          if (v !== undefined) {
+            let strVal = String(v);
+            let valType = "var";
+            if (typeof v === "number") valType = Number.isInteger(v) ? "int" : "float";
+            else if (typeof v === "string") valType = "str";
+            else if (typeof v === "boolean") valType = "bool";
+            else if (v && v.type) valType = v.type;
+            else if (strVal.startsWith("[") && strVal.endsWith("]")) valType = "list";
+            else if (strVal.startsWith("{") && strVal.endsWith("}")) valType = "dict";
+            else if (strVal.startsWith("(") && strVal.endsWith(")")) valType = "tuple";
+            userVars[k] = { val: strVal, type: valType };
+          }
+        }
+      }
+    } catch (eVar) {}
   } catch (err) {
     stderr = cleanTraceback(err && err.message);
   } finally {
     ns.destroy();
   }
-  self.postMessage({ type: "result", id: msg.id, stdout: stdoutBuf.join("\n"), stderr: stderr });
+  self.postMessage({ type: "result", id: msg.id, stdout: stdoutBuf.join("\n"), stderr: stderr, vars: userVars });
 };
 
 init();

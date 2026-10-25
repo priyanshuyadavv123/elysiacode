@@ -140,6 +140,17 @@
          ========================================================================= -->
     <main class="app-main-viewport" id="app-main-viewport">
 
+      <!-- ELYSIA NEXT PREVIEW BANNER -->
+      <div style="background: linear-gradient(90deg, rgba(0,240,255,0.12), rgba(168,85,247,0.12)); border: 1px solid rgba(0,240,255,0.25); border-radius: 8px; padding: 6px 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="background:linear-gradient(135deg,#00f0ff,#a855f7); color:#000; font-weight:800; font-size:0.65rem; padding:1px 6px; border-radius:4px;">NEXT GEN</span>
+          <span style="color:#e2e8f0;">Experience the all-new <strong>Elysia Next Living IDE</strong> with Visual RAM & Code Stepper.</span>
+        </div>
+        <a href="next.html" style="color:#00f0ff; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+          Launch Elysia Next →
+        </a>
+      </div>
+
       <!-- TOP BAR OVER HERO / HEADER -->
       <header class="viewport-top-header">
         <div class="viewport-top-left">
@@ -167,6 +178,31 @@
         </div>
 
         <div class="viewport-top-right">
+          <!-- Gamification & Progress HUD -->
+          <div class="gamification-top-hud" id="gamification-top-hud">
+            <!-- Streak Flame Pill -->
+            <div class="hud-streak-pill" id="hud-streak-pill" title="Daily Learning Streak">
+              <span class="hud-flame-icon">🔥</span>
+              <span class="hud-streak-val" id="hud-streak-val">1</span>
+              <span class="hud-streak-label">d</span>
+            </div>
+
+            <!-- XP & Level Progress Capsule -->
+            <div class="hud-xp-capsule" id="hud-xp-capsule" title="Experience Points & Level Progress">
+              <div class="hud-level-badge" id="hud-level-badge">Lv. 1</div>
+              <div class="hud-xp-bar-track">
+                <div class="hud-xp-bar-fill" id="hud-xp-bar-fill" style="width: 25%;"></div>
+              </div>
+              <div class="hud-xp-text"><span id="hud-xp-val">0</span> <span class="hud-xp-unit">XP</span></div>
+            </div>
+
+            <!-- Badges Button -->
+            <button class="hud-badges-trigger-btn" id="btn-open-badges-hud" title="View Achievements & Badges" onclick="window.elysiaApp.openModal('modal-achievements-badges')">
+              <span>🏆</span>
+              <span class="hud-badges-count" id="hud-badges-count">0/12</span>
+            </button>
+          </div>
+
           <!-- Mobile Options / Preferences Trigger (visible only on <= 768px) -->
           <button id="btn-mobile-prefs-toggle" class="mobile-prefs-toggle-btn" title="Language & Track Options" aria-expanded="false">
             <span>⚙️</span>
@@ -602,7 +638,7 @@
               <button class="e-expand-btn" id="btn-fullscreen-editor" title="Expand Fullscreen">⛶</button>
             </div>
 
-            <!-- Python Runtime Selector -->
+            <!-- Python Runtime Selector & Quick Tools Bar -->
             <div class="editor-engine-bar">
               <div class="engine-pill">
                 <span class="py-icon">🐍</span>
@@ -611,7 +647,11 @@
                   <option value="server">Python 3 (Server Engine)</option>
                 </select>
               </div>
-              <button class="btn-editor-reset" id="btn-reset-code" title="Reset starter code">↺ Reset</button>
+              <div class="editor-quick-action-strip">
+                <button class="btn-editor-micro-tool" id="btn-quick-copy" title="Copy code" onclick="window.elysiaApp.copyCodeToClipboard()">📋 Copy</button>
+                <button class="btn-editor-micro-tool" id="btn-quick-download" title="Download .py" onclick="window.elysiaApp.downloadCode()">💾 Save</button>
+                <button class="btn-editor-reset" id="btn-reset-code" title="Reset starter code">↺ Reset</button>
+              </div>
             </div>
 
             <!-- CodeMirror Editor Textarea -->
@@ -641,12 +681,20 @@
             <div class="terminal-box-ref">
               <div class="term-tabs-row">
                 <div class="term-left-tabs">
+                  <div class="term-window-dots">
+                    <span class="term-dot term-dot-red"></span>
+                    <span class="term-dot term-dot-yellow"></span>
+                    <span class="term-dot term-dot-green"></span>
+                  </div>
                   <button class="term-tab active" id="term-tab-output">Output</button>
                   <button class="term-tab" id="term-tab-errors">Errors</button>
                   <button class="term-tab" id="term-tab-input">Input</button>
                   <button class="term-tab" id="term-tab-repl">REPL</button>
                 </div>
-                <button class="term-clear-btn" id="btn-clear-terminal">🗑️ Clear</button>
+                <div class="term-right-tools">
+                  <span class="term-exec-badge" id="term-exec-badge">⚡ Ready</span>
+                  <button class="term-clear-btn" id="btn-clear-terminal" title="Clear console">🗑️ Clear</button>
+                </div>
               </div>
               <div class="term-console-body">
                 <div id="terminal-stdout" class="stdout-text">
@@ -1571,6 +1619,85 @@ for item in rev_arr:
       <button id="btn-send-ai-chat" class="ai-send-btn" onclick="window.elysiaApp.sendAIChat()">➤</button>
     </div>
   </div>
+
+  <!--
+    ===========================================================================
+    MODAL 7: 🏆 ACHIEVEMENTS & BADGES SHOWCASE
+    ===========================================================================
+  -->
+  <div id="modal-achievements-badges" class="modal-overlay">
+    <div class="modal-card-3d badges-modal-card" style="max-width: 820px; max-height: 88vh; display: flex; flex-direction: column;">
+      <button class="modal-close-btn" onclick="window.elysiaApp.closeModal('modal-achievements-badges')">✕</button>
+
+      <div class="badges-modal-header">
+        <div style="display:inline-flex; align-items:center; gap:6px; font-size:0.75rem; color:#a855f7; background:rgba(168,85,247,0.12); border:1px solid rgba(168,85,247,0.3); padding:3px 10px; border-radius:9999px; font-weight:700; text-transform:uppercase;">
+          🏆 Hall of Fame
+        </div>
+        <h2 style="font-size:1.5rem; font-weight:800; color:#fff; margin-top:8px;">Achievements & Badges</h2>
+        <p style="font-size:0.84rem; color:#94a3b8;">Level up your programming journey by solving challenges, running code, and building streaks!</p>
+      </div>
+
+      <!-- Badges Summary Ribbon -->
+      <div class="badges-summary-ribbon">
+        <div class="badge-stat-pill">
+          <span class="b-stat-icon">🎖️</span>
+          <div>
+            <div class="b-stat-num" id="badges-unlocked-ratio">0 / 12</div>
+            <div class="b-stat-lbl">Badges Unlocked</div>
+          </div>
+        </div>
+        <div class="badge-stat-pill">
+          <span class="b-stat-icon">⚡</span>
+          <div>
+            <div class="b-stat-num" id="badges-total-xp">0 XP</div>
+            <div class="b-stat-lbl">Earned XP</div>
+          </div>
+        </div>
+        <div class="badge-stat-pill">
+          <span class="b-stat-icon">🔥</span>
+          <div>
+            <div class="b-stat-num" id="badges-streak-count">1 Day</div>
+            <div class="b-stat-lbl">Active Streak</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Badges Grid Container -->
+      <div class="badges-grid-scroll" id="badges-grid-container">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; border-top:1px solid rgba(255,255,255,0.08); padding-top:12px;">
+        <span style="font-size:0.78rem; color:#64748b;">Solve exercises & daily streaks to unlock more badges!</span>
+        <button class="pill-btn" onclick="window.elysiaApp.closeModal('modal-achievements-badges')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Floating Quick-Action Dock (Only visible on screens <= 768px) -->
+  <nav class="mobile-floating-dock" id="mobile-floating-dock" aria-label="Mobile Navigation Dock">
+    <button class="dock-btn active" data-dock="lesson" id="btn-dock-lesson" onclick="window.elysiaApp.mobileDockNav('lesson')">
+      <span class="dock-icon">📖</span>
+      <span class="dock-text">Lesson</span>
+    </button>
+    <button class="dock-btn" data-dock="editor" id="btn-dock-editor" onclick="window.elysiaApp.mobileDockNav('editor')">
+      <span class="dock-icon">💻</span>
+      <span class="dock-text">Editor</span>
+    </button>
+    <button class="dock-btn dock-run-btn" id="btn-dock-run" onclick="window.elysiaApp.mobileDockNav('run')">
+      <span class="dock-run-halo"></span>
+      <span class="dock-icon">▶</span>
+      <span class="dock-text">Run</span>
+    </button>
+    <button class="dock-btn" data-dock="ai" id="btn-dock-ai" onclick="window.elysiaApp.mobileDockNav('ai')">
+      <span class="dock-icon">🤖</span>
+      <span class="dock-text">AI Tutor</span>
+    </button>
+    <button class="dock-btn" data-dock="badges" id="btn-dock-badges" onclick="window.elysiaApp.openModal('modal-achievements-badges')">
+      <span class="dock-icon">🏆</span>
+      <span class="dock-text">Badges</span>
+    </button>
+  </nav>
 
   <!-- Fullscreen Dopamine Confetti Canvas -->
   <canvas id="confetti-canvas" class="confetti-canvas"></canvas>

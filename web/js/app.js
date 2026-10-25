@@ -1507,14 +1507,21 @@ class ElysiaApp {
       this.currentChapterIdx = 0;
     }
 
-    // 1. Render Chapter Pills
-    chStrip.innerHTML = this.curriculumTree.map((ch, idx) => `
-      <button class="chapter-pill ${idx === this.currentChapterIdx ? 'active' : ''}" onclick="window.elysiaApp.selectChapter(${idx})">
-        <span>${ch.icon}</span> ${ch.title}
-      </button>
-    `).join("");
+    // 1. Render Chapter Pills with Completion Badges
+    chStrip.innerHTML = this.curriculumTree.map((ch, idx) => {
+      const subs = ch.subtopics || [];
+      const done = subs.filter(s => this.completedSubtopics && this.completedSubtopics.has(s.id)).length;
+      const total = subs.length;
+      const isDone = done === total && total > 0;
+      return `
+        <button class="chapter-pill ${idx === this.currentChapterIdx ? 'active' : ''}" onclick="window.elysiaApp.selectChapter(${idx})">
+          <span>${ch.icon}</span> ${ch.title}
+          <span class="ch-prog-badge ${isDone ? 'done' : ''}">${isDone ? '✓ Done' : `${done}/${total}`}</span>
+        </button>
+      `;
+    }).join("");
 
-    // 2. Render Subtopic Pills
+    // 2. Render Subtopic Pills with Status Dots
     const ch = this.curriculumTree[this.currentChapterIdx];
     const subtopics = ch.subtopics || [];
 
@@ -1523,11 +1530,11 @@ class ElysiaApp {
     }
 
     subStrip.innerHTML = subtopics.map((sub, idx) => {
-      const isCompleted = this.completedSubtopics.has(sub.id);
+      const isCompleted = this.completedSubtopics && this.completedSubtopics.has(sub.id);
       const isActive = idx === this.currentSubtopicIdx;
       return `
         <button class="subtopic-pill ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}" onclick="window.elysiaApp.selectSubtopic(${this.currentChapterIdx}, ${idx})">
-          <span>${sub.icon}</span> ${this.lang === "hi" ? (sub.title_hi || sub.title) : sub.title}
+          <span>${isCompleted ? '✓' : (isActive ? '🟢' : sub.icon)}</span> ${this.lang === "hi" ? (sub.title_hi || sub.title) : sub.title}
         </button>
       `;
     }).join("");
@@ -1844,20 +1851,71 @@ class ElysiaApp {
     this.renderCurrentLesson();
   }
 
+  _escapeHtml(text) {
+    return String(text || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  _parseCodeVariables(code) {
+    const vars = {};
+    if (!code) return vars;
+    const lines = String(code).split("\n");
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const assignMatch = trimmed.match(/^([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.+)$/);
+      if (assignMatch) {
+        const varName = assignMatch[1];
+        let rawVal = assignMatch[2].split("#")[0].trim();
+        let varType = "var";
+        if (/^-?\d+$/.test(rawVal)) varType = "int";
+        else if (/^-?\d+\.\d+$/.test(rawVal)) varType = "float";
+        else if (/^["'].*["']$/.test(rawVal)) {
+          varType = "str";
+          rawVal = rawVal.replace(/^["']|["']$/g, "");
+        } else if (/^\[.*\]$/.test(rawVal)) varType = "list";
+        else if (/^\{.*\}$/.test(rawVal)) varType = "dict";
+        else if (/^\(.*\)$/.test(rawVal)) varType = "tuple";
+        else if (rawVal === "True" || rawVal === "False") varType = "bool";
+        vars[varName] = { val: rawVal, type: varType };
+      }
+    }
+    return vars;
+  }
+
   renderMemoryTrace(trace) {
     const memContainer = document.getElementById("memory-grid");
     if (!memContainer) return;
     if (!trace || trace.length === 0) {
-      memContainer.innerHTML = `<span style="font-size:0.8rem; color:#64748b;">No active memory variables</span>`;
+      memContainer.innerHTML = `<span style="font-size:0.78rem; color:#64748b;">Run code to inspect live variable memory (RAM)</span>`;
       return;
     }
     const latest = trace[trace.length - 1];
-    memContainer.innerHTML = Object.entries(latest.vars || {}).map(([k, v]) => `
-      <div class="var-box-3d">
-        <div class="var-name">${k}</div>
-        <div class="var-val">${Array.isArray(v) ? JSON.stringify(v) : v}</div>
-      </div>
-    `).join("");
+    const vars = latest.vars || {};
+    const entries = Object.entries(vars);
+    if (entries.length === 0) {
+      memContainer.innerHTML = `<span style="font-size:0.78rem; color:#64748b;">No active memory variables. Define a variable (e.g. x = 10) and press Run.</span>`;
+      return;
+    }
+    memContainer.innerHTML = entries.map(([k, v], idx) => {
+      const valStr = typeof v === 'object' && v !== null && v.val !== undefined ? v.val : String(v);
+      const typeStr = typeof v === 'object' && v !== null && v.type ? v.type : (Number.isFinite(Number(valStr)) ? 'int' : 'str');
+      const hexAddr = `0x7f${(1024 + idx * 16).toString(16)}`;
+      return `
+        <div class="var-box-3d" title="Simulated RAM Address: ${hexAddr}">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; gap:8px;">
+            <span class="var-name">${this._escapeHtml(k)}</span>
+            <span class="var-type-pill">${this._escapeHtml(typeStr)}</span>
+          </div>
+          <div class="var-val">${this._escapeHtml(valStr)}</div>
+          <div class="var-mem-addr">${hexAddr}</div>
+        </div>
+      `;
+    }).join("");
   }
 
   /**
@@ -1865,6 +1923,12 @@ class ElysiaApp {
    */
   async runCode(providedStdin = null) {
     window.elysiaAudio.playClick();
+    const tStart = performance.now();
+    const runBtn = document.getElementById("btn-run-code");
+    if (runBtn) runBtn.classList.add("running");
+    const execBadge = document.getElementById("term-exec-badge");
+    if (execBadge) execBadge.textContent = "⚡ Running...";
+
     const code = this.getCode();
     const stdoutEl = document.getElementById("terminal-stdout");
     const stderrEl = document.getElementById("terminal-stderr");
@@ -1927,6 +1991,16 @@ class ElysiaApp {
       window.elysiaAudio.playSuccess();
       if (stdoutEl) stdoutEl.innerHTML = this._ansiToHtml(stdout || "[Executed with no console output]");
       if (stderrEl) stderrEl.innerHTML = "";
+
+      // 3D Live Variable Memory Visualizer (RAM) update
+      if (runResult.vars && Object.keys(runResult.vars).length > 0) {
+        this.renderMemoryTrace([{ vars: runResult.vars }]);
+      } else {
+        const parsed = this._parseCodeVariables(code);
+        if (Object.keys(parsed).length > 0) {
+          this.renderMemoryTrace([{ vars: parsed }]);
+        }
+      }
     }
 
     if (code.includes("input(")) {
@@ -1938,6 +2012,12 @@ class ElysiaApp {
     } else {
       if (inputBar) inputBar.style.display = "none";
     }
+
+    if (runBtn) runBtn.classList.remove("running");
+    const duration = Math.max(1, Math.round(performance.now() - tStart));
+    if (execBadge) execBadge.textContent = `⚡ ${duration}ms (${this.execEngine})`;
+    this.runCount = (this.runCount || 0) + 1;
+    this.updateGamificationUI();
 
     return { stdout, stderr };
   }
@@ -2047,7 +2127,7 @@ class ElysiaApp {
     // 2. Default & Preferred: Run inside Pyodide WebAssembly Web Worker
     if (terminalEngineTag) terminalEngineTag.textContent = "⚡ Pyodide WASM";
     const r = await window.pyodideManager.run(code, stdin || "", timeoutSec * 1000);
-    return { stdout: r.stdout || "", stderr: r.stderr || r.error || "" };
+    return { stdout: r.stdout || "", stderr: r.stderr || r.error || "", vars: r.vars || {} };
   }
 
   /**
@@ -3835,6 +3915,7 @@ class ElysiaApp {
   updateGamificationUI() {
     const tier = this.getEgoTier();
 
+    // Legacy elements for backwards compat
     const streakEl = document.getElementById("nav-streak-count");
     if (streakEl) streakEl.textContent = this.streak.toString();
 
@@ -3844,7 +3925,149 @@ class ElysiaApp {
     const profileRankEl = document.getElementById("nav-profile-rank");
     if (profileRankEl) profileRankEl.textContent = tier.rank;
 
+    // Next-Gen Gamification Top HUD
+    const hudStreak = document.getElementById("hud-streak-val");
+    if (hudStreak) hudStreak.textContent = this.streak.toString();
+
+    const hudXp = document.getElementById("hud-xp-val");
+    if (hudXp) hudXp.textContent = this.xp.toString();
+
+    const hudLevel = document.getElementById("hud-level-badge");
+    if (hudLevel) hudLevel.textContent = `Lv. ${tier.level}`;
+
+    // Level progress bar calculation
+    let tierFloor = 0;
+    let tierCeiling = 100;
+    if (this.xp >= 1000) { tierFloor = 1000; tierCeiling = 2000; }
+    else if (this.xp >= 600) { tierFloor = 600; tierCeiling = 1000; }
+    else if (this.xp >= 300) { tierFloor = 300; tierCeiling = 600; }
+    else if (this.xp >= 100) { tierFloor = 100; tierCeiling = 300; }
+    const pct = Math.min(100, Math.max(10, Math.round(((this.xp - tierFloor) / (tierCeiling - tierFloor)) * 100)));
+
+    const hudXpFill = document.getElementById("hud-xp-bar-fill");
+    if (hudXpFill) hudXpFill.style.width = `${pct}%`;
+
+    const hudBadgeCount = document.getElementById("hud-badges-count");
+    if (hudBadgeCount) {
+      const list = this.getBadgesList();
+      const unlocked = list.filter(b => b.unlocked).length;
+      hudBadgeCount.textContent = `${unlocked}/${list.length}`;
+    }
+
     this.updateAuthUI();
+  }
+
+  getBadgesList() {
+    const list = [
+      { id: "b_start", icon: "🚀", title: "First Step", desc: "Complete your first lesson", unlocked: (this.completedSubtopics && this.completedSubtopics.size >= 1) },
+      { id: "b_runner", icon: "⚡", title: "Code Pilot", desc: "Execute code in Pyodide WASM", unlocked: (this.runCount || 0) >= 1 },
+      { id: "b_streak3", icon: "🔥", title: "Streak Starter", desc: "Maintain a 3-day learning streak", unlocked: this.streak >= 3 },
+      { id: "b_streak7", icon: "🌋", title: "Flame Master", desc: "Reach a 7-day streak", unlocked: this.streak >= 7 },
+      { id: "b_tourist", icon: "💻", title: "Keyboard Tourist", desc: "Earn 100 XP (Level 2)", unlocked: this.xp >= 100 },
+      { id: "b_warrior", icon: "⚔️", title: "Syntax Warrior", desc: "Earn 300 XP (Level 3)", unlocked: this.xp >= 300 },
+      { id: "b_slayer", icon: "🐍", title: "Python Slayer", desc: "Earn 600 XP (Level 4)", unlocked: this.xp >= 600 },
+      { id: "b_master", icon: "👑", title: "Grandmaster", desc: "Earn 1000+ XP (Level 5)", unlocked: this.xp >= 1000 },
+      { id: "b_chap3", icon: "📚", title: "Curriculum Pioneer", desc: "Complete 5 or more subtopics", unlocked: (this.completedSubtopics && this.completedSubtopics.size >= 5) },
+      { id: "b_ram", icon: "🧠", title: "RAM Inspector", desc: "Live Variable Memory Visualizer active", unlocked: true },
+      { id: "b_bilingual", icon: "🌐", title: "Polyglot", desc: "Bilingual Hinglish / English Engine", unlocked: true },
+      { id: "b_night", icon: "🌙", title: "Night Owl", desc: "Practice coding at night (9 PM - 5 AM)", unlocked: (new Date().getHours() >= 21 || new Date().getHours() <= 5) }
+    ];
+    return list;
+  }
+
+  renderBadgesModalUI() {
+    const list = this.getBadgesList();
+    const unlockedCount = list.filter(b => b.unlocked).length;
+    const totalCount = list.length;
+
+    const ratioEl = document.getElementById("badges-unlocked-ratio");
+    if (ratioEl) ratioEl.textContent = `${unlockedCount} / ${totalCount}`;
+
+    const totalXpEl = document.getElementById("badges-total-xp");
+    if (totalXpEl) totalXpEl.textContent = `${this.xp} XP`;
+
+    const streakEl = document.getElementById("badges-streak-count");
+    if (streakEl) streakEl.textContent = `${this.streak} Day${this.streak === 1 ? '' : 's'}`;
+
+    const hudBadgeCount = document.getElementById("hud-badges-count");
+    if (hudBadgeCount) hudBadgeCount.textContent = `${unlockedCount}/${totalCount}`;
+
+    const container = document.getElementById("badges-grid-container");
+    if (!container) return;
+
+    container.innerHTML = list.map(b => `
+      <div class="badge-card ${b.unlocked ? 'unlocked' : 'locked'}">
+        <div class="badge-icon-box">${b.icon}</div>
+        <div class="badge-info">
+          <div class="badge-title">${b.title}</div>
+          <div class="badge-desc">${b.desc}</div>
+          <div class="badge-tag-status ${b.unlocked ? 'tag-unlocked' : 'tag-locked'}">
+            ${b.unlocked ? '✓ Unlocked' : '🔒 Locked'}
+          </div>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  mobileDockNav(target) {
+    window.elysiaAudio.playClick();
+    const dockBtns = document.querySelectorAll(".mobile-floating-dock .dock-btn");
+    dockBtns.forEach(b => {
+      if (b.dataset.dock === target) b.classList.add("active");
+      else if (b.dataset.dock && b.dataset.dock !== "badges") b.classList.remove("active");
+    });
+
+    if (target === "lesson") {
+      const lessonCol = document.querySelector(".lesson-column") || document.getElementById("tab-learn");
+      if (lessonCol) lessonCol.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else if (target === "editor") {
+      const editorPanel = document.querySelector(".editor-panel");
+      if (editorPanel) {
+        editorPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (this.editor && this.editor.focus) this.editor.focus();
+      }
+    } else if (target === "run") {
+      this.runCode();
+      const termBox = document.querySelector(".terminal-box-ref");
+      if (termBox) termBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    } else if (target === "ai") {
+      const aiTab = document.querySelector('[data-ed-tab="ai"]');
+      if (aiTab) aiTab.click();
+      const editorPanel = document.querySelector(".editor-panel");
+      if (editorPanel) editorPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      const aiInput = document.getElementById("ai-chat-input");
+      if (aiInput) aiInput.focus();
+    }
+  }
+
+  copyCodeToClipboard() {
+    window.elysiaAudio.playClick();
+    const code = this.getCode();
+    navigator.clipboard.writeText(code).then(() => {
+      this.showOptimisticToast("📋 Code copied to clipboard!", "success");
+      const btn = document.getElementById("btn-quick-copy");
+      if (btn) {
+        const orig = btn.textContent;
+        btn.textContent = "✓ Copied!";
+        setTimeout(() => btn.textContent = orig, 1500);
+      }
+    }).catch(() => {
+      this.showOptimisticToast("Code copy failed", "error");
+    });
+  }
+
+  downloadCode() {
+    window.elysiaAudio.playClick();
+    const blob = new Blob([this.getCode()], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `elysia_${this.subject || 'python'}_script.py`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    this.showOptimisticToast("💾 Script downloaded!", "success");
   }
 
   /**
@@ -3856,6 +4079,8 @@ class ElysiaApp {
     if (modal) modal.classList.add("active");
     if (modalId === "modal-user-profile") {
       this.updateProfileModalUI();
+    } else if (modalId === "modal-achievements-badges") {
+      this.renderBadgesModalUI();
     }
   }
 
