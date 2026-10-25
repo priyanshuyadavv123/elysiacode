@@ -3866,23 +3866,28 @@ body[data-theme="light"] .theme-select-box option {
 }
 
 .viewport-top-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  margin-bottom: 6px;
-  box-sizing: border-box;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin-bottom: 6px !important;
+  box-sizing: border-box !important;
 }
 
 .viewport-top-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  flex-shrink: 0;
+  display: inline-flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
 }
 
 .hero-back-tag {
@@ -3912,32 +3917,38 @@ body[data-theme="light"] .theme-select-box option {
 }
 
 .viewport-top-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
+  display: inline-flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
 }
 
 .hero-search-box {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  display: inline-flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 6px !important;
   background: rgba(13, 18, 30, 0.75);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 9999px;
   padding: 0 12px;
-  height: 36px;
-  flex: 1 1 200px;
-  max-width: 280px;
-  min-width: 130px;
-  box-sizing: border-box;
+  height: 34px !important;
+  flex: 1 1 auto !important;
+  max-width: 260px !important;
+  min-width: 75px !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
   transition: all 0.2s;
 }
 
 .hero-search-box:focus-within {
-  max-width: 310px;
+  max-width: 290px !important;
   border-color: #38bdf8;
   background: rgba(13, 18, 30, 0.95);
   box-shadow: 0 0 14px rgba(56, 189, 248, 0.2);
@@ -3952,6 +3963,7 @@ body[data-theme="light"] .theme-select-box option {
   width: 100%;
   height: 100%;
   line-height: normal;
+  min-width: 30px;
 }
 
 .hero-search-box kbd {
@@ -3962,13 +3974,13 @@ body[data-theme="light"] .theme-select-box option {
   color: #94a3b8;
   font-family: inherit;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   height: 20px;
   line-height: 1;
-  white-space: nowrap;
-  flex-shrink: 0;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
 }
 
 /* Mobile Preferences Trigger & Collapsible Menu */
@@ -7189,22 +7201,26 @@ body[data-theme="light"] .app-footer div > div > span:first-child {
   /* Header adjustments for tablet */
   .viewport-top-header {
     gap: 8px !important;
+    flex-wrap: nowrap !important;
   }
   .viewport-top-left {
     flex-wrap: nowrap !important;
     gap: 4px !important;
     flex-shrink: 0 !important;
+    white-space: nowrap !important;
   }
   .top-lang-pill-group .pill-btn,
   .top-track-pill-group .pill-btn {
     padding: 3px 6px !important;
     font-size: 0.7rem !important;
+    white-space: nowrap !important;
   }
   .hero-search-box {
-    flex: 0 1 110px !important;
-    min-width: 70px !important;
-    max-width: 120px !important;
+    flex: 1 1 auto !important;
+    min-width: 65px !important;
+    max-width: 140px !important;
     padding: 0 8px !important;
+    white-space: nowrap !important;
   }
   .hero-search-box kbd {
     display: none !important;
@@ -7212,24 +7228,36 @@ body[data-theme="light"] .app-footer div > div > span:first-child {
   .viewport-top-right {
     gap: 5px !important;
     flex-shrink: 0 !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
   }
   .gamification-top-hud {
     gap: 4px !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
   }
   .hud-xp-bar-track {
-    display: none !important;
+    display: block !important;
+    width: 28px !important;
+    height: 4px !important;
   }
   .hud-xp-capsule {
     padding: 3px 7px !important;
     gap: 4px !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
   }
   .hud-streak-pill {
     padding: 3px 6px !important;
     font-size: 0.74rem !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
   }
   .hud-badges-trigger-btn {
     padding: 3px 6px !important;
     font-size: 0.74rem !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
   }
   /* Three-panel adaptive layout on tablet */
   .integrated-workspace-grid {
@@ -7526,13 +7554,19 @@ body[data-theme="light"] .app-footer div > div > span:first-child {
 
 /* 1. Gamification Top HUD */
 .gamification-top-hud {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
 }
 .hud-streak-pill {
-  display: inline-flex;
-  align-items: center;
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
   gap: 4px;
   background: rgba(245, 158, 11, 0.12);
   border: 1px solid rgba(245, 158, 11, 0.35);
@@ -7544,6 +7578,9 @@ body[data-theme="light"] .app-footer div > div > span:first-child {
   cursor: default;
   transition: all 0.2s ease;
   user-select: none;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+  box-sizing: border-box;
 }
 .hud-streak-pill:hover {
   background: rgba(245, 158, 11, 0.2);
@@ -7560,8 +7597,10 @@ body[data-theme="light"] .app-footer div > div > span:first-child {
   50% { transform: scale(1.15) rotate(-4deg); filter: drop-shadow(0 0 8px #ef4444); }
 }
 .hud-xp-capsule {
-  display: inline-flex;
-  align-items: center;
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
   gap: 8px;
   background: rgba(99, 102, 241, 0.12);
   border: 1px solid rgba(99, 102, 241, 0.3);
@@ -7570,6 +7609,9 @@ body[data-theme="light"] .app-footer div > div > span:first-child {
   cursor: pointer;
   transition: all 0.2s ease;
   user-select: none;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+  box-sizing: border-box;
 }
 .hud-xp-capsule:hover {
   background: rgba(99, 102, 241, 0.2);
@@ -7585,13 +7627,17 @@ body[data-theme="light"] .app-footer div > div > span:first-child {
   border-radius: 6px;
   letter-spacing: 0.3px;
   box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
 }
 .hud-xp-bar-track {
-  width: 50px;
+  width: 46px;
   height: 5px;
   background: rgba(255, 255, 255, 0.12);
   border-radius: 9999px;
   overflow: hidden;
+  flex-shrink: 0 !important;
+  display: block !important;
 }
 .hud-xp-bar-fill {
   height: 100%;
@@ -7603,6 +7649,8 @@ body[data-theme="light"] .app-footer div > div > span:first-child {
   font-size: 0.78rem;
   font-weight: 700;
   color: #e2e8f0;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
 }
 .hud-xp-unit {
   font-size: 0.65rem;
@@ -7610,8 +7658,10 @@ body[data-theme="light"] .app-footer div > div > span:first-child {
   font-weight: 600;
 }
 .hud-badges-trigger-btn {
-  display: inline-flex;
-  align-items: center;
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
   gap: 5px;
   background: rgba(168, 85, 247, 0.14);
   border: 1px solid rgba(168, 85, 247, 0.35);
@@ -7623,6 +7673,9 @@ body[data-theme="light"] .app-footer div > div > span:first-child {
   cursor: pointer;
   transition: all 0.2s ease;
   user-select: none;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+  box-sizing: border-box;
 }
 .hud-badges-trigger-btn:hover {
   background: rgba(168, 85, 247, 0.25);

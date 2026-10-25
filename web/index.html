@@ -28,9 +28,9 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- Main Cinematic Design System -->
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=2.2.0">
   <!-- Visual Handbook / E-Book Styles -->
-  <link rel="stylesheet" href="css/handbook.css">
+  <link rel="stylesheet" href="css/handbook.css?v=2.2.0">
   
   <!-- CodeMirror Syntax Highlighting (Dark IDE Theme) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
@@ -157,8 +157,8 @@
       </div>
 
       <!-- TOP BAR OVER HERO / HEADER -->
-      <header class="viewport-top-header">
-        <div class="viewport-top-left">
+      <header class="viewport-top-header" style="display:flex; flex-direction:row; flex-wrap:nowrap; align-items:center; justify-content:space-between; gap:10px; width:100%; box-sizing:border-box;">
+        <div class="viewport-top-left" style="display:inline-flex; flex-direction:row; flex-wrap:nowrap; align-items:center; gap:8px; flex-shrink:0; white-space:nowrap;">
           <!-- Mobile Hamburger Drawer Button -->
           <button class="mobile-sidebar-toggle-btn" id="btn-mobile-sidebar-toggle" title="Open Navigation Menu">☰</button>
 
@@ -176,33 +176,33 @@
         </div>
 
         <!-- Search Bar with cmd+K shortcut (Full-width on mobile, inline on desktop) -->
-        <div class="hero-search-box">
+        <div class="hero-search-box" style="display:inline-flex; align-items:center; gap:6px; flex:1 1 auto; max-width:260px; min-width:80px; box-sizing:border-box; white-space:nowrap;">
           <span class="search-lens-icon">🔍</span>
           <input type="text" id="hero-global-search" placeholder="Search lessons, topics or projects..." />
-          <kbd class="kbd-shortcut">⌘ K</kbd>
+          <kbd class="kbd-shortcut" style="white-space:nowrap; flex-shrink:0;">⌘ K</kbd>
         </div>
 
-        <div class="viewport-top-right">
+        <div class="viewport-top-right" style="display:inline-flex; flex-direction:row; flex-wrap:nowrap; align-items:center; gap:6px; flex-shrink:0; white-space:nowrap;">
           <!-- Gamification & Progress HUD -->
-          <div class="gamification-top-hud" id="gamification-top-hud">
+          <div class="gamification-top-hud" id="gamification-top-hud" style="display:inline-flex; flex-direction:row; flex-wrap:nowrap; align-items:center; gap:6px; flex-shrink:0; white-space:nowrap;">
             <!-- Streak Flame Pill -->
-            <div class="hud-streak-pill" id="hud-streak-pill" title="Daily Learning Streak">
+            <div class="hud-streak-pill" id="hud-streak-pill" title="Daily Learning Streak" style="display:inline-flex; align-items:center; gap:4px; flex-shrink:0; white-space:nowrap;">
               <span class="hud-flame-icon">🔥</span>
               <span class="hud-streak-val" id="hud-streak-val">1</span>
               <span class="hud-streak-label">d</span>
             </div>
 
             <!-- XP & Level Progress Capsule -->
-            <div class="hud-xp-capsule" id="hud-xp-capsule" title="Experience Points & Level Progress">
+            <div class="hud-xp-capsule" id="hud-xp-capsule" title="Experience Points & Level Progress" style="display:inline-flex; align-items:center; gap:6px; flex-shrink:0; white-space:nowrap;">
               <div class="hud-level-badge" id="hud-level-badge">Lv. 1</div>
-              <div class="hud-xp-bar-track">
+              <div class="hud-xp-bar-track" style="width:40px; height:5px; flex-shrink:0; display:block;">
                 <div class="hud-xp-bar-fill" id="hud-xp-bar-fill" style="width: 25%;"></div>
               </div>
-              <div class="hud-xp-text"><span id="hud-xp-val">0</span> <span class="hud-xp-unit">XP</span></div>
+              <div class="hud-xp-text" style="white-space:nowrap;"><span id="hud-xp-val">0</span> <span class="hud-xp-unit">XP</span></div>
             </div>
 
             <!-- Badges Button -->
-            <button class="hud-badges-trigger-btn" id="btn-open-badges-hud" title="View Achievements & Badges" onclick="window.elysiaApp.openModal('modal-achievements-badges')">
+            <button class="hud-badges-trigger-btn" id="btn-open-badges-hud" title="View Achievements & Badges" onclick="window.elysiaApp.openModal('modal-achievements-badges')" style="display:inline-flex; align-items:center; gap:5px; flex-shrink:0; white-space:nowrap;">
               <span>🏆</span>
               <span class="hud-badges-count" id="hud-badges-count">0/12</span>
             </button>
@@ -1841,11 +1841,11 @@ for item in rev_arr:
     5. curriculum_tree.js: Granular Chapter -> Topic -> Subtopic tree.
     6. app.js: Master state controller, bilingual engine, event listeners, and UI logic.
   -->
-  <script src="js/audio.js"></script>
-  <script src="js/pyodide_runner.js"></script>
-  <script src="js/html_runner.js"></script>
-  <script src="js/handbook_data.js"></script>
-  <script src="js/curriculum_tree.js"></script>
+  <script src="js/audio.js?v=2.2.0"></script>
+  <script src="js/pyodide_runner.js?v=2.2.0"></script>
+  <script src="js/html_runner.js?v=2.2.0"></script>
+  <script src="js/handbook_data.js?v=2.2.0"></script>
+  <script src="js/curriculum_tree.js?v=2.2.0"></script>
   <!-- CodeMirror 5 Syntax Highlighter (Python, HTML, JS, CSS, Auto-closing brackets) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
@@ -1855,7 +1855,7 @@ for item in rev_arr:
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/app.js?v=2.2.0"></script>
 </body>
 </html>
 
