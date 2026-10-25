@@ -119,6 +119,11 @@ class ElysiaApp {
     this.loadHandbook();      // Visual handbook ke chapters ready kiye
     this._initPyodideEngine(); // ⚡ Live Pyodide WebAssembly engine initialize & preload kiya
     this.setupReferenceUI(); // 🏛️ Reference UI Bindings & Tree Accordion
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("tab") === "qbank" || window.location.hash === "#qbank") {
+      this.switchTab("qbank");
+    }
   }
 
   showOptimisticToast(msg, type = "success") {
@@ -903,6 +908,15 @@ class ElysiaApp {
       content.classList.toggle("active", content.id === `tab-${tabName}`);
     });
 
+    // Sidebar navigation active state sync
+    document.querySelectorAll(".side-nav-btn").forEach(b => {
+      if (tabName === "qbank") b.classList.toggle("active", b.dataset.dest === "qbank");
+      else if (tabName === "mock") b.classList.toggle("active", b.dataset.dest === "mock" || b.dataset.dest === "viva");
+      else if (tabName === "handbook") b.classList.toggle("active", b.dataset.dest === "handbook");
+      else if (tabName === "xray") b.classList.toggle("active", b.dataset.dest === "xray");
+      else if (tabName === "learn") b.classList.toggle("active", b.dataset.dest === "course" || b.dataset.dest === "dashboard" || b.dataset.dest === "lab");
+    });
+
     // Specific tab khulne par uska data load kiya
     if (tabName === "qbank") {
       this.populateQBankTopics();
@@ -1024,6 +1038,9 @@ class ElysiaApp {
         } else if (dest === "course") {
           this.switchTab("learn");
           this.enterCourseMode();
+        } else if (dest === "qbank") {
+          this.switchTab("qbank");
+          viewport?.scrollTo({ top: 0, behavior: "smooth" });
         } else if (dest === "lab") {
           this.switchTab("learn");
           this.enterCourseMode();

@@ -84,6 +84,11 @@
           <span class="side-nav-icon">📖</span>
           <span class="side-nav-label">Python Course</span>
         </button>
+        <button class="side-nav-btn" data-dest="qbank" title="Practice 1,150+ Coding Questions">
+          <span class="side-nav-icon">🎯</span>
+          <span class="side-nav-label">Question Bank</span>
+          <span class="side-nav-badge" style="background:#0284c7; color:#fff; font-size:0.68rem; font-weight:800; padding:1px 6px; border-radius:9999px; margin-left:auto;">1.1k</span>
+        </button>
         <button class="side-nav-btn" data-dest="lab">
           <span class="side-nav-icon">💻</span>
           <span class="side-nav-label">Coding Lab</span>
@@ -288,6 +293,7 @@
               <div class="hero-buttons-row">
                 <button class="hero-btn-continue" id="btn-hero-continue">Continue Learning →</button>
                 <button class="hero-btn-curriculum" id="btn-hero-curriculum">View Curriculum</button>
+                <button class="hero-btn-curriculum" onclick="window.elysiaApp.switchTab('qbank')" style="border-color:#38bdf8; color:#38bdf8;" title="Practice 1,150+ Coding Questions">🎯 Question Bank (1.1k)</button>
               </div>
             </div>
 
@@ -400,6 +406,10 @@
               <button class="qa-btn" id="qa-btn-practice" title="Open Code Editor">
                 <span class="qa-icon">&lt;/&gt;</span>
                 <span class="qa-label">Practice Code</span>
+              </button>
+              <button class="qa-btn" id="qa-btn-qbank" onclick="window.elysiaApp.switchTab('qbank')" title="Practice 1,150+ Coding Questions">
+                <span class="qa-icon">🎯</span>
+                <span class="qa-label">Q-Bank (1.1k)</span>
               </button>
               <button class="qa-btn" id="qa-btn-quiz" title="Take Concept Quiz">
                 <span class="qa-icon">📄</span>
