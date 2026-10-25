@@ -660,6 +660,118 @@
               <iframe id="html-preview-frame" class="html-preview-frame" style="display:none;"></iframe>
             </div>
 
+            <!-- Test Cases View (Tab: Test Cases) -->
+            <div id="ed-panel-tests" class="ed-tab-pane" style="display:none;">
+              <div class="ed-tests-card">
+                <div class="ed-tests-header">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:1.1rem;">🧪</span>
+                    <div>
+                      <div class="ed-tests-main-title">Subtopic Challenge Test Suite</div>
+                      <div class="ed-tests-sub-title">Automated evaluation against the official curriculum spec</div>
+                    </div>
+                  </div>
+                  <span id="ed-tests-overall-badge" class="ed-test-tag pending">Ready to Run</span>
+                </div>
+
+                <!-- Test Case 1 -->
+                <div class="ed-test-case-box" id="ed-tc-box-1">
+                  <div class="ed-tc-top">
+                    <div class="ed-tc-title">
+                      <span class="ed-tc-dot" id="ed-tc-dot-1">●</span>
+                      <strong>Test Case 1:</strong> Expected Output Match
+                    </div>
+                    <span class="ed-tc-status" id="ed-tc-status-1">Pending</span>
+                  </div>
+                  <div class="ed-tc-grid">
+                    <div class="ed-tc-col">
+                      <span class="ed-tc-lbl">Target Expected Output:</span>
+                      <pre class="ed-tc-pre" id="ed-tc-expected-out">Loading...</pre>
+                    </div>
+                    <div class="ed-tc-col">
+                      <span class="ed-tc-lbl">Your Actual Output:</span>
+                      <pre class="ed-tc-pre" id="ed-tc-actual-out">[Click "Run Tests & Submit" below to verify]</pre>
+                    </div>
+                  </div>
+                  <div id="ed-tc-diff-box" class="ed-tc-diff" style="display:none;"></div>
+                </div>
+
+                <!-- Test Case 2 -->
+                <div class="ed-test-case-box" id="ed-tc-box-2">
+                  <div class="ed-tc-top">
+                    <div class="ed-tc-title">
+                      <span class="ed-tc-dot" id="ed-tc-dot-2">●</span>
+                      <strong>Test Case 2:</strong> Syntax Safety & Execution Integrity
+                    </div>
+                    <span class="ed-tc-status" id="ed-tc-status-2">Pending</span>
+                  </div>
+                  <div style="font-size:0.78rem; color:#94a3b8; margin-top:4px;">
+                    Verifies zero unhandled exceptions, syntax errors, or execution crashes.
+                  </div>
+                </div>
+
+                <!-- Actions Strip -->
+                <div class="ed-tests-actions">
+                  <button class="btn-primary-3d" id="btn-ed-run-tests" onclick="window.elysiaApp.runEditorTests()">
+                    🧪 Run Tests & Submit (+50 XP)
+                  </button>
+                  <button class="btn-ghost-3d" onclick="window.elysiaApp.switchEditorTab('code')">
+                    ← Back to Code
+                  </button>
+                </div>
+
+                <!-- Victory Banner -->
+                <div id="ed-tests-victory-banner" class="ed-victory-banner" style="display:none;">
+                  <span style="font-size:1.5rem;">🎉</span>
+                  <div>
+                    <div style="font-weight:800; color:#34d399; font-size:0.95rem;">All Test Cases Passed! (+50 XP Earned)</div>
+                    <div style="font-size:0.78rem; color:#cbd5e1;">Your solution successfully matched the challenge specification!</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- AI Help View (Tab: AI Help) -->
+            <div id="ed-panel-ai" class="ed-tab-pane" style="display:none;">
+              <div class="ed-ai-card">
+                <div class="ed-ai-header">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:1.2rem;">🤖</span>
+                    <div>
+                      <div style="font-weight:700; color:#fff; font-size:0.95rem;">Senior AI Mentor & Code Doctor</div>
+                      <div style="font-size:0.75rem; color:#38bdf8;">⚡ Sub-Second AI Assistance (Groq & Gemini)</div>
+                    </div>
+                  </div>
+                  <button class="btn-micro" onclick="window.elysiaApp.toggleAITutor(true)">
+                    Open Floating Tutor ↗
+                  </button>
+                </div>
+
+                <!-- Quick Prompt Chips -->
+                <div class="ed-ai-chips">
+                  <button class="ed-chip" onclick="window.elysiaApp.findErrorsWithAI()">🔍 Scan Code for Bugs</button>
+                  <button class="ed-chip" onclick="window.elysiaApp.quickAskAI('explain')">💡 Explain Current Topic</button>
+                  <button class="ed-chip" onclick="window.elysiaApp.quickAskAI('analogy')">🍕 Give Fun Analogy</button>
+                  <button class="ed-chip" onclick="window.elysiaApp.askAIForChallengeHint()">🎯 Hint for Challenge</button>
+                </div>
+
+                <!-- AI Response / Advice Box -->
+                <div id="ed-ai-output-box" class="ed-ai-output">
+                  <div style="color:#94a3b8; font-size:0.84rem; line-height:1.5;">
+                    💡 Ask a question about your code or click any chip above to get instant Socratic guidance!
+                  </div>
+                </div>
+
+                <!-- AI Input Field -->
+                <div class="ed-ai-input-row">
+                  <input type="text" id="ed-ai-custom-input" class="ed-ai-field" placeholder="Ask Senior AI a question about your code..." onkeydown="if(event.key==='Enter')window.elysiaApp.sendEditorAIChat()">
+                  <button class="btn-primary-3d" onclick="window.elysiaApp.sendEditorAIChat()" style="padding:6px 14px; font-size:0.78rem;">
+                    Ask AI ↵
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <div style="display:none;">
               <span id="editor-lang-indicator">python_workspace.py</span>
               <span id="editor-cursor-pos">Ln 1, Col 1</span>

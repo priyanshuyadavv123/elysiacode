@@ -1244,16 +1244,273 @@ class ElysiaApp {
     const btnFullscreen = document.getElementById("btn-fullscreen-editor");
     if (btnFullscreen) {
       btnFullscreen.addEventListener("click", () => {
+        window.elysiaAudio?.playClick();
         const editorCard = document.querySelector(".editor-panel");
         if (editorCard) {
-          editorCard.classList.toggle("fullscreen-mode");
-          setTimeout(() => this.codeMirror?.refresh(), 50);
+          const isFull = editorCard.classList.toggle("fullscreen-mode");
+          btnFullscreen.textContent = isFull ? "✕" : "⛶";
+          btnFullscreen.title = isFull ? "Exit Fullscreen (Esc)" : "Expand Fullscreen";
+          setTimeout(() => this.codeMirror?.refresh(), 60);
+        }
+      });
+
+      // Escape key to exit fullscreen
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          const editorCard = document.querySelector(".editor-panel");
+          if (editorCard && editorCard.classList.contains("fullscreen-mode")) {
+            editorCard.classList.remove("fullscreen-mode");
+            btnFullscreen.textContent = "⛶";
+            btnFullscreen.title = "Expand Fullscreen";
+            setTimeout(() => this.codeMirror?.refresh(), 60);
+          }
         }
       });
     }
 
+    // 13. Editor Tabs: Code, Test Cases, AI Help
+    document.querySelectorAll(".e-tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        const target = tab.dataset.edTab;
+        if (target) this.switchEditorTab(target);
+      });
+    });
+
     // Render tree accordion
     this.renderReferenceTree();
+  }
+
+  /**
+   * 📌 SWITCH EDITOR TABS: Code, Test Cases, AI Help
+   */
+  switchEditorTab(target) {
+    window.elysiaAudio?.playClick();
+    document.querySelectorAll(".e-tab").forEach(tab => {
+      tab.classList.toggle("active", tab.dataset.edTab === target);
+    });
+
+    const editorWrapper = document.querySelector(".monaco-like-editor-wrapper");
+    const engineBar = document.querySelector(".editor-engine-bar");
+    const runBtn = document.getElementById("btn-run-code");
+    const testsPanel = document.getElementById("ed-panel-tests");
+    const aiPanel = document.getElementById("ed-panel-ai");
+
+    if (target === "code") {
+      if (editorWrapper) editorWrapper.style.display = "block";
+      if (engineBar) engineBar.style.display = "flex";
+      if (runBtn) runBtn.style.display = "flex";
+      if (testsPanel) testsPanel.style.display = "none";
+      if (aiPanel) aiPanel.style.display = "none";
+      setTimeout(() => this.codeMirror?.refresh(), 50);
+    } else if (target === "tests") {
+      if (editorWrapper) editorWrapper.style.display = "none";
+      if (engineBar) engineBar.style.display = "none";
+      if (runBtn) runBtn.style.display = "none";
+      if (testsPanel) testsPanel.style.display = "block";
+      if (aiPanel) aiPanel.style.display = "none";
+      this.syncEditorTestsUI();
+    } else if (target === "ai") {
+      if (editorWrapper) editorWrapper.style.display = "none";
+      if (engineBar) engineBar.style.display = "none";
+      if (runBtn) runBtn.style.display = "none";
+      if (testsPanel) testsPanel.style.display = "none";
+      if (aiPanel) aiPanel.style.display = "block";
+      const aiInput = document.getElementById("ed-ai-custom-input");
+      if (aiInput) setTimeout(() => aiInput.focus(), 80);
+    }
+  }
+
+  /**
+   * 📌 SYNCHRONIZE TEST CASES UI
+   */
+  syncEditorTestsUI() {
+    const ch = this.curriculumTree[this.currentChapterIdx];
+    const sub = ch ? ch.subtopics[this.currentSubtopicIdx] : null;
+    const expectedEl = document.getElementById("ed-tc-expected-out");
+    const actualEl = document.getElementById("ed-tc-actual-out");
+    const badge = document.getElementById("ed-tests-overall-badge");
+    const tc1Status = document.getElementById("ed-tc-status-1");
+    const tc1Dot = document.getElementById("ed-tc-dot-1");
+    const tc2Status = document.getElementById("ed-tc-status-2");
+    const tc2Dot = document.getElementById("ed-tc-dot-2");
+    const diffBox = document.getElementById("ed-tc-diff-box");
+    const victory = document.getElementById("ed-tests-victory-banner");
+
+    const expected = (sub && sub.challenge && sub.challenge.expected_output) || "Program completes execution cleanly.";
+    if (expectedEl) expectedEl.textContent = expected;
+    if (actualEl) actualEl.textContent = "[Click 'Run Tests & Submit' below to verify]";
+    if (badge) { badge.className = "ed-test-tag pending"; badge.textContent = "Ready to Run"; }
+    if (tc1Status) { tc1Status.className = "ed-tc-status"; tc1Status.textContent = "Pending"; }
+    if (tc1Dot) { tc1Dot.className = "ed-tc-dot"; }
+    if (tc2Status) { tc2Status.className = "ed-tc-status"; tc2Status.textContent = "Pending"; }
+    if (tc2Dot) { tc2Dot.className = "ed-tc-dot"; }
+    if (diffBox) diffBox.style.display = "none";
+    if (victory) victory.style.display = "none";
+  }
+
+  /**
+   * 📌 RUN TEST CASES & SUBMIT
+   */
+  async runEditorTests() {
+    window.elysiaAudio?.playClick();
+    const runBtn = document.getElementById("btn-ed-run-tests");
+    if (runBtn) {
+      runBtn.textContent = "⏳ Running Tests...";
+      runBtn.disabled = true;
+    }
+
+    const badge = document.getElementById("ed-tests-overall-badge");
+    if (badge) {
+      badge.className = "ed-test-tag pending";
+      badge.textContent = "Verifying...";
+    }
+
+    const code = this.getCode();
+    const ch = this.curriculumTree[this.currentChapterIdx];
+    const sub = ch ? ch.subtopics[this.currentSubtopicIdx] : null;
+    const expected = ((sub && sub.challenge && sub.challenge.expected_output) || "").trim();
+
+    let stdout = "";
+    let stderr = "";
+
+    try {
+      if (window.pyodideManager) {
+        const res = await window.pyodideManager.run(code, "", 5000);
+        stdout = res.stdout || "";
+        stderr = res.stderr || "";
+      } else {
+        const res = await fetch("/api/execute", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: code, timeout: 5 })
+        });
+        const data = await res.json();
+        stdout = data.stdout || "";
+        stderr = data.stderr || "";
+      }
+    } catch (err) {
+      stderr = String(err && err.message ? err.message : err);
+    }
+
+    if (runBtn) {
+      runBtn.textContent = "🧪 Run Tests & Submit (+50 XP)";
+      runBtn.disabled = false;
+    }
+
+    const cleanActual = (stdout || "").trim();
+    const actualEl = document.getElementById("ed-tc-actual-out");
+    if (actualEl) {
+      actualEl.textContent = cleanActual || (stderr ? `[Runtime Error: ${stderr.split('\n').pop()}]` : "[No Output]");
+    }
+
+    const tc1Status = document.getElementById("ed-tc-status-1");
+    const tc1Dot = document.getElementById("ed-tc-dot-1");
+    const tc2Status = document.getElementById("ed-tc-status-2");
+    const tc2Dot = document.getElementById("ed-tc-dot-2");
+    const diffBox = document.getElementById("ed-tc-diff-box");
+    const victory = document.getElementById("ed-tests-victory-banner");
+
+    const tc1Passed = !stderr && (cleanActual === expected || (expected && cleanActual.includes(expected)));
+    const tc2Passed = !stderr && code.trim().length > 0;
+
+    if (tc1Passed) {
+      if (tc1Status) { tc1Status.className = "ed-tc-status passed"; tc1Status.textContent = "✔ Passed"; }
+      if (tc1Dot) { tc1Dot.className = "ed-tc-dot passed"; }
+      if (diffBox) diffBox.style.display = "none";
+    } else {
+      if (tc1Status) { tc1Status.className = "ed-tc-status failed"; tc1Status.textContent = "❌ Failed"; }
+      if (tc1Dot) { tc1Dot.className = "ed-tc-dot failed"; }
+      if (diffBox) {
+        diffBox.style.display = "block";
+        if (stderr) {
+          diffBox.innerHTML = `⚠️ Syntax / Execution Error: <code>${this._escapeHtml(stderr.split('\n').pop())}</code>`;
+        } else {
+          diffBox.innerHTML = `⚠️ Output Mismatch: Expected exact match for <code>"${this._escapeHtml(expected)}"</code>. Got <code>"${this._escapeHtml(cleanActual)}"</code>.`;
+        }
+      }
+    }
+
+    if (tc2Passed) {
+      if (tc2Status) { tc2Status.className = "ed-tc-status passed"; tc2Status.textContent = "✔ Passed"; }
+      if (tc2Dot) { tc2Dot.className = "ed-tc-dot passed"; }
+    } else {
+      if (tc2Status) { tc2Status.className = "ed-tc-status failed"; tc2Status.textContent = "❌ Failed"; }
+      if (tc2Dot) { tc2Dot.className = "ed-tc-dot failed"; }
+    }
+
+    if (tc1Passed && tc2Passed) {
+      if (badge) { badge.className = "ed-test-tag passed"; badge.textContent = "✔ 100% Passed"; }
+      if (victory) victory.style.display = "flex";
+      window.elysiaAudio?.playSuccess();
+      this.launchConfetti();
+      if (sub && !this.completedSubtopics.has(sub.id)) {
+        this.completedSubtopics.add(sub.id);
+        this.addXP(sub.xp || 50);
+      }
+    } else {
+      if (badge) { badge.className = "ed-test-tag failed"; badge.textContent = "❌ Tests Failed"; }
+      window.elysiaAudio?.playError();
+    }
+  }
+
+  /**
+   * 📌 SEND EDITOR AI CHAT
+   */
+  async sendEditorAIChat() {
+    window.elysiaAudio?.playClick();
+    const input = document.getElementById("ed-ai-custom-input");
+    const output = document.getElementById("ed-ai-output-box");
+    if (!input || !output) return;
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = "";
+
+    output.innerHTML = `
+      <div style="color:#38bdf8; font-weight:700; margin-bottom:4px;">You: ${this._escapeHtml(text)}</div>
+      <div style="color:#fbbf24;">⚡ Senior AI is thinking...</div>
+    `;
+
+    try {
+      const resp = await fetch("/api/decode-error", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          error: text,
+          lang: this.lang,
+          code: this.getCode()
+        })
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        output.innerHTML = `
+          <div style="color:#94a3b8; font-size:0.75rem; margin-bottom:4px;">Q: ${this._escapeHtml(text)}</div>
+          <div style="color:#38bdf8; font-weight:700;">💡 ${this._escapeHtml(data.title || "Senior AI Advice")}:</div>
+          <div style="color:#f8fafc; margin-top:4px;">${this._escapeHtml(data.advice || "Keep practicing!")}</div>
+        `;
+      } else {
+        output.innerHTML = `<div style="color:#f8fafc;">Check your syntax and variable names carefully.</div>`;
+      }
+    } catch (e) {
+      output.innerHTML = `<div style="color:#f8fafc;">Python tip: Ensure all quotes and brackets match.</div>`;
+    }
+  }
+
+  /**
+   * 📌 ASK AI FOR CHALLENGE HINT
+   */
+  askAIForChallengeHint() {
+    window.elysiaAudio?.playClick();
+    const ch = this.curriculumTree[this.currentChapterIdx];
+    const sub = ch ? ch.subtopics[this.currentSubtopicIdx] : null;
+    const hint = (sub && sub.challenge && sub.challenge.hints && sub.challenge.hints[0]) ||
+                 (sub && sub.challenge && sub.challenge.expected_output ? `Aim for output: ${sub.challenge.expected_output}` : "Focus on syntax fundamentals.");
+    const output = document.getElementById("ed-ai-output-box");
+    if (output) {
+      output.innerHTML = `
+        <div style="color:#38bdf8; font-weight:700;">🎯 Challenge Hint:</div>
+        <div style="color:#fde68a; margin-top:4px; font-size:0.85rem;">${this._escapeHtml(hint)}</div>
+      `;
+    }
   }
 
   switchLessonSubtab(subtab) {
@@ -1633,6 +1890,7 @@ class ElysiaApp {
       if (solExplDisplay) solExplDisplay.textContent = isHi ? (sub.challenge.solution_explanation_hi || "") : (sub.challenge.solution_explanation_en || sub.challenge.solution_explanation_hi || "");
     }
     if (solBox) solBox.classList.add("hidden");
+    this.syncEditorTestsUI();
 
     // 🏛️ Synchronize Reference UI Elements
     const bcPart = document.getElementById("lesson-bc-part");
@@ -2351,11 +2609,9 @@ class ElysiaApp {
 
   _appendAIChatMessage(sender, text) {
     const container = document.getElementById("ai-chat-messages");
-    if (!container) return;
-    const msgDiv = document.createElement("div");
-    msgDiv.className = `ai-msg ai-msg-${sender}`;
-    const avatar = sender === "bot" ? "🤖" : "👤";
-    
+    const edOutput = document.getElementById("ed-ai-output-box");
+    const isBot = sender === "bot";
+
     let formatted = String(text)
       .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
       .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
@@ -2363,6 +2619,21 @@ class ElysiaApp {
       .replace(/```([\s\S]*?)```/g, "<pre style='background:#0f172a; padding:8px; border-radius:6px; margin:6px 0; overflow-x:auto;'><code>$1</code></pre>")
       .replace(/`([^`]+)`/g, "<code style='background:rgba(56,189,248,0.2); color:#38bdf8; padding:2px 5px; border-radius:4px;'>$1</code>")
       .replace(/\n/g, "<br>");
+
+    if (edOutput) {
+      const heading = isBot ? "🤖 Senior AI Mentor:" : "👤 You:";
+      const headingColor = isBot ? "#38bdf8" : "#94a3b8";
+      edOutput.innerHTML = `
+        <div style="color:${headingColor}; font-weight:700; margin-bottom:6px; font-size:0.86rem;">${heading}</div>
+        <div style="color:#f8fafc; font-size:0.85rem; line-height:1.5;">${formatted}</div>
+      `;
+      edOutput.scrollTop = edOutput.scrollHeight;
+    }
+
+    if (!container) return;
+    const msgDiv = document.createElement("div");
+    msgDiv.className = `ai-msg ai-msg-${sender}`;
+    const avatar = sender === "bot" ? "🤖" : "👤";
 
     msgDiv.innerHTML = `
       <div class="ai-msg-avatar">${avatar}</div>
@@ -2375,6 +2646,11 @@ class ElysiaApp {
 
   async _callAITutorAPI(query, code, topic) {
     const container = document.getElementById("ai-chat-messages");
+    const edOutput = document.getElementById("ed-ai-output-box");
+    if (edOutput) {
+      edOutput.innerHTML = `<div style="color:#fbbf24; font-size:0.85rem;">⚡ Senior soch raha hai (Groq sub-second inference)...</div>`;
+    }
+
     const loadingDiv = document.createElement("div");
     loadingDiv.className = "ai-msg ai-msg-bot";
     loadingDiv.innerHTML = `
