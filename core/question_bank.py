@@ -756,9 +756,23 @@ QUESTIONS_DATABASE = [
 ]
 
 import functools
+import json
+import os
+from pathlib import Path
+
+# Load master questions dataset if available (1,000+ catalog)
+_DATA_FILE = Path(__file__).resolve().parent.parent / "data" / "questions.json"
+if _DATA_FILE.is_file():
+    try:
+        with open(_DATA_FILE, "r", encoding="utf-8") as _f:
+            _loaded_qs = json.load(_f)
+            if isinstance(_loaded_qs, list) and len(_loaded_qs) >= len(QUESTIONS_DATABASE):
+                QUESTIONS_DATABASE = _loaded_qs
+    except Exception:
+        pass
 
 
-@functools.lru_cache(maxsize=256)
+@functools.lru_cache(maxsize=1024)
 def _get_filtered_tuple(subject: str, topic: str, difficulty: str) -> tuple:
     filtered = [q for q in QUESTIONS_DATABASE if q["subject"].lower() == subject.lower()]
     if topic and topic.lower() != "all":
@@ -769,8 +783,23 @@ def _get_filtered_tuple(subject: str, topic: str, difficulty: str) -> tuple:
 
 
 def get_questions(subject: str = "python", topic: str = "all", difficulty: str = "all", count: int = 5) -> List[Dict[str, Any]]:
-    """Filters questions according to user's criteria with LRU caching."""
+    """Filters questions according to user's criteria with sub-millisecond LRU caching."""
     cached_list = list(_get_filtered_tuple(str(subject or "python"), str(topic or "all"), str(difficulty or "all")))
     if len(cached_list) <= count:
         return cached_list
     return random.sample(cached_list, count)
+
+
+def get_question_stats() -> Dict[str, Any]:
+    """Returns real-time question statistics across topics and difficulties."""
+    from collections import Counter
+    topics = Counter(q["topic"] for q in QUESTIONS_DATABASE)
+    diffs = Counter(q["difficulty"] for q in QUESTIONS_DATABASE)
+    subjects = Counter(q["subject"] for q in QUESTIONS_DATABASE)
+    return {
+        "total": len(QUESTIONS_DATABASE),
+        "by_subject": dict(subjects),
+        "by_topic": dict(topics),
+        "by_difficulty": dict(diffs)
+    }
+

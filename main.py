@@ -391,9 +391,17 @@ class ElysiaHandler(http.server.SimpleHTTPRequestHandler):
             subj = query.get("subject", ["python"])[0]
             topic = query.get("topic", ["all"])[0]
             diff = query.get("difficulty", ["all"])[0]
-            count = _safe_int(query.get("count", [5])[0], 1, 50, 5)
+            count = _safe_int(query.get("count", [5])[0], 1, 100, 5)
             questions = get_questions(subj, topic, diff, count)
-            return self._send_json({"questions": questions, "count": len(questions)}) or True
+            return self._send_json({
+                "questions": questions,
+                "count": len(questions),
+                "total_catalog": len(QUESTIONS_DATABASE)
+            }) or True
+
+        elif path == "/api/questions/stats":
+            from core.question_bank import get_question_stats
+            return self._send_json(get_question_stats()) or True
 
         # ---------------------------------------------------------------------
         # 3. MOCK EXAM API: College practical CA1/CA2 exam format return karta hai

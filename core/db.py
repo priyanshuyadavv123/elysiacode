@@ -114,6 +114,27 @@ CREATE TABLE IF NOT EXISTS ai_usage (
     count   INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (user_id, day)
 );
+CREATE TABLE IF NOT EXISTS questions (
+    id                  TEXT PRIMARY KEY,
+    subject             TEXT NOT NULL,
+    topic               TEXT NOT NULL,
+    difficulty          TEXT NOT NULL,
+    xp                  INTEGER NOT NULL DEFAULT 50,
+    title_en            TEXT NOT NULL,
+    title_hi            TEXT NOT NULL,
+    desc_en             TEXT NOT NULL,
+    desc_hi             TEXT NOT NULL,
+    starter_code        TEXT NOT NULL,
+    solution_code       TEXT NOT NULL,
+    expected_output     TEXT NOT NULL DEFAULT '',
+    expected_html_elements TEXT NOT NULL DEFAULT '[]',
+    hint_en             TEXT NOT NULL DEFAULT '',
+    hint_hi             TEXT NOT NULL DEFAULT '',
+    created_at          TEXT NOT NULL DEFAULT ''
+);
+CREATE INDEX IF NOT EXISTS idx_questions_lookup ON questions(subject, topic, difficulty);
+CREATE INDEX IF NOT EXISTS idx_questions_topic ON questions(topic);
+CREATE INDEX IF NOT EXISTS idx_questions_diff ON questions(difficulty);
 """
 
 SCHEMA_MYSQL = """
@@ -158,6 +179,28 @@ CREATE TABLE IF NOT EXISTS ai_usage (
     PRIMARY KEY (user_id, day),
     CONSTRAINT fk_ai_usage_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS questions (
+    id                  VARCHAR(64) PRIMARY KEY,
+    subject             VARCHAR(32) NOT NULL,
+    topic               VARCHAR(64) NOT NULL,
+    difficulty          VARCHAR(32) NOT NULL,
+    xp                  INT NOT NULL DEFAULT 50,
+    title_en            VARCHAR(255) NOT NULL,
+    title_hi            VARCHAR(255) NOT NULL,
+    desc_en             TEXT NOT NULL,
+    desc_hi             TEXT NOT NULL,
+    starter_code        TEXT NOT NULL,
+    solution_code       TEXT NOT NULL,
+    expected_output     TEXT NOT NULL,
+    expected_html_elements TEXT NOT NULL,
+    hint_en             TEXT NOT NULL,
+    hint_hi             TEXT NOT NULL,
+    created_at          VARCHAR(64) NOT NULL DEFAULT '',
+    INDEX idx_questions_lookup (subject, topic, difficulty),
+    INDEX idx_questions_topic (topic),
+    INDEX idx_questions_diff (difficulty)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 """
 
 SCHEMA_POSTGRES = """
@@ -201,6 +244,29 @@ CREATE TABLE IF NOT EXISTS ai_usage (
     count   INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (user_id, day)
 );
+
+CREATE TABLE IF NOT EXISTS questions (
+    id                  VARCHAR(64) PRIMARY KEY,
+    subject             VARCHAR(32) NOT NULL,
+    topic               VARCHAR(64) NOT NULL,
+    difficulty          VARCHAR(32) NOT NULL,
+    xp                  INTEGER NOT NULL DEFAULT 50,
+    title_en            VARCHAR(255) NOT NULL,
+    title_hi            VARCHAR(255) NOT NULL,
+    desc_en             TEXT NOT NULL,
+    desc_hi             TEXT NOT NULL,
+    starter_code        TEXT NOT NULL,
+    solution_code       TEXT NOT NULL,
+    expected_output     TEXT NOT NULL DEFAULT '',
+    expected_html_elements TEXT NOT NULL DEFAULT '[]',
+    hint_en             TEXT NOT NULL DEFAULT '',
+    hint_hi             TEXT NOT NULL DEFAULT '',
+    created_at          VARCHAR(64) NOT NULL DEFAULT ''
+);
+
+CREATE INDEX IF NOT EXISTS idx_questions_lookup ON questions(subject, topic, difficulty);
+CREATE INDEX IF NOT EXISTS idx_questions_topic ON questions(topic);
+CREATE INDEX IF NOT EXISTS idx_questions_diff ON questions(difficulty);
 """
 
 

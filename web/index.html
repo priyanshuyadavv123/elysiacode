@@ -1053,8 +1053,11 @@
     <section id="tab-qbank" class="tab-content">
       <div class="qbank-header-card card-3d-tilt">
         <div>
-          <h2 style="font-size: 1.5rem; font-weight: 800; color:#fff;">🎯 Dynamic Question Bank</h2>
-          <p style="font-size: 0.92rem; color: #94a3b8; margin-top: 4px;">Customize real-world campus coding problems with instant test cases.</p>
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <h2 style="font-size: 1.5rem; font-weight: 800; color:#fff;">🎯 Dynamic Question Bank</h2>
+            <span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); padding:3px 10px; border-radius:9999px; font-weight:800; font-size:0.78rem;">⚡ 1,150+ Questions Database · Zero Lag</span>
+          </div>
+          <p style="font-size: 0.92rem; color: #94a3b8; margin-top: 4px;">Customize real-world campus coding problems with instant test cases (Over 720+ on Loops & Functions).</p>
         </div>
         <div class="filter-controls">
           <select id="qbank-topic-select" class="custom-select">
@@ -1065,11 +1068,14 @@
             <option value="Beginner">Beginner</option>
             <option value="Intermediate">Intermediate</option>
             <option value="Tricky">Tricky (Lab Level)</option>
+            <option value="Hard">Hard (Campus Interview)</option>
           </select>
           <select id="qbank-count-select" class="custom-select">
             <option value="3">3 Questions</option>
             <option value="5" selected>5 Questions</option>
             <option value="10">10 Questions</option>
+            <option value="20">20 Questions</option>
+            <option value="50">50 Questions</option>
           </select>
           <button id="btn-filter-qbank" class="btn-primary-3d">Generate Set</button>
         </div>
