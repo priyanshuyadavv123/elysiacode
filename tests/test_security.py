@@ -426,6 +426,17 @@ class TestHttpServer(unittest.TestCase):
         finally:
             self.main.TRUST_PROXY = orig_trust
 
+    def test_health_check_get_and_head(self):
+        # GET /api/health
+        r_get = self.call("GET", "/api/health")
+        self.assertEqual(r_get["status"], 200)
+        self.assertEqual(r_get["json"], {"status": "ok", "app": "elysiacode", "version": "1.0.0"})
+
+        # HEAD /api/health (used by monitoring services like UptimeRobot)
+        r_head = self.call("HEAD", "/api/health")
+        self.assertEqual(r_head["status"], 200)
+        self.assertEqual(r_head["text"], "")
+
     def test_execute_gate(self):
         self.main.SERVER_EXEC_ENABLED = False
         self.assertEqual(self.call("GET", "/api/config")["json"], {"server_exec": False})

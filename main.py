@@ -213,7 +213,8 @@ class ElysiaHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header("Content-Length", str(len(body_bytes)))
         self.send_header("Cache-Control", "public, max-age=300")
         self.end_headers()
-        self.wfile.write(body_bytes)
+        if getattr(self, "command", "") != "HEAD":
+            self.wfile.write(body_bytes)
 
     def _send_json(self, data, status=200, cookie=None):
         body = json.dumps(data).encode("utf-8")
@@ -224,7 +225,8 @@ class ElysiaHandler(http.server.SimpleHTTPRequestHandler):
         if cookie:
             self.send_header("Set-Cookie", cookie)
         self.end_headers()
-        self.wfile.write(body)
+        if getattr(self, "command", "") != "HEAD":
+            self.wfile.write(body)
 
     def _send_html(self, html_str, status=200):
         body = html_str.encode("utf-8")
@@ -233,7 +235,8 @@ class ElysiaHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
-        self.wfile.write(body)
+        if getattr(self, "command", "") != "HEAD":
+            self.wfile.write(body)
 
     def _read_json_body(self):
         """Return (dict, error_response_sent). Enforces JSON, size and same-origin."""
@@ -326,6 +329,8 @@ class ElysiaHandler(http.server.SimpleHTTPRequestHandler):
                 return self._redirect_to_https()
             if self._is_suspicious_bot():
                 return self._send_json({"error": "Automated security scanning blocked."}, 403)
+            if self._handle_get_api():
+                return
             if self._serve_static_file(is_head=True):
                 return
             return super().do_HEAD()
