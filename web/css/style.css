@@ -3500,9 +3500,11 @@ body[data-theme="light"] .theme-select-box option {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  z-index: 50;
+  z-index: 100;
   user-select: none;
   flex-shrink: 0;
+  position: relative;
+  pointer-events: auto;
 }
 
 .sidebar-header {
@@ -3568,6 +3570,12 @@ body[data-theme="light"] .theme-select-box option {
   cursor: pointer;
   transition: all 0.16s ease;
   text-align: left;
+  position: relative;
+  pointer-events: auto;
+}
+
+.side-nav-btn * {
+  pointer-events: none;
 }
 
 .side-nav-btn:hover {
@@ -3891,6 +3899,14 @@ body[data-theme="light"] .theme-select-box option {
 
 .sidebar-backdrop.active {
   display: block;
+}
+
+@media (min-width: 769px) {
+  .sidebar-backdrop,
+  .sidebar-backdrop.active {
+    display: none !important;
+    pointer-events: none !important;
+  }
 }
 
 .viewport-top-header {

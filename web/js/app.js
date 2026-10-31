@@ -37,6 +37,7 @@ class ElysiaApp {
     
     // Active navigation tab: 'learn', 'handbook', 'qbank', 'mock', 'search', 'xray', 'panic'
     this.activeTab = "learn";
+    this.currentDest = "dashboard";
     
     // Server se aane wala curriculum data yahan store hota hai
     this.curriculum = null;
@@ -113,7 +114,7 @@ class ElysiaApp {
    *    Pyodide WebAssembly background me load hona shuru hota hai, aur pehla lesson render hota hai.
    */
   async init() {
-    this._bindEvents();       // Saare buttons aur inputs par event listener lagaya
+    this._bindEvents();       // Saare buttons aur inputs par event listener lagaya (Sidebar buttons bind IMMEDIATELY here!)
     this._initTheme();        // 🎨 Multi-Theme Engine (Midnight, Dracula, Emerald, Sunset, Royal, Light)
     this._initCodeMirror();   // ✨ CodeMirror Syntax Highlighter (Dark IDE with live text color changing)
     this._initInteractiveREPL(); // 🐚 Original Pyodide Interactive Console (>>>)
@@ -121,19 +122,36 @@ class ElysiaApp {
     this._initStudyTimer();   // Live productivity and time spent tracker
     this._initStreak();       // Daily streak engine
     this._initConfetti();     // Dopamine particle engine
-    await this.loadCurriculum(); // Backend se syllabus aur topic data mangwaya
-    this.populateQBankTopics(); // 🎯 Question bank topics filter populated
-    this.updateLanguageUI();  // Buttons par EN ya HI active class lagayi
-    this.updateGamificationUI(); // Navbar streak, XP aur study timer update
-    this.updateAuthUI();      // Navbar avatar, display name ya sign in button render
-    this.renderCurrentLesson(); // Screen par lesson load kiya
-    this.loadHandbook();      // Visual handbook ke chapters ready kiye
-    this._initPyodideEngine(); // ⚡ Live Pyodide WebAssembly engine initialize & preload kiya
-    this.setupReferenceUI(); // 🏛️ Reference UI Bindings & Tree Accordion
+    this.setupReferenceUI();  // 🏛️ Reference UI Bindings & Tree Accordion (Runs synchronously upfront!)
+
+    // Safe asynchronous content loads so UI and navigation never freeze
+    try {
+      await this.loadCurriculum();
+    } catch (e) {
+      console.warn("Curriculum load fallback used:", e);
+    }
+
+    try {
+      this.populateQBankTopics();
+      this.updateLanguageUI();
+      this.updateGamificationUI();
+      this.updateAuthUI();
+      this.renderCurrentLesson();
+      this.loadHandbook();
+    } catch (e) {
+      console.warn("UI hydration warning:", e);
+    }
+
+    try {
+      this._initPyodideEngine();
+    } catch (e) {
+      console.warn("Pyodide engine warning:", e);
+    }
 
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get("tab") === "qbank" || window.location.hash === "#qbank") {
-      this.switchTab("qbank");
+    const targetTab = urlParams.get("tab") || (window.location.hash ? window.location.hash.substring(1) : null);
+    if (targetTab) {
+      this.navigateTo(targetTab);
     }
   }
 
@@ -171,6 +189,14 @@ class ElysiaApp {
    * ⚠️ Agar hata dein: Buttons click karne par koi action nahi hoga.
    */
   _bindEvents() {
+    // 0. Primary Sidebar Navigation Buttons (Binds synchronously immediately on boot)
+    document.querySelectorAll(".side-nav-btn").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const dest = e.currentTarget.dataset.dest;
+        this.navigateTo(dest);
+      });
+    });
+
     // 1. Language Toggle Buttons (EN / HI)
     document.querySelectorAll(".lang-btn").forEach(btn => {
       btn.addEventListener("click", (e) => {
@@ -923,14 +949,124 @@ class ElysiaApp {
   }
 
   /**
+   * 📌 NAVIGATE TO: Centralized handler for all 10 sidebar destinations & routing
+   * 👁️ Effect: Handles scrolling to the exact element, switching tabs, updating active classes, and auto-closing mobile drawers.
+   */
+  navigateTo(dest) {
+    const viewport = document.getElementById("app-main-viewport");
+    const appSidebar = document.querySelector(".app-sidebar");
+    const sidebarBackdrop = document.getElementById("sidebar-backdrop");
+
+    // Auto-close mobile drawer on destination click if on mobile viewport
+    if (window.innerWidth <= 768 && appSidebar && appSidebar.classList.contains("mobile-open")) {
+      appSidebar.classList.remove("mobile-open");
+      if (sidebarBackdrop) sidebarBackdrop.classList.remove("active");
+    }
+
+    // Auto-dismiss any active modals when navigating to tabs
+    if (dest !== "records") {
+      document.querySelectorAll(".modal-overlay.active").forEach(m => m.classList.remove("active"));
+    }
+
+    if (dest === "dashboard") {
+      this.switchTab("learn", "dashboard");
+      viewport?.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (dest === "course") {
+      this.switchTab("learn", "course");
+      const ws = document.getElementById("integrated-course-workspace");
+      if (viewport && ws) {
+        const vpRect = viewport.getBoundingClientRect();
+        const wsRect = ws.getBoundingClientRect();
+        const targetTop = wsRect.top - vpRect.top + viewport.scrollTop;
+        viewport.scrollTo({ top: Math.max(0, targetTop - 12), behavior: "smooth" });
+      }
+    } else if (dest === "qbank") {
+      this.switchTab("qbank", "qbank");
+      viewport?.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (dest === "lab") {
+      this.switchTab("learn", "lab");
+      const ed = document.querySelector(".editor-panel") || document.getElementById("integrated-course-workspace");
+      if (viewport && ed) {
+        const vpRect = viewport.getBoundingClientRect();
+        const edRect = ed.getBoundingClientRect();
+        const targetTop = edRect.top - vpRect.top + viewport.scrollTop;
+        viewport.scrollTo({ top: Math.max(0, targetTop - 12), behavior: "smooth" });
+      }
+      this.switchEditorTab("code");
+      this.focusEditor();
+    } else if (dest === "projects") {
+      this.switchTab("learn", "projects");
+      const proj = document.getElementById("bottom-showcase-row");
+      if (viewport && proj) {
+        const vpRect = viewport.getBoundingClientRect();
+        const projRect = proj.getBoundingClientRect();
+        const targetTop = projRect.top - vpRect.top + viewport.scrollTop;
+        viewport.scrollTo({ top: Math.max(0, targetTop - 16), behavior: "smooth" });
+      }
+    } else if (dest === "mock") {
+      this.switchTab("mock", "mock");
+      viewport?.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (dest === "handbook") {
+      this.switchTab("handbook", "handbook");
+      viewport?.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (dest === "xray") {
+      this.switchTab("xray", "xray");
+      viewport?.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (dest === "viva") {
+      this.switchTab("mock", "viva");
+      const viva = document.getElementById("mock-viva-container")?.closest(".exam-section-card") || document.getElementById("mock-viva-container");
+      if (viewport && viva) {
+        setTimeout(() => {
+          const vpRect = viewport.getBoundingClientRect();
+          const vivaRect = viva.getBoundingClientRect();
+          const targetTop = vivaRect.top - vpRect.top + viewport.scrollTop;
+          viewport.scrollTo({ top: Math.max(0, targetTop - 16), behavior: "smooth" });
+        }, 60);
+      }
+    } else if (dest === "records") {
+      this.openModal("modal-lab-exporter");
+      document.querySelectorAll(".side-nav-btn").forEach(b => {
+        b.classList.toggle("active", b.dataset.dest === "records");
+      });
+    } else if (dest === "community") {
+      this.openModal("modal-flex-card");
+    }
+  }
+
+  /**
    * 📌 SWITCH TAB: Single-Page Application (SPA) navigation karta hai
    * 👁️ Web Page Pe Effect: Bina page refresh kiye clicked tab open hota hai aur baki hide ho jaate hain.
    * 💡 Kyun: Modern fast web app experience ke liye hum multi-page navigation ke badle
    *    CSS classes `.active` toggle karte hain.
    */
-  switchTab(tabName) {
+  switchTab(tabName, dest = null) {
+    // 1. Normalize aliases to underlying DOM tab containers
+    if (tabName === "course" || tabName === "lab" || tabName === "projects" || tabName === "dashboard") {
+      dest = dest || tabName;
+      tabName = "learn";
+    } else if (tabName === "viva") {
+      dest = dest || "viva";
+      tabName = "mock";
+    } else if (tabName === "records") {
+      this.navigateTo("records");
+      return;
+    }
+
+    if (!dest) {
+      if (tabName === "learn") {
+        dest = (this.currentDest === "course" || this.currentDest === "lab" || this.currentDest === "projects")
+          ? this.currentDest
+          : "dashboard";
+      } else if (tabName === "mock") {
+        dest = (this.currentDest === "viva") ? "viva" : "mock";
+      } else {
+        dest = tabName;
+      }
+    }
+
     this.activeTab = tabName;
-    window.elysiaAudio.playClick();
+    this.currentDest = dest;
+    window.elysiaAudio?.playClick();
 
     // Dock ke button par glowing active indicator lagaya
     document.querySelectorAll(".dock-item").forEach(item => {
@@ -942,13 +1078,9 @@ class ElysiaApp {
       content.classList.toggle("active", content.id === `tab-${tabName}`);
     });
 
-    // Sidebar navigation active state sync
+    // Sidebar navigation active state sync: 100% exclusive 1-to-1 match
     document.querySelectorAll(".side-nav-btn").forEach(b => {
-      if (tabName === "qbank") b.classList.toggle("active", b.dataset.dest === "qbank");
-      else if (tabName === "mock") b.classList.toggle("active", b.dataset.dest === "mock" || b.dataset.dest === "viva");
-      else if (tabName === "handbook") b.classList.toggle("active", b.dataset.dest === "handbook");
-      else if (tabName === "xray") b.classList.toggle("active", b.dataset.dest === "xray");
-      else if (tabName === "learn") b.classList.toggle("active", b.dataset.dest === "course" || b.dataset.dest === "dashboard" || b.dataset.dest === "lab");
+      b.classList.toggle("active", b.dataset.dest === dest);
     });
 
     // Specific tab khulne par uska data load kiya
@@ -966,21 +1098,11 @@ class ElysiaApp {
   // =========================================================================
 
   enterCourseMode() {
-    this.switchTab("learn");
-    document.querySelectorAll(".side-nav-btn").forEach(b => {
-      b.classList.toggle("active", b.dataset.dest === "course");
-    });
-    const workspace = document.getElementById("integrated-course-workspace");
-    workspace?.scrollIntoView({ behavior: "smooth" });
+    this.navigateTo("course");
   }
 
   enterDashboardMode() {
-    this.switchTab("learn");
-    document.querySelectorAll(".side-nav-btn").forEach(b => {
-      b.classList.toggle("active", b.dataset.dest === "dashboard");
-    });
-    const viewport = document.getElementById("app-main-viewport");
-    viewport?.scrollTo({ top: 0, behavior: "smooth" });
+    this.navigateTo("dashboard");
   }
 
   toggleThemeQuick() {
@@ -1049,79 +1171,31 @@ class ElysiaApp {
       });
     });
 
-    // 1. Sidebar Nav Destination buttons
-    document.querySelectorAll(".side-nav-btn").forEach(btn => {
-      btn.addEventListener("click", (e) => {
-        const dest = e.currentTarget.dataset.dest;
-        window.elysiaAudio?.playClick();
-
-        document.querySelectorAll(".side-nav-btn").forEach(b => b.classList.remove("active"));
-        e.currentTarget.classList.add("active");
-
-        // Auto-close mobile drawer on destination click if on mobile viewport
-        if (window.innerWidth <= 768 && appSidebar && appSidebar.classList.contains("mobile-open")) {
-          appSidebar.classList.remove("mobile-open");
-          if (sidebarBackdrop) sidebarBackdrop.classList.remove("active");
-        }
-
-        const viewport = document.getElementById("app-main-viewport");
-
-        if (dest === "dashboard") {
-          this.switchTab("learn");
-          this.enterDashboardMode();
-        } else if (dest === "course") {
-          this.switchTab("learn");
-          this.enterCourseMode();
-        } else if (dest === "qbank") {
-          this.switchTab("qbank");
-          viewport?.scrollTo({ top: 0, behavior: "smooth" });
-        } else if (dest === "lab") {
-          this.switchTab("learn");
-          this.enterCourseMode();
-          this.focusEditor();
-        } else if (dest === "projects") {
-          this.switchTab("learn");
-          this.enterDashboardMode();
-          document.getElementById("bottom-showcase-row")?.scrollIntoView({ behavior: "smooth" });
-        } else if (dest === "mock") {
-          this.switchTab("mock");
-        } else if (dest === "handbook") {
-          this.switchTab("handbook");
-        } else if (dest === "xray") {
-          this.switchTab("xray");
-        } else if (dest === "viva") {
-          this.switchTab("mock");
-        } else if (dest === "records") {
-          this.openModal("modal-lab-exporter");
-        } else if (dest === "community") {
-          this.openModal("modal-flex-card");
-        }
-      });
+    // 1. Sidebar Nav Destination buttons: Sync initial active highlight
+    const initialDest = this.currentDest || "dashboard";
+    document.querySelectorAll(".side-nav-btn").forEach(b => {
+      b.classList.toggle("active", b.dataset.dest === initialDest);
     });
 
     // 2. Hero Action Buttons
     const btnContinue = document.getElementById("btn-hero-continue");
     if (btnContinue) {
       btnContinue.addEventListener("click", () => {
-        window.elysiaAudio?.playClick();
-        this.enterCourseMode();
-        this.focusEditor();
+        this.navigateTo("lab");
       });
     }
 
     const btnCurriculum = document.getElementById("btn-hero-curriculum");
     if (btnCurriculum) {
       btnCurriculum.addEventListener("click", () => {
-        window.elysiaAudio?.playClick();
-        this.enterCourseMode();
+        this.navigateTo("course");
       });
     }
 
     const btnBackDash = document.getElementById("btn-back-dashboard");
     if (btnBackDash) {
       btnBackDash.addEventListener("click", () => {
-        window.elysiaAudio?.playClick();
-        this.enterDashboardMode();
+        this.navigateTo("dashboard");
       });
     }
 
@@ -3729,14 +3803,24 @@ class ElysiaApp {
    * 📌 CLOSE MODAL: Kisi bhi open popup modal ko close karta hai
    */
   closeModal(modalId) {
-    window.elysiaAudio.playClick();
+    window.elysiaAudio?.playClick();
     const modal = document.getElementById(modalId);
     if (modal) modal.classList.remove("active");
+    if (modalId === "modal-lab-exporter") {
+      const activeDest = this.currentDest || "dashboard";
+      document.querySelectorAll(".side-nav-btn").forEach(b => {
+        b.classList.toggle("active", b.dataset.dest === activeDest);
+      });
+    }
   }
 
   closeAllModals() {
-    window.elysiaAudio.playClick();
+    window.elysiaAudio?.playClick();
     document.querySelectorAll(".modal-overlay.active").forEach(m => m.classList.remove("active"));
+    const activeDest = this.currentDest || "dashboard";
+    document.querySelectorAll(".side-nav-btn").forEach(b => {
+      b.classList.toggle("active", b.dataset.dest === activeDest);
+    });
   }
 
   /**
@@ -4675,13 +4759,17 @@ class ElysiaApp {
    * 📌 OPEN MODAL: Generic Modal Opener
    */
   openModal(modalId) {
-    window.elysiaAudio.playClick();
+    window.elysiaAudio?.playClick();
     const modal = document.getElementById(modalId);
     if (modal) modal.classList.add("active");
     if (modalId === "modal-user-profile") {
       this.updateProfileModalUI();
     } else if (modalId === "modal-achievements-badges") {
       this.renderBadgesModalUI();
+    } else if (modalId === "modal-lab-exporter") {
+      document.querySelectorAll(".side-nav-btn").forEach(b => {
+        b.classList.toggle("active", b.dataset.dest === "records");
+      });
     }
   }
 
