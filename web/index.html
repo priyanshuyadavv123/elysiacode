@@ -28,9 +28,9 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- Main Cinematic Design System -->
-  <link rel="stylesheet" href="css/style.css?v=2.2.0">
+  <link rel="stylesheet" href="css/style.css?v=2.3.0">
   <!-- Visual Handbook / E-Book Styles -->
-  <link rel="stylesheet" href="css/handbook.css?v=2.2.0">
+  <link rel="stylesheet" href="css/handbook.css?v=2.3.0">
   
   <!-- CodeMirror Syntax Highlighting (Dark IDE Theme) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
@@ -307,16 +307,17 @@
           <div class="keep-going-panel">
             <div class="keep-going-top-row">
               <span class="keep-going-heading">Keep Going</span>
-              <span class="streak-badge-flame">🔥 <span id="keep-streak-num">3</span> day streak</span>
+              <span class="streak-badge-flame">🔥 <span id="keep-streak-num">1</span> day streak</span>
             </div>
             <div class="week-calendar-strip" id="hero-week-calendar">
-              <div class="cal-day-col"><span class="cal-d-name">Mon</span><span class="cal-d-num">15</span></div>
-              <div class="cal-day-col"><span class="cal-d-name">Tue</span><span class="cal-d-num">16</span></div>
-              <div class="cal-day-col"><span class="cal-d-name">Wed</span><span class="cal-d-num">17</span></div>
-              <div class="cal-day-col"><span class="cal-d-name">Thu</span><span class="cal-d-num">18</span></div>
-              <div class="cal-day-col active"><span class="cal-d-name">Fri</span><span class="cal-d-num">19</span></div>
-              <div class="cal-day-col"><span class="cal-d-name">Sat</span><span class="cal-d-num">20</span></div>
-              <div class="cal-day-col"><span class="cal-d-name">Sun</span><span class="cal-d-num">21</span></div>
+              <!-- Rendered dynamically by app.js based on current week dates -->
+              <div class="cal-day-col"><span class="cal-d-name">Mon</span><span class="cal-d-num">--</span></div>
+              <div class="cal-day-col"><span class="cal-d-name">Tue</span><span class="cal-d-num">--</span></div>
+              <div class="cal-day-col"><span class="cal-d-name">Wed</span><span class="cal-d-num">--</span></div>
+              <div class="cal-day-col"><span class="cal-d-name">Thu</span><span class="cal-d-num">--</span></div>
+              <div class="cal-day-col"><span class="cal-d-name">Fri</span><span class="cal-d-num">--</span></div>
+              <div class="cal-day-col active"><span class="cal-d-name">Sat</span><span class="cal-d-num">--</span></div>
+              <div class="cal-day-col"><span class="cal-d-name">Sun</span><span class="cal-d-num">--</span></div>
             </div>
             <div class="keep-going-quote-box">
               <span class="kg-quote-mark">“</span>
@@ -329,7 +330,7 @@
         <!-- 2. PROGRESS & QUICK ACTIONS ROW (4 Cards below Hero) -->
         <div class="dashboard-stats-grid">
           <!-- Card 1: Your Progress -->
-          <div class="stat-card-ref stat-card-progress">
+          <div class="stat-card-ref stat-card-progress" title="Click to view learning profile">
             <div class="stat-card-title">Your Progress</div>
             <div class="progress-card-body">
               <div class="progress-circle-wrap">
@@ -341,22 +342,22 @@
                     </linearGradient>
                   </defs>
                   <circle class="stat-ring-bg" cx="38" cy="38" r="30"/>
-                  <circle class="stat-ring-bar" id="dash-ring-bar" cx="38" cy="38" r="30"/>
+                  <circle class="stat-ring-bar" id="dash-ring-bar" cx="38" cy="38" r="30" style="stroke-dasharray: 188; stroke-dashoffset: 188;"/>
                 </svg>
-                <span class="stat-ring-text" id="dash-progress-percent">12%</span>
+                <span class="stat-ring-text" id="dash-progress-percent">0%</span>
               </div>
               <div class="progress-breakdown-list">
                 <div class="breakdown-item">
                   <span><span class="dot dot-blue"></span>7 Parts</span>
-                  <span class="item-val" id="stat-parts-val">1/7</span>
+                  <span class="item-val" id="stat-parts-val">0/7</span>
                 </div>
                 <div class="breakdown-item">
                   <span><span class="dot dot-cyan"></span>26 Chapters</span>
-                  <span class="item-val" id="stat-chapters-val">3/26</span>
+                  <span class="item-val" id="stat-chapters-val">0/26</span>
                 </div>
                 <div class="breakdown-item">
                   <span><span class="dot dot-purple"></span>100+ Exercises</span>
-                  <span class="item-val" id="stat-exercises-val">12/86</span>
+                  <span class="item-val" id="stat-exercises-val">0/140</span>
                 </div>
                 <div class="breakdown-item">
                   <span><span class="dot dot-emerald"></span>5 Projects</span>
@@ -367,7 +368,7 @@
           </div>
 
           <!-- Card 2: Current Chapter -->
-          <div class="stat-card-ref stat-card-chapter">
+          <div class="stat-card-ref stat-card-chapter" title="Jump to current chapter in workspace">
             <div class="stat-card-header-row">
               <span class="stat-card-title">Current Chapter</span>
               <span class="badge-part" id="dash-part-badge">Part 1</span>
@@ -377,9 +378,9 @@
               <div class="chapter-info">
                 <div class="chapter-name" id="dash-chapter-title">Chapter 1: Welcome to the World of Python</div>
                 <div class="chapter-progress-bar-wrap">
-                  <div class="chapter-progress-fill" id="dash-chapter-fill" style="width: 42%;"></div>
+                  <div class="chapter-progress-fill" id="dash-chapter-fill" style="width: 0%;"></div>
                 </div>
-                <div class="chapter-topics-count" id="dash-topics-count">3 / 7 topics</div>
+                <div class="chapter-topics-count" id="dash-topics-count">0 / 5 topics</div>
               </div>
             </div>
           </div>
@@ -597,6 +598,7 @@
                 <!-- Navigation Controls -->
                 <div class="subtopic-nav-footer" style="margin-top: 18px;">
                   <button id="btn-prev-subtopic" class="pill-btn">⏮️ Previous</button>
+                  <button id="btn-complete-subtopic" class="btn-complete-topic" title="Mark this topic completed to earn XP and update progress">✔ Mark Complete</button>
                   <span id="subtopic-counter-indicator" style="font-size:0.85rem; color:#94a3b8; font-weight:600;">1 of 7 Subtopics</span>
                   <button id="btn-next-subtopic" class="btn-primary-3d">Next Topic ⏭️</button>
                 </div>
@@ -1855,7 +1857,7 @@ for item in rev_arr:
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
-  <script src="js/app.js?v=2.2.0"></script>
+  <script src="js/app.js?v=2.3.0"></script>
 </body>
 </html>
 

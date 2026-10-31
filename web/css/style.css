@@ -2638,6 +2638,34 @@ body[data-theme="light"] .theme-select-box option {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.btn-complete-topic {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.14);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-complete-topic:hover {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: #34d399;
+  transform: translateY(-1px);
+}
+
+.btn-complete-topic.completed {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
 /* ==========================================================================
    👤 USER PROFILE & PRODUCTIVITY MODAL
    ========================================================================== */
@@ -4317,6 +4345,25 @@ body[data-theme="light"] .theme-select-box option {
 .cal-day-col.active .cal-d-name,
 .cal-day-col.active .cal-d-num {
   color: #ffffff;
+}
+
+.cal-day-col.has-activity:not(.active) {
+  background: rgba(56, 189, 248, 0.12);
+  border-radius: 12px;
+}
+
+.cal-day-col.has-activity:not(.active) .cal-d-num {
+  color: #38bdf8;
+  font-weight: 800;
+}
+
+.cal-activity-dot {
+  width: 4px;
+  height: 4px;
+  background: #38bdf8;
+  border-radius: 50%;
+  margin-top: 1px;
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.8);
 }
 
 .keep-going-quote-box {
@@ -6436,6 +6483,25 @@ body[data-theme="light"] .kg-quote-text {
 
 body[data-theme="light"] .keep-going-quote-box {
   border-top-color: rgba(0, 0, 0, 0.08);
+}
+
+body[data-theme="light"] .cal-day-col.has-activity:not(.active) {
+  background: rgba(37, 99, 235, 0.08);
+}
+
+body[data-theme="light"] .cal-day-col.has-activity:not(.active) .cal-d-num {
+  color: #2563eb;
+}
+
+body[data-theme="light"] .btn-complete-topic {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+body[data-theme="light"] .btn-complete-topic.completed {
+  background: #059669;
+  color: #ffffff;
 }
 
 /* 4. Light Mode: Dashboard Stats Cards */

@@ -63,7 +63,18 @@ class ElysiaApp {
     this.streak = parseInt(localStorage.getItem("elysia_streak") || "1");
     this.todaySeconds = parseInt(localStorage.getItem("elysia_today_sec") || "0");
     this.totalSeconds = parseInt(localStorage.getItem("elysia_total_sec") || "0");
-    this.lastStudyDate = localStorage.getItem("elysia_last_study_date") || new Date().toISOString().slice(0, 10);
+    this.lastStudyDate = localStorage.getItem("elysia_last_study_date") || "";
+    this.activityDates = new Set(JSON.parse(localStorage.getItem("elysia_activity_dates") || "[]"));
+
+    // Ensure initial active dates exist for existing streaks
+    if (this.activityDates.size === 0 && this.streak > 0) {
+      for (let s = 0; s < this.streak; s++) {
+        const d = new Date();
+        d.setDate(d.getDate() - s);
+        this.activityDates.add(this.getLocalDateStr(d));
+      }
+      localStorage.setItem("elysia_activity_dates", JSON.stringify(Array.from(this.activityDates)));
+    }
 
     // 👤 Authentication & User Profile State
     this.currentUser = JSON.parse(localStorage.getItem("elysia_current_user") || "null");
@@ -522,6 +533,29 @@ class ElysiaApp {
     const nextSubBtn = document.getElementById("btn-next-subtopic");
     if (nextSubBtn) {
       nextSubBtn.addEventListener("click", () => this.nextSubtopic());
+    }
+
+    const completeSubBtn = document.getElementById("btn-complete-subtopic");
+    if (completeSubBtn) {
+      completeSubBtn.addEventListener("click", () => this.toggleCurrentSubtopicComplete());
+    }
+
+    const currentChapterCard = document.querySelector(".stat-card-chapter");
+    if (currentChapterCard) {
+      currentChapterCard.style.cursor = "pointer";
+      currentChapterCard.addEventListener("click", () => {
+        window.elysiaAudio?.playClick();
+        document.getElementById("integrated-course-workspace")?.scrollIntoView({ behavior: "smooth" });
+      });
+    }
+
+    const progressCard = document.querySelector(".stat-card-progress");
+    if (progressCard) {
+      progressCard.style.cursor = "pointer";
+      progressCard.addEventListener("click", () => {
+        window.elysiaAudio?.playClick();
+        this.openModal("modal-profile");
+      });
     }
   }
 
@@ -1462,7 +1496,10 @@ class ElysiaApp {
       this.launchConfetti();
       if (sub && !this.completedSubtopics.has(sub.id)) {
         this.completedSubtopics.add(sub.id);
+        localStorage.setItem("elysia_completed_subtopics", JSON.stringify(Array.from(this.completedSubtopics)));
+        this.recordActivity();
         this.addXP(sub.xp || 50);
+        this.updateDashboardProgressUI();
       }
     } else {
       if (badge) { badge.className = "ed-test-tag failed"; badge.textContent = "❌ Tests Failed"; }
@@ -1970,25 +2007,21 @@ class ElysiaApp {
       tryPrompt.textContent = (sub.challenge && (isHi ? sub.challenge.prompt_hi : sub.challenge.prompt_en)) || "Modify the code to print your own name.";
     }
 
-    // Dashboard Metric Cards update
-    const dashPartBadge = document.getElementById("dash-part-badge");
-    const dashChTitle = document.getElementById("dash-chapter-title");
-    const dashTopicsCount = document.getElementById("dash-topics-count");
-    const dashChFill = document.getElementById("dash-chapter-fill");
-    const dashNextTitle = document.getElementById("dash-next-title");
-
-    if (dashPartBadge) dashPartBadge.textContent = `Part ${ch.part_number || 1}`;
-    if (dashChTitle) dashChTitle.textContent = ch.title;
-    if (dashTopicsCount) dashTopicsCount.textContent = `${this.currentSubtopicIdx + 1} / ${(ch.subtopics || []).length} topics`;
-    if (dashChFill) {
-      const pct = Math.round(((this.currentSubtopicIdx + 1) / (ch.subtopics || [1]).length) * 100);
-      dashChFill.style.width = `${pct}%`;
+    // Update Complete Button state
+    const completeBtn = document.getElementById("btn-complete-subtopic");
+    if (completeBtn && sub) {
+      const isDone = this.completedSubtopics && this.completedSubtopics.has(sub.id);
+      if (isDone) {
+        completeBtn.classList.add("completed");
+        completeBtn.innerHTML = `✔ Completed (+${sub.xp || 50} XP)`;
+      } else {
+        completeBtn.classList.remove("completed");
+        completeBtn.innerHTML = `✔ Mark Complete`;
+      }
     }
 
-    const nextSub = ch.subtopics[this.currentSubtopicIdx + 1] || (this.curriculumTree[this.currentChapterIdx + 1]?.subtopics[0]);
-    if (dashNextTitle && nextSub) {
-      dashNextTitle.innerHTML = `${nextSub.title}`;
-    }
+    // Dynamic Dashboard Metric Cards update
+    this.updateDashboardProgressUI();
 
     // Sync tree accordion highlights
     this.renderReferenceTree();
@@ -2198,6 +2231,7 @@ class ElysiaApp {
    */
   async runCode(providedStdin = null) {
     window.elysiaAudio.playClick();
+    this.recordActivity();
     const tStart = performance.now();
     const runBtn = document.getElementById("btn-run-code");
     if (runBtn) runBtn.classList.add("running");
@@ -2456,8 +2490,10 @@ class ElysiaApp {
       const earnedXP = sub.xp || 50;
       if (!this.completedSubtopics.has(sub.id)) {
         this.completedSubtopics.add(sub.id);
+        this.recordActivity();
         this.addXP(earnedXP);
         localStorage.setItem("elysia_completed_subtopics", JSON.stringify(Array.from(this.completedSubtopics)));
+        this.updateDashboardProgressUI();
       }
 
       if (stdoutEl) {
@@ -3243,8 +3279,10 @@ class ElysiaApp {
 
         if (!this.solvedQBankSet.has(q.id)) {
           this.solvedQBankSet.add(q.id);
+          this.recordActivity();
           this.addXP(q.xp || 50);
           localStorage.setItem("elysia_solved_qbank", JSON.stringify(Array.from(this.solvedQBankSet)));
+          this.updateDashboardProgressUI();
         }
 
         outEl.style.borderColor = "#10b981";
@@ -3295,8 +3333,10 @@ class ElysiaApp {
 
         if (!this.solvedQBankSet.has(q.id)) {
           this.solvedQBankSet.add(q.id);
+          this.recordActivity();
           this.addXP(q.xp || 50);
           localStorage.setItem("elysia_solved_qbank", JSON.stringify(Array.from(this.solvedQBankSet)));
+          this.updateDashboardProgressUI();
         }
 
         outEl.style.borderColor = "#10b981";
@@ -4155,22 +4195,285 @@ class ElysiaApp {
   }
 
   /**
-   * 📌 INIT STREAK: Daily learning streak verify aur increment karta hai
+   * 📅 LOCAL DATE HELPER: Always gets local YYYY-MM-DD regardless of UTC offsets
+   */
+  getLocalDateStr(date = new Date()) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  /**
+   * 📌 INIT STREAK: Daily learning streak verify, record aur calculate karta hai
    */
   _initStreak() {
-    const today = new Date().toISOString().slice(0, 10);
-    if (this.lastStudyDate !== today) {
-      const last = new Date(this.lastStudyDate);
-      const now = new Date(today);
-      const diffDays = Math.round((now - last) / (1000 * 60 * 60 * 24));
-      if (diffDays === 1) {
-        this.streak++;
-      } else if (diffDays > 1) {
-        this.streak = 1;
-      }
-      localStorage.setItem("elysia_streak", this.streak.toString());
-      localStorage.setItem("elysia_last_study_date", today);
+    this.recordActivity();
+    this.calculateRealStreak();
+    this.renderKeepGoingCalendar();
+  }
+
+  /**
+   * ⚡ RECORD ACTIVITY: User activity (visit, code run, lesson completed, quiz) mark karta hai
+   */
+  recordActivity(dateStr = this.getLocalDateStr()) {
+    if (!this.activityDates) {
+      this.activityDates = new Set(JSON.parse(localStorage.getItem("elysia_activity_dates") || "[]"));
     }
+    const hadDate = this.activityDates.has(dateStr);
+    if (!hadDate) {
+      this.activityDates.add(dateStr);
+      localStorage.setItem("elysia_activity_dates", JSON.stringify(Array.from(this.activityDates)));
+    }
+    this.lastStudyDate = dateStr;
+    localStorage.setItem("elysia_last_study_date", dateStr);
+    this.calculateRealStreak();
+    this.renderKeepGoingCalendar();
+  }
+
+  /**
+   * 🔥 CALCULATE REAL STREAK: Calculates unbroken consecutive learning streak from activity history
+   */
+  calculateRealStreak() {
+    const todayStr = this.getLocalDateStr(new Date());
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = this.getLocalDateStr(yesterday);
+
+    let checkDate;
+    if (this.activityDates && this.activityDates.has(todayStr)) {
+      checkDate = new Date();
+    } else if (this.activityDates && this.activityDates.has(yesterdayStr)) {
+      checkDate = yesterday;
+    } else {
+      this.streak = this.activityDates && this.activityDates.size > 0 ? 0 : 1;
+      localStorage.setItem("elysia_streak", this.streak.toString());
+      return this.streak;
+    }
+
+    let streakCount = 0;
+    let curr = new Date(checkDate.getFullYear(), checkDate.getMonth(), checkDate.getDate());
+    while (true) {
+      const dStr = this.getLocalDateStr(curr);
+      if (this.activityDates && this.activityDates.has(dStr)) {
+        streakCount++;
+        curr.setDate(curr.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+
+    this.streak = Math.max(1, streakCount);
+    localStorage.setItem("elysia_streak", this.streak.toString());
+    return this.streak;
+  }
+
+  /**
+   * 🗓️ RENDER KEEP GOING CALENDAR:
+   * Current week (Mon-Sun) ke actual dates dynamically render karta hai aur today ko highlight karta hai
+   */
+  renderKeepGoingCalendar() {
+    const calendarStrip = document.getElementById("hero-week-calendar");
+    const keepStreakEl = document.getElementById("keep-streak-num");
+    if (keepStreakEl) {
+      keepStreakEl.textContent = (this.streak || 1).toString();
+    }
+    if (!calendarStrip) return;
+
+    const now = new Date();
+    const currentDayOfWeek = now.getDay(); // 0 is Sun, 1 is Mon, ..., 6 is Sat
+    const mondayOffset = currentDayOfWeek === 0 ? -6 : 1 - currentDayOfWeek;
+    const mondayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + mondayOffset);
+
+    const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const fullDayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    const todayStr = this.getLocalDateStr(now);
+
+    let html = "";
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(mondayDate.getFullYear(), mondayDate.getMonth(), mondayDate.getDate() + i);
+      const dName = dayNames[i];
+      const dFull = fullDayNames[i];
+      const dNum = d.getDate();
+      const dateStr = this.getLocalDateStr(d);
+      const isToday = dateStr === todayStr;
+      const hasActivity = this.activityDates && this.activityDates.has(dateStr);
+
+      const titleAttr = `${dFull}, ${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}${isToday ? ' (Today)' : ''}${hasActivity ? ' • Active learning recorded 🔥' : ''}`;
+
+      html += `
+        <div class="cal-day-col ${isToday ? 'active' : ''} ${hasActivity ? 'has-activity' : ''}" title="${titleAttr}">
+          <span class="cal-d-name">${dName}</span>
+          <span class="cal-d-num">${dNum}</span>
+          ${hasActivity && !isToday ? '<span class="cal-activity-dot" title="Activity recorded"></span>' : ''}
+        </div>
+      `;
+    }
+    calendarStrip.innerHTML = html;
+  }
+
+  /**
+   * 📊 UPDATE DASHBOARD PROGRESS UI:
+   * "YOUR PROGRESS" (Ring, % Parts, Chapters, Exercises, Projects) aur "CURRENT CHAPTER" (Fill & Count) ko actual progress se sync karta hai
+   */
+  updateDashboardProgressUI() {
+    // 1. Total Subtopics in curriculum
+    const totalSubtopics = this.getTotalSubtopicsCount() || 140;
+    const completedCount = this.completedSubtopics ? this.completedSubtopics.size : 0;
+
+    // 2. Overall Progress Percentage (Ring + Text)
+    const overallPercent = totalSubtopics > 0
+      ? Math.min(100, Math.round((completedCount / totalSubtopics) * 100))
+      : 0;
+
+    const percentEl = document.getElementById("dash-progress-percent");
+    if (percentEl) percentEl.textContent = `${overallPercent}%`;
+
+    const ringBar = document.getElementById("dash-ring-bar");
+    if (ringBar) {
+      const circumference = 188; // 2 * Math.PI * 30
+      const offset = Math.max(0, circumference - (circumference * (overallPercent / 100)));
+      ringBar.style.strokeDashoffset = offset;
+    }
+
+    // 3. Parts Breakdown (e.g. 1/7)
+    let completedParts = 0;
+    const partsList = window.PYTHON_CURRICULUM_PARTS || [];
+    const totalParts = partsList.length || 7;
+    partsList.forEach(part => {
+      const partSubIds = [];
+      (part.chapters || []).forEach(ch => {
+        (ch.subtopics || []).forEach(st => partSubIds.push(st.id));
+      });
+      if (partSubIds.length > 0 && partSubIds.every(id => this.completedSubtopics && this.completedSubtopics.has(id))) {
+        completedParts++;
+      }
+    });
+    const statParts = document.getElementById("stat-parts-val");
+    if (statParts) statParts.textContent = `${completedParts}/${totalParts}`;
+
+    // 4. Chapters Breakdown (e.g. 3/26)
+    const chaptersList = this.curriculumTree || [];
+    const totalChapters = chaptersList.length || 26;
+    const completedChapters = chaptersList.filter(ch => {
+      const subs = ch.subtopics || [];
+      return subs.length > 0 && subs.every(st => this.completedSubtopics && this.completedSubtopics.has(st.id));
+    }).length;
+    const statChapters = document.getElementById("stat-chapters-val");
+    if (statChapters) statChapters.textContent = `${completedChapters}/${totalChapters}`;
+
+    // 5. Exercises Breakdown (Completed Subtopic Challenges + Solved Q-Bank Questions)
+    const solvedQCount = this.solvedQBankSet ? this.solvedQBankSet.size : 0;
+    const completedExercises = completedCount + solvedQCount;
+    const totalExercises = 140;
+    const statExercises = document.getElementById("stat-exercises-val");
+    if (statExercises) statExercises.textContent = `${completedExercises}/${totalExercises}`;
+
+    // 6. Projects Breakdown (0/5)
+    const projectIds = [
+      "ch2_sub5_mini_project_chatbot",
+      "ch6_sub7_mini_project_adventure_game",
+      "ch7_sub9_mini_project_password_guesser",
+      "ch25_sub5_mini_project_calculator",
+      "ch26_sub2_virtual_environments_venv"
+    ];
+    const completedProjects = projectIds.filter(id => this.completedSubtopics && this.completedSubtopics.has(id)).length;
+    const statProjects = document.getElementById("stat-projects-val");
+    if (statProjects) statProjects.textContent = `${completedProjects}/${projectIds.length}`;
+
+    // 7. Current Chapter Card
+    const curCh = chaptersList[this.currentChapterIdx] || chaptersList[0];
+    if (curCh) {
+      const dashPartBadge = document.getElementById("dash-part-badge");
+      const dashChTitle = document.getElementById("dash-chapter-title");
+      const dashTopicsCount = document.getElementById("dash-topics-count");
+      const dashChFill = document.getElementById("dash-chapter-fill");
+
+      if (dashPartBadge) dashPartBadge.textContent = `Part ${curCh.part_number || 1}`;
+      if (dashChTitle) dashChTitle.textContent = curCh.title;
+
+      const chSubs = curCh.subtopics || [];
+      const chTotal = chSubs.length;
+      const chCompleted = chSubs.filter(s => this.completedSubtopics && this.completedSubtopics.has(s.id)).length;
+
+      if (dashTopicsCount) {
+        dashTopicsCount.textContent = `${chCompleted} / ${chTotal} topics`;
+      }
+      if (dashChFill) {
+        const chPct = chTotal > 0 ? Math.round((chCompleted / chTotal) * 100) : 0;
+        dashChFill.style.width = `${chPct}%`;
+      }
+    }
+
+    // 8. Next Topic Card
+    const dashNextTitle = document.getElementById("dash-next-title");
+    if (dashNextTitle && curCh) {
+      const chSubs = curCh.subtopics || [];
+      let nextSub = null;
+      for (let s = this.currentSubtopicIdx + 1; s < chSubs.length; s++) {
+        if (!this.completedSubtopics || !this.completedSubtopics.has(chSubs[s].id)) {
+          nextSub = chSubs[s];
+          break;
+        }
+      }
+      if (!nextSub) {
+        for (let s = 0; s < chSubs.length; s++) {
+          if (!this.completedSubtopics || !this.completedSubtopics.has(chSubs[s].id)) {
+            nextSub = chSubs[s];
+            break;
+          }
+        }
+      }
+      if (!nextSub && this.currentChapterIdx + 1 < chaptersList.length) {
+        const nextCh = chaptersList[this.currentChapterIdx + 1];
+        nextSub = (nextCh.subtopics || [])[0];
+      }
+      if (nextSub) {
+        dashNextTitle.textContent = nextSub.title;
+      }
+    }
+
+    // 9. Keep Going Calendar & Streak
+    this.renderKeepGoingCalendar();
+  }
+
+  /**
+   * 🏆 TOGGLE CURRENT SUBTOPIC COMPLETE:
+   * Current active topic ko manually ya programmatically completed mark karta hai
+   */
+  toggleCurrentSubtopicComplete() {
+    window.elysiaAudio?.playClick();
+    const ch = this.curriculumTree[this.currentChapterIdx];
+    const sub = ch ? ch.subtopics[this.currentSubtopicIdx] : null;
+    if (!sub) return;
+
+    const isAlreadyCompleted = this.completedSubtopics.has(sub.id);
+    const completeBtn = document.getElementById("btn-complete-subtopic");
+
+    if (isAlreadyCompleted) {
+      this.completedSubtopics.delete(sub.id);
+      this.showOptimisticToast(`Marked "${sub.title}" as in progress.`, "info");
+      if (completeBtn) {
+        completeBtn.classList.remove("completed");
+        completeBtn.innerHTML = `✔ Mark Complete`;
+      }
+    } else {
+      this.completedSubtopics.add(sub.id);
+      this.recordActivity();
+      this.addXP(sub.xp || 50);
+      this.launchConfetti();
+      window.elysiaAudio?.playSuccess();
+      this.showOptimisticToast(`🎉 Completed "${sub.title}"! +${sub.xp || 50} XP!`, "success");
+      if (completeBtn) {
+        completeBtn.classList.add("completed");
+        completeBtn.innerHTML = `✔ Completed (+${sub.xp || 50} XP)`;
+      }
+    }
+
+    localStorage.setItem("elysia_completed_subtopics", JSON.stringify(Array.from(this.completedSubtopics)));
+    this.updateDashboardProgressUI();
+    this.renderPythonCurriculumNav();
+    this.syncUserProgress();
   }
 
   formatTime(totalSec) {
@@ -4247,7 +4550,12 @@ class ElysiaApp {
       hudBadgeCount.textContent = `${unlocked}/${list.length}`;
     }
 
+    // Keep Going Panel Streak
+    const keepStreakEl = document.getElementById("keep-streak-num");
+    if (keepStreakEl) keepStreakEl.textContent = (this.streak || 1).toString();
+
     this.updateAuthUI();
+    this.updateDashboardProgressUI();
   }
 
   getBadgesList() {
