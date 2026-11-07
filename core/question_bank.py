@@ -776,7 +776,11 @@ if _DATA_FILE.is_file():
 def _get_filtered_tuple(subject: str, topic: str, difficulty: str) -> tuple:
     filtered = [q for q in QUESTIONS_DATABASE if q["subject"].lower() == subject.lower()]
     if topic and topic.lower() != "all":
-        filtered = [q for q in filtered if q["topic"].lower() == topic.lower()]
+        topic_lower = topic.lower()
+        if topic_lower in ("py_scenarios", "scenarios", "scenario"):
+            filtered = [q for q in filtered if q.get("is_scenario") or q.get("topic", "").lower() in ("py_scenarios", "py_real_life", "py_semester", "py_sem_assignment", "py_practice_500")]
+        else:
+            filtered = [q for q in filtered if q["topic"].lower() == topic_lower]
     if difficulty and difficulty.lower() != "all":
         filtered = [q for q in filtered if q["difficulty"].lower() == difficulty.lower()]
     return tuple(filtered)

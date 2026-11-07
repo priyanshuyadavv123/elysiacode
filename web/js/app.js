@@ -2841,7 +2841,12 @@ class ElysiaApp {
     const isHi = this.lang === "hi";
 
     const pythonTopics = [
-      { id: "all", label_en: "All Topics (All Syllabus)", label_hi: "Saare Topics (Full Syllabus)" },
+      { id: "all", label_en: "All Topics (1,840+ Questions)", label_hi: "Saare Topics (1,840+ Questions)" },
+      { id: "py_scenarios", label_en: "🌟 Real-Life Scenarios (All 690 Questions)", label_hi: "🌟 Real-Life Scenarios (Saare 690 Questions)" },
+      { id: "py_real_life", label_en: "📱 Real-Life Practice (RL-001 - RL-100)", label_hi: "📱 Real-Life Scenarios (RL-001 - RL-100)" },
+      { id: "py_semester", label_en: "🎓 Semester Exam Scenarios (PY-001 - PY-045)", label_hi: "🎓 Semester Exam Questions (PY-001 - PY-045)" },
+      { id: "py_sem_assignment", label_en: "📝 Semester Assignment (Q1 - Q45)", label_hi: "📝 Semester Assignment (Q1 - Q45)" },
+      { id: "py_practice_500", label_en: "💼 500 Practice Challenges (PR-001 - PR-500)", label_hi: "💼 500 Practice Challenges (PR-001 - PR-500)" },
       { id: "py_variables", label_en: "Variables & Arithmetic", label_hi: "Variables aur Math" },
       { id: "py_conditionals", label_en: "Conditionals & Logic (If-Else)", label_hi: "Conditionals (If-Else)" },
       { id: "py_loops", label_en: "Loops & Iterations (While/For)", label_hi: "Loops aur Patterns" },
@@ -2953,6 +2958,7 @@ class ElysiaApp {
             <div class="q-badge-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
               <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
                 <span class="q-diff-badge ${diffClass}">${q.difficulty}</span>
+                ${q.tag ? `<span class="q-scenario-badge" style="font-size:0.75rem; color:#38bdf8; background:rgba(56,189,248,0.14); border:1px solid rgba(56,189,248,0.35); padding:2px 8px; border-radius:9999px; font-weight:800;">${this._escapeHtml(q.tag)}</span>` : ''}
                 ${isAI ? `<span style="font-size:0.75rem; color:#c084fc; background:rgba(168,85,247,0.18); border:1px solid rgba(168,85,247,0.4); padding:2px 8px; border-radius:9999px; font-weight:800;">✨ Groq AI</span>` : ''}
                 ${isAI && isPython ? `
                   <span id="q-verify-badge-${q.id}" class="q-verify-badge" style="font-size:0.75rem; padding:2px 8px; border-radius:9999px; font-weight:700; transition:all 0.2s ease; ${
@@ -3326,7 +3332,8 @@ class ElysiaApp {
     const userCode = codeEl.value;
 
     if (isPython) {
-      const qResult = await this.runPythonCode(userCode, "", 4.0);
+      const stdinVal = q.sample_input || "";
+      const qResult = await this.runPythonCode(userCode, stdinVal, 4.0);
       const stdout = qResult.stdout || "";
       const stderr = qResult.stderr || "";
 
