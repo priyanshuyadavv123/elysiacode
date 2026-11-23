@@ -3011,9 +3011,32 @@ class ElysiaApp {
           </div>
 
           <div>
-            <div class="code-editor-wrapper" style="min-height: 150px; margin-bottom: 10px;">
+            <div class="code-editor-wrapper" style="min-height: 150px; margin-bottom: 8px;">
               <textarea id="q-code-${q.id}" class="code-textarea" spellcheck="false" style="min-height: 150px; font-family:var(--font-mono); font-size:0.84rem; line-height:1.5;">${this._escapeHtml(q.starter_code || "")}</textarea>
             </div>
+
+            ${isPython ? `
+              <!-- ⌨️ Interactive Input (stdin) Panel -->
+              <div class="q-stdin-wrapper" style="margin:4px 0 10px; background:rgba(15,23,42,0.6); border:1px solid rgba(51,65,85,0.8); border-radius:8px; padding:8px 10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:6px;">
+                  <label for="q-stdin-${q.id}" style="font-size:0.75rem; color:#94a3b8; font-weight:700; display:flex; align-items:center; gap:6px; margin:0; cursor:pointer;">
+                    <span style="color:#38bdf8;">⌨️ Input (stdin):</span>
+                    <span style="font-size:0.7rem; color:#64748b; font-weight:400;">(${isHi ? "Apne custom values daal kar check karein" : "Enter custom values for input()"})</span>
+                  </label>
+                  <div style="display:flex; gap:6px;">
+                    ${q.sample_input ? `
+                      <button type="button" class="pill-btn" style="padding:2px 8px; font-size:0.72rem; color:#38bdf8; border-color:rgba(56,189,248,0.35);" onclick="window.elysiaApp.loadQBankSampleInput('${q.id}')" title="Load sample test case input">
+                        🔄 ${isHi ? "Sample Input" : "Sample Input"}
+                      </button>
+                    ` : ''}
+                    <button type="button" class="pill-btn" style="padding:2px 8px; font-size:0.72rem; color:#94a3b8;" onclick="window.elysiaApp.clearQBankStdin('${q.id}')" title="Clear input">
+                      ✕ ${isHi ? "Clear" : "Clear"}
+                    </button>
+                  </div>
+                </div>
+                <textarea id="q-stdin-${q.id}" class="code-textarea" placeholder="${isHi ? 'Yahan apne custom input values line-by-line daalein (e.g. input() calls ke liye)...' : 'Enter custom input values line-by-line for input() calls...'}" style="min-height:50px; height:50px; font-family:var(--font-mono); font-size:0.78rem; background:#0b1120; border:1px solid #1e293b; border-radius:6px; color:#e2e8f0; width:100%; box-sizing:border-box; resize:vertical; padding:6px 8px; line-height:1.4;">${this._escapeHtml(q.sample_input || "")}</textarea>
+              </div>
+            ` : ''}
 
             <div id="q-out-${q.id}" class="q-out-box" style="display:none; font-family:var(--font-mono); font-size:0.8rem; margin:8px 0; padding:10px 12px; border-radius:8px; border:1px solid #334155; background:#0f172a; white-space:pre-wrap; line-height:1.4;"></div>
 
@@ -3028,9 +3051,14 @@ class ElysiaApp {
 
             <div class="q-actions" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:space-between; align-items:center; border-top:1px solid var(--border-glass); padding-top:12px;">
               <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                <button class="btn-primary-3d" style="padding:6px 14px; font-size:0.82rem;" onclick="window.elysiaApp.solveQBankItem('${q.id}')">
-                  <span>▶</span> ${isHi ? "Run & Test" : "Run & Test"}
+                <button class="btn-primary-3d" style="padding:6px 14px; font-size:0.82rem;" onclick="window.elysiaApp.solveQBankItem('${q.id}')" title="Run code with current input">
+                  <span>▶</span> ${isHi ? "Run Code" : "Run Code"}
                 </button>
+                ${isPython && q.sample_input && q.expected_output ? `
+                  <button class="pill-btn" style="padding:6px 12px; font-size:0.8rem; background:rgba(56,189,248,0.12); color:#38bdf8; border-color:rgba(56,189,248,0.35); font-weight:700;" onclick="window.elysiaApp.testSampleCase('${q.id}')" title="Test against official sample test case">
+                    🎯 ${isHi ? "Test Sample Case" : "Test Sample Case"}
+                  </button>
+                ` : ''}
                 <button class="pill-btn" style="padding:6px 10px; font-size:0.8rem;" onclick="window.elysiaApp.toggleQBankHint('${q.id}')">
                   💡 ${isHi ? "Hint" : "Hint"}
                 </button>
@@ -3312,29 +3340,65 @@ class ElysiaApp {
   }
 
   /**
+   * 📌 LOAD SAMPLE INPUT: Question ka default sample input stdin textarea me load karta hai
+   */
+  loadQBankSampleInput(qId) {
+    const q = this.qbankQuestionsMap ? this.qbankQuestionsMap[qId] : null;
+    const stdinEl = document.getElementById(`q-stdin-${qId}`);
+    if (q && stdinEl) {
+      stdinEl.value = q.sample_input || "";
+      window.elysiaAudio.playClick();
+    }
+  }
+
+  /**
+   * 📌 CLEAR Q-BANK STDIN: Custom input box ko empty karta hai
+   */
+  clearQBankStdin(qId) {
+    const stdinEl = document.getElementById(`q-stdin-${qId}`);
+    if (stdinEl) {
+      stdinEl.value = "";
+      window.elysiaAudio.playClick();
+    }
+  }
+
+  /**
+   * 📌 TEST SAMPLE CASE: Official sample input auto-load karke direct verify karta hai
+   */
+  testSampleCase(qId) {
+    this.loadQBankSampleInput(qId);
+    this.solveQBankItem(qId, true);
+  }
+
+  /**
    * 📌 SOLVE Q-BANK ITEM: Python aur HTML questions ko test cases se verify karta hai
    */
-  async solveQBankItem(qId) {
+  async solveQBankItem(qId, forceSample = false) {
     window.elysiaAudio.playClick();
     const q = this.qbankQuestionsMap ? this.qbankQuestionsMap[qId] : null;
     const codeEl = document.getElementById(`q-code-${qId}`);
     const outEl = document.getElementById(`q-out-${qId}`);
     const cardEl = document.getElementById(`q-card-${qId}`);
     const solvedBadge = document.getElementById(`q-solved-badge-${qId}`);
+    const stdinEl = document.getElementById(`q-stdin-${qId}`);
 
     if (!codeEl || !outEl || !q) return;
+
+    if (forceSample && stdinEl && q.sample_input) {
+      stdinEl.value = q.sample_input;
+    }
 
     outEl.style.display = "block";
     outEl.style.borderColor = "#38bdf8";
     outEl.style.background = "rgba(15, 23, 42, 0.9)";
-    outEl.innerHTML = '<span style="color:#38bdf8;">⚡ Running test execution...</span>';
+    outEl.innerHTML = '<span style="color:#38bdf8;">⚡ Running execution with input...</span>';
 
     const isPython = q.subject === "python";
     const userCode = codeEl.value;
 
     if (isPython) {
-      const stdinVal = q.sample_input || "";
-      const qResult = await this.runPythonCode(userCode, stdinVal, 4.0);
+      const currentStdin = stdinEl ? stdinEl.value : (q.sample_input || "");
+      const qResult = await this.runPythonCode(userCode, currentStdin, 4.0);
       const stdout = qResult.stdout || "";
       const stderr = qResult.stderr || "";
 
@@ -3351,6 +3415,7 @@ class ElysiaApp {
 
       const cleanActual = stdout.trim().replace(/\r\n/g, "\n");
       const cleanExpected = (q.expected_output || "").trim().replace(/\r\n/g, "\n");
+      const isOfficialSample = !q.sample_input || (currentStdin.trim().replace(/\r\n/g, "\n") === (q.sample_input || "").trim().replace(/\r\n/g, "\n"));
 
       if (cleanActual === cleanExpected) {
         window.elysiaAudio.playSuccess();
@@ -3373,6 +3438,21 @@ class ElysiaApp {
           <div style="color:#34d399; font-weight:800; margin-bottom:6px;">🎉 ALL TEST CASES PASSED! (+${q.xp || 50} XP)</div>
           <div style="color:#94a3b8; font-size:0.75rem;">Actual Output Matches Expected Output:</div>
           <pre style="margin:4px 0 0; color:#a7f3d0; font-weight:600; font-size:0.78rem;">${this._escapeHtml(cleanActual)}</pre>
+        `;
+      } else if (!isOfficialSample) {
+        window.elysiaAudio.playSuccess();
+        outEl.style.borderColor = "#38bdf8";
+        outEl.style.background = "rgba(56, 189, 248, 0.08)";
+        outEl.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:6px;">
+            <span style="color:#38bdf8; font-weight:800; font-size:0.82rem;">✅ Executed with Custom Input!</span>
+            <button class="pill-btn" style="padding:2px 8px; font-size:0.72rem; color:#38bdf8; border-color:rgba(56,189,248,0.4);" onclick="window.elysiaApp.testSampleCase('${q.id}')">🎯 Test Official Sample</button>
+          </div>
+          <div style="color:#94a3b8; font-size:0.74rem;">Program Output:</div>
+          <pre style="margin:4px 0 0; color:#e2e8f0; font-weight:600; font-size:0.78rem; background:#0b1120; padding:6px; border-radius:4px; max-height:120px; overflow-y:auto;">${this._escapeHtml(cleanActual) || '[No output printed]'}</pre>
+          <div style="margin-top:6px; font-size:0.73rem; color:#94a3b8;">
+            💡 <em>Aapka code custom input par successfully chal gaya! Official test case verify karke XP earn karne ke liye <strong>"Test Sample Case"</strong> button dabayein.</em>
+          </div>
         `;
       } else {
         window.elysiaAudio.playError();

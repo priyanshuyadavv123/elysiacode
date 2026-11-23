@@ -1,5 +1,6 @@
 # scripts/p50_definitions.py
 # Complete definitions for all 50 Practice Questions (Part A to Part F)
+# Configured for interactive stdin input() calls so users can test custom inputs!
 
 P50_QUESTIONS_RAW = [
     # =========================================================================
@@ -17,19 +18,19 @@ P50_QUESTIONS_RAW = [
         "sample_input": "6\n4\n500\n20",
         "expected_output": "Oxygen lasts for 20 full days with 20 litres left over.\nStatus: Safe",
         "hint": "Daily consumption = C * R. Full days = T // daily_consumption. Leftover = T % daily_consumption. If T >= daily_consumption * D, Status is Safe; else shortage = daily_consumption * D - T.",
-        "starter_code": """# [P50-001] Oxygen Reserve at Aryabhata-7
-# C: Crew members, R: Litres/day/member, T: Total litres in tank, D: Days until supply ship
-C = 6
-R = 4
-T = 500
-D = 20
+        "starter_code": """# [CBT-001] Oxygen Reserve at Aryabhata-7
+# Read C, R, T, D from input (one per line):
+C = int(input())
+R = int(input())
+T = int(input())
+D = int(input())
 
-# Calculate full days, leftover litres, and safety status:
+# TODO: Calculate full days, leftover litres, and safety status:
 """,
-        "solution_code": """C = 6
-R = 4
-T = 500
-D = 20
+        "solution_code": """C = int(input())
+R = int(input())
+T = int(input())
+D = int(input())
 
 daily = C * R
 full_days = T // daily
@@ -54,17 +55,17 @@ else:
         "sample_input": "22 45\n540\n330",
         "expected_output": "Arrival Time: 13:15\nDay Shift: +1 day(s)",
         "hint": "Convert departure to total minutes (hour*60 + min). Add duration and time difference. Shift = total // 1440. Remainder = total % 1440. Arrival hour = remainder // 60, min = remainder % 60.",
-        "starter_code": """# [P50-002] Cross-Time-Zone Flight Arrival
-# Departure time: 22 45, Duration: 540 minutes, Time difference: 330 minutes
-dep_hour, dep_min = 22, 45
-duration = 540
-diff = 330
+        "starter_code": """# [CBT-002] Cross-Time-Zone Flight Arrival
+# Read departure hour & min, duration, and time difference:
+dep_hour, dep_min = map(int, input().split())
+duration = int(input())
+diff = int(input())
 
-# Calculate arrival time and day shift using // and %:
+# TODO: Calculate arrival time and day shift using // and %:
 """,
-        "solution_code": """dep_hour, dep_min = 22, 45
-duration = 540
-diff = 330
+        "solution_code": """dep_hour, dep_min = map(int, input().split())
+duration = int(input())
+diff = int(input())
 
 total_mins = dep_hour * 60 + dep_min + duration + diff
 day_shift = total_mins // 1440
@@ -92,24 +93,24 @@ else:
         "sample_input": "40\n25\n120\n50\n800",
         "expected_output": "Area: 1000.00 sq m\nFertilizer Required: 120.00 kg\nBags Needed: 3\nTotal Cost: Rs. 2400.00\nLeftover Fertilizer: 30.00 kg",
         "hint": "Area = length * width. Required kg = (Area * grams_per_sq_m) / 1000. Bags = int(-(-required // bag_weight)). Total cost = bags * cost_per_bag. Leftover = (bags * bag_weight) - required.",
-        "starter_code": """# [P50-003] Smart Farm Fertiliser Planner
-length = 40
-width = 25
-grams_per_sq_m = 120
-bag_weight = 50
-cost_per_bag = 800
+        "starter_code": """# [CBT-003] Smart Farm Fertiliser Planner
+# Read length, width, grams_per_sq_m, bag_weight, cost_per_bag:
+length = float(input())
+width = float(input())
+grams_per_sq_m = float(input())
+bag_weight = float(input())
+cost_per_bag = float(input())
 
-# Compute area, required kg, whole bags needed, total cost, leftover kg:
+# TODO: Compute area, required kg, whole bags needed, total cost, leftover kg:
 """,
-        "solution_code": """length = 40
-width = 25
-grams_per_sq_m = 120
-bag_weight = 50
-cost_per_bag = 800
+        "solution_code": """length = float(input())
+width = float(input())
+grams_per_sq_m = float(input())
+bag_weight = float(input())
+cost_per_bag = float(input())
 
 area = float(length * width)
 req_kg = float(area * grams_per_sq_m / 1000)
-# Ceiling division without math or if
 bags = int(-(-req_kg // bag_weight))
 total_cost = bags * cost_per_bag
 leftover = (bags * bag_weight) - req_kg
@@ -132,14 +133,15 @@ print(f"Leftover Fertilizer: {leftover:.2f} kg")"""
         "sample_input": "2450\n5",
         "expected_output": "Service Charge: 122.50\nGST: 463.05\nTotal Bill: 3035.55\nEach of the first 4 friends pays: 607.00\nLast friend pays: 607.55",
         "hint": "service_charge = round(base * 0.05, 2). gst = round((base + service_charge) * 0.18, 2). total = base + service_charge + gst. first_share = float(int(total // n)). last_share = total - (first_share * (n - 1)).",
-        "starter_code": """# [P50-004] Friends' Dinner Bill Splitter
-base_amount = 2450.0
-n = 5
+        "starter_code": """# [CBT-004] Friends' Dinner Bill Splitter
+# Read base amount and number of friends n:
+base_amount = float(input())
+n = int(input())
 
-# Calculate service charge, GST, total, and split amounts:
+# TODO: Calculate service charge, GST, total bill, and split amounts:
 """,
-        "solution_code": """base_amount = 2450.0
-n = 5
+        "solution_code": """base_amount = float(input())
+n = int(input())
 
 sc = round(base_amount * 0.05, 2)
 gst = round((base_amount + sc) * 0.18, 2)
@@ -165,12 +167,13 @@ print(f"Last friend pays: {last_share:.2f}")"""
         "sample_input": "2350",
         "expected_output": "Full Blocks of Rs. 100: 23\nCashback: Rs. 150\nBonus Coins: 5",
         "hint": "blocks = amount // 100. cashback = min(blocks * 7, 150). leftover = amount % 100. coins = leftover // 10.",
-        "starter_code": """# [P50-005] E-Wallet Cashback Engine
-amount = 2350
+        "starter_code": """# [CBT-005] E-Wallet Cashback Engine
+# Read transaction amount:
+amount = int(input())
 
-# Calculate blocks, capped cashback, and bonus coins:
+# TODO: Calculate blocks, capped cashback, and bonus coins:
 """,
-        "solution_code": """amount = 2350
+        "solution_code": """amount = int(input())
 
 blocks = amount // 100
 cashback = min(blocks * 7, 150)
@@ -197,16 +200,17 @@ print(f"Bonus Coins: {coins}")"""
         "sample_input": "67\n92\n99.1",
         "expected_output": "HDU Admission",
         "hint": "Use an if-elif-else ladder in the exact precedence order given.",
-        "starter_code": """# [P50-006] Hospital Triage Desk
-age = 67
-spo2 = 92
-temp = 99.1
+        "starter_code": """# [CBT-006] Hospital Triage Desk
+# Read age, SpO2, and temperature from input:
+age = int(input())
+spo2 = int(input())
+temp = float(input())
 
-# Evaluate triage criteria in strict order:
+# TODO: Evaluate triage criteria in strict order:
 """,
-        "solution_code": """age = 67
-spo2 = 92
-temp = 99.1
+        "solution_code": """age = int(input())
+spo2 = int(input())
+temp = float(input())
 
 if age < 0 or spo2 < 0 or spo2 > 100 or temp < 90 or temp > 110:
     print("Invalid Input")
@@ -231,16 +235,17 @@ else:
         "sample_input": "Truck\nHighway\n112",
         "expected_output": "Speed Limit: 90 km/h\nExcess Speed: 22 km/h\nFine: Rs. 3000",
         "hint": "Calculate effective limit. Excess = max(0, speed - limit). If excess > 0, find base fine and multiply by 1.5 for Truck and 2 for School.",
-        "starter_code": """# [P50-007] Smart Highway Challan System
-vehicle = 'Truck'
-zone = 'Highway'
-speed = 112
+        "starter_code": """# [CBT-007] Smart Highway Challan System
+# Read vehicle type, zone, and recorded speed:
+vehicle = input().strip()
+zone = input().strip()
+speed = int(input())
 
-# Calculate speed limit, excess speed, and final fine:
+# TODO: Calculate speed limit, excess speed, and final fine:
 """,
-        "solution_code": """vehicle = 'Truck'
-zone = 'Highway'
-speed = 112
+        "solution_code": """vehicle = input().strip()
+zone = input().strip()
+speed = int(input())
 
 zone_limits = {'City': 50, 'Highway': 100, 'School': 25}
 limit = zone_limits.get(zone, 50)
@@ -280,14 +285,15 @@ print(f"Fine: Rs. {fine}")"""
         "sample_input": "Economy\n34.5",
         "expected_output": "Excess Weight: 14.50 kg\nExcess Charge: Rs. 6525.00\nSurcharge: Rs. 1305.00\nGST: Rs. 391.50\nTotal Payable: Rs. 8221.50",
         "hint": "Check weight > max first. If weight <= free, print 'No excess baggage charges'. Otherwise compute excess, surcharge, GST, and total.",
-        "starter_code": """# [P50-008] Airline Excess-Baggage Counter
-travel_class = 'Economy'
-weight = 34.5
+        "starter_code": """# [CBT-008] Airline Excess-Baggage Counter
+# Read travel class and baggage weight:
+travel_class = input().strip()
+weight = float(input())
 
-# Calculate baggage charges according to airline rules:
+# TODO: Calculate baggage charges according to airline rules:
 """,
-        "solution_code": """travel_class = 'Economy'
-weight = 34.5
+        "solution_code": """travel_class = input().strip()
+weight = float(input())
 
 free_limit = 20 if travel_class == 'Economy' else 35
 max_limit = 40 if travel_class == 'Economy' else 60
@@ -321,18 +327,19 @@ else:
         "sample_input": "Deluxe\n6\nPeak\n3",
         "expected_output": "Tariff per Night: Rs. 5500.00\nRoom Charges: Rs. 33000.00\nDiscount (10%): Rs. 3300.00\nGST (12%): Rs. 3564.00\nTotal Payable: Rs. 33264.00",
         "hint": "rate = base * 1.25 if Peak else base. tariff_per_night = rate + max(0, guests - 2) * 500. room_charges = tariff * nights. Apply length discount and then GST rate.",
-        "starter_code": """# [P50-009] Himalayan Resort Billing
-room_type = 'Deluxe'
-nights = 6
-season = 'Peak'
-guests = 3
+        "starter_code": """# [CBT-009] Himalayan Resort Billing
+# Read room type, number of nights, season, and guest count:
+room_type = input().strip()
+nights = int(input())
+season = input().strip()
+guests = int(input())
 
-# Compute tariff, room charges, discount, GST, and total:
+# TODO: Compute tariff, room charges, discount, GST, and total:
 """,
-        "solution_code": """room_type = 'Deluxe'
-nights = 6
-season = 'Peak'
-guests = 3
+        "solution_code": """room_type = input().strip()
+nights = int(input())
+season = input().strip()
+guests = int(input())
 
 base_rates = {'Standard': 2500, 'Deluxe': 4000, 'Luxury': 7000}
 rate = base_rates[room_type]
@@ -374,12 +381,13 @@ print(f"Total Payable: Rs. {total:.2f}")"""
         "sample_input": "28 2 2024",
         "expected_output": "29-02-2024",
         "hint": "Check month 1-12 and day within days_in_month. Increment day; if day > days_in_month, set day=1 and increment month. If month > 12, set month=1 and increment year.",
-        "starter_code": """# [P50-010] Tomorrow's Date Generator
-day, month, year = 28, 2, 2024
+        "starter_code": """# [CBT-010] Tomorrow's Date Generator
+# Read day, month, year:
+day, month, year = map(int, input().split())
 
-# Validate date and print next date or 'Invalid Date':
+# TODO: Validate date and print next date or 'Invalid Date':
 """,
-        "solution_code": """day, month, year = 28, 2, 2024
+        "solution_code": """day, month, year = map(int, input().split())
 
 def is_leap(y):
     return (y % 4 == 0 and y % 100 != 0) or (y % 400 == 0)
@@ -410,18 +418,19 @@ else:
         "sample_input": "8\n2.5\n70\n30",
         "expected_output": "Delivery Approved\nEstimated Battery Use: 51.35%",
         "hint": "Check wind > 40 first, then payload > 5, then calculate estimated use and evaluate battery levels.",
-        "starter_code": """# [P50-011] Drone Delivery Clearance
-distance = 8.0
-payload = 2.5
-battery = 70.0
-wind = 30.0
+        "starter_code": """# [CBT-011] Drone Delivery Clearance
+# Read distance, payload, battery %, and wind speed:
+distance = float(input())
+payload = float(input())
+battery = float(input())
+wind = float(input())
 
-# Evaluate drone flight safety and clearance:
+# TODO: Evaluate drone flight safety and clearance:
 """,
-        "solution_code": """distance = 8.0
-payload = 2.5
-battery = 70.0
-wind = 30.0
+        "solution_code": """distance = float(input())
+payload = float(input())
+battery = float(input())
+wind = float(input())
 
 if wind > 40:
     print("Flight Cancelled: Unsafe wind")
@@ -453,18 +462,19 @@ else:
         "sample_input": "86.5\n82\n250000\nState",
         "expected_output": "Scholarship: 80%",
         "hint": "Check attendance < 75 first. Next check marks < 70. Otherwise add family income bonus and sports bonus, capped at 100%.",
-        "starter_code": """# [P50-012] Merit-cum-Means Scholarship Committee
-marks = 86.5
-attendance = 82
-income = 250000
-sports = 'State'
+        "starter_code": """# [CBT-012] Merit-cum-Means Scholarship Committee
+# Read marks, attendance, income, and sports level:
+marks = float(input())
+attendance = int(input())
+income = int(input())
+sports = input().strip()
 
-# Determine scholarship percentage:
+# TODO: Determine scholarship percentage:
 """,
-        "solution_code": """marks = 86.5
-attendance = 82
-income = 250000
-sports = 'State'
+        "solution_code": """marks = float(input())
+attendance = int(input())
+income = int(input())
+sports = input().strip()
 
 if attendance < 75:
     print("Not Eligible: Low attendance")
@@ -505,14 +515,25 @@ else:
         "sample_input": "1000\n200\n150\n400\n50\n300\n-1",
         "expected_output": "Total Deposits: 5\nTotal Saved: Rs. 1100\nLargest Deposit: Rs. 400\nTarget reached on deposit number 5",
         "hint": "Maintain running sum, max deposit, and record the index when running sum >= target for the first time.",
-        "starter_code": """# [P50-013] Piggy Bank Target Tracker
-target = 1000
-deposits = [200, 150, 400, 50, 300]
+        "starter_code": """# [CBT-013] Piggy Bank Target Tracker
+# Read target and deposits until -1 is entered:
+target = int(input())
+deposits = []
+while True:
+    d = int(input())
+    if d == -1:
+        break
+    deposits.append(d)
 
-# Track total deposits, largest deposit, and target reached event:
+# TODO: Track total deposits, largest deposit, and target reached event:
 """,
-        "solution_code": """target = 1000
-deposits = [200, 150, 400, 50, 300]
+        "solution_code": """target = int(input())
+deposits = []
+while True:
+    d = int(input())
+    if d == -1:
+        break
+    deposits.append(d)
 
 total_saved = 0
 largest = 0
@@ -545,12 +566,13 @@ else:
         "sample_input": "3",
         "expected_output": "  1\n 121\n12321\n 121\n  1",
         "hint": "For row i: spaces = ' ' * (n - i). numbers = ''.join(str(x) for x in range(1, i+1)) + ''.join(str(x) for x in range(i-1, 0, -1)).",
-        "starter_code": """# [P50-014] Concert Stage Light Diamond
-n = 3
+        "starter_code": """# [CBT-014] Concert Stage Light Diamond
+# Read n:
+n = int(input())
 
-# Generate the numeric diamond pattern:
+# TODO: Generate the numeric diamond pattern:
 """,
-        "solution_code": """n = 3
+        "solution_code": """n = int(input())
 
 rows = []
 for i in range(1, n + 1):
@@ -579,12 +601,13 @@ print('\\n'.join(rows))"""
         "sample_input": "1 500",
         "expected_output": "Keys found: 6 28 496\nTotal keys: 3",
         "hint": "For each number x in range [a, b], find divisors up to x//2, sum them, and check if sum == x and x > 1.",
-        "starter_code": """# [P50-015] Treasure Vault of Perfect Keys
-a, b = 1, 500
+        "starter_code": """# [CBT-015] Treasure Vault of Perfect Keys
+# Read inclusive range a and b:
+a, b = map(int, input().split())
 
-# Find all perfect numbers in range [a, b]:
+# TODO: Find all perfect numbers in range [a, b]:
 """,
-        "solution_code": """a, b = 1, 500
+        "solution_code": """a, b = map(int, input().split())
 
 perfect_keys = []
 for num in range(max(2, a), b + 1):
@@ -610,18 +633,19 @@ else:
         "sample_input": "1000\n5\n2\n6",
         "expected_output": "Day 1: 15 infected\nDay 2: 45 infected\nDay 3: 135 infected\nDay 4: 405 infected\nDay 5: 1000 infected\nEntire population infected on day 5",
         "hint": "On each day k, newly infected = current * R. current = min(P, current + newly). If current == P, print entire population infected and stop.",
-        "starter_code": """# [P50-016] Epidemic Spread Simulator
-P = 1000
-I = 5
-R = 2
-D = 6
+        "starter_code": """# [CBT-016] Epidemic Spread Simulator
+# Read P, I, R, D:
+P = int(input())
+I = int(input())
+R = int(input())
+D = int(input())
 
-# Simulate epidemic spread across D days:
+# TODO: Simulate epidemic spread across D days:
 """,
-        "solution_code": """P = 1000
-I = 5
-R = 2
-D = 6
+        "solution_code": """P = int(input())
+I = int(input())
+R = int(input())
+D = int(input())
 
 current = I
 finished_early = False
@@ -650,12 +674,13 @@ if not finished_early:
         "sample_input": "4829104738",
         "expected_output": "4 appears 2 times\n8 appears 2 times",
         "hint": "Use an array of size 10 to store digit counts. Use `while n > 0: d = n % 10; count[d] += 1; n //= 10`.",
-        "starter_code": """# [P50-017] Serial Number Digit Audit
-serial = 4829104738
+        "starter_code": """# [CBT-017] Serial Number Digit Audit
+# Read positive integer serial:
+serial = int(input())
 
-# Find repeated digits using % and // without converting to str:
+# TODO: Find repeated digits using % and // without converting to str:
 """,
-        "solution_code": """serial = 4829104738
+        "solution_code": """serial = int(input())
 
 counts = [0] * 10
 temp = serial
@@ -683,12 +708,13 @@ else:
         "sample_input": "10 200",
         "expected_output": "Palindromic primes: 11 101 131 151 181 191\nCount: 6",
         "hint": "Check prime using loop up to int(sqrt(n)). Reverse arithmetically: rev = 0; while temp: rev = rev * 10 + temp % 10; temp //= 10.",
-        "starter_code": """# [P50-018] Mirror Prime Finder
-a, b = 10, 200
+        "starter_code": """# [CBT-018] Mirror Prime Finder
+# Read inclusive range a and b:
+a, b = map(int, input().split())
 
-# Find palindromic primes using arithmetic reversing:
+# TODO: Find palindromic primes using arithmetic reversing:
 """,
-        "solution_code": """a, b = 10, 200
+        "solution_code": """a, b = map(int, input().split())
 
 def is_prime(n):
     if n < 2:
@@ -731,14 +757,15 @@ else:
         "sample_input": "1\n5",
         "expected_output": "Sum of 5 terms: 2.7083",
         "hint": "term = 1.0; total = 1.0; For i in range(1, n): term = term * x / i; total += term.",
-        "starter_code": """# [P50-019] Physics Lab Series Calculator
-x = 1.0
-n = 5
+        "starter_code": """# [CBT-019] Physics Lab Series Calculator
+# Read x and n:
+x = float(input())
+n = int(input())
 
-# Compute e^x approximation using n terms:
+# TODO: Compute e^x approximation using n terms:
 """,
-        "solution_code": """x = 1.0
-n = 5
+        "solution_code": """x = float(input())
+n = int(input())
 
 term = 1.0
 total = 1.0
@@ -760,12 +787,13 @@ print(f"Sum of {n} terms: {total:.4f}")"""
         "sample_input": "1101110011",
         "expected_output": "Decimal Value: 883\nNumber of 1s: 7\nLongest Run of 1s: 3\nTransitions: 4",
         "hint": "Check all chars in '01'. Decimal: dec = 0; for ch in s: dec = dec * 2 + int(ch). Count transitions where s[i] != s[i-1].",
-        "starter_code": """# [P50-020] Binary Signal Decoder
-signal = '1101110011'
+        "starter_code": """# [CBT-020] Binary Signal Decoder
+# Read binary signal string:
+signal = input().strip()
 
-# Validate and decode binary signal:
+# TODO: Validate and decode binary signal:
 """,
-        "solution_code": """signal = '1101110011'
+        "solution_code": """signal = input().strip()
 
 if not signal or any(ch not in '01' for ch in signal):
     print("Invalid Signal")
@@ -806,12 +834,21 @@ else:
         "sample_input": "4\nCar 3\nBike 14\nBus 2\nCar 12",
         "expected_output": "Vehicle 1 (Car): Rs. 90\nVehicle 2 (Bike): Rs. 80\nVehicle 3 (Bus): Rs. 160\nVehicle 4 (Car): Rs. 250\nTotal Collection: Rs. 580\nHighest Bill: Vehicle 4",
         "hint": "Hourly and daily caps: Bike (10, 80), Car (30, 250), Bus (80, 600). bill = min(rate * hrs, cap).",
-        "starter_code": """# [P50-021] Mall Parking Collection Report
-records = [('Car', 3), ('Bike', 14), ('Bus', 2), ('Car', 12)]
+        "starter_code": """# [CBT-021] Mall Parking Collection Report
+# Read N and each vehicle's type and hours:
+N = int(input())
+records = []
+for _ in range(N):
+    parts = input().split()
+    records.append((parts[0], int(parts[1])))
 
-# Compute bills, total collection, and highest bill:
+# TODO: Compute bills, total collection, and highest bill:
 """,
-        "solution_code": """records = [('Car', 3), ('Bike', 14), ('Bus', 2), ('Car', 12)]
+        "solution_code": """N = int(input())
+records = []
+for _ in range(N):
+    parts = input().split()
+    records.append((parts[0], int(parts[1])))
 
 rates = {'Bike': (10, 80), 'Car': (30, 250), 'Bus': (80, 600)}
 
@@ -843,12 +880,13 @@ print(f"Highest Bill: Vehicle {max_v}")"""
         "sample_input": "6",
         "expected_output": "6 3 10 5 16 8 4 2 1\nSteps: 8\nMaximum Value: 16",
         "hint": "Keep appending to list until n == 1. Steps = len(seq) - 1. Max value = max(seq).",
-        "starter_code": """# [P50-022] The Hailstone Experiment
-n = 6
+        "starter_code": """# [CBT-022] The Hailstone Experiment
+# Read starting number n:
+n = int(input())
 
-# Generate Collatz sequence and statistics:
+# TODO: Generate Collatz sequence and statistics:
 """,
-        "solution_code": """n = 6
+        "solution_code": """n = int(input())
 
 seq = [n]
 curr = n
@@ -879,12 +917,13 @@ print(f"Maximum Value: {max(seq)}")"""
         "sample_input": "rahul123",
         "expected_output": "Missing: an uppercase letter\nMissing: a special character (!@#$%^&*)\nStrength: Medium",
         "hint": "Check ' ' in pwd -> Invalid password: spaces are not allowed. Check each requirement in the specified order.",
-        "starter_code": """# [P50-023] Corporate Firewall Password Audit
-password = 'rahul123'
+        "starter_code": """# [CBT-023] Corporate Firewall Password Audit
+# Read password:
+password = input()
 
-# Audit password and report missing criteria and strength:
+# TODO: Audit password and report missing criteria and strength:
 """,
-        "solution_code": """password = 'rahul123'
+        "solution_code": """password = input()
 
 if ' ' in password:
     print("Invalid password: spaces are not allowed")
@@ -929,14 +968,15 @@ else:
         "sample_input": "Cwxfir ic Nlia!\n2",
         "expected_output": "Attack at Dawn!",
         "hint": "To decode, shift backward by (k + letter_index) % 26. Maintain a counter for letters processed so far.",
-        "starter_code": """# [P50-024] Secret Agent Rolling Cipher
-ciphertext = 'Cwxfir ic Nlia!'
-k = 2
+        "starter_code": """# [CBT-024] Secret Agent Rolling Cipher
+# Read encrypted message and key k:
+ciphertext = input()
+k = int(input())
 
-# Decode ciphertext by reversing rolling shift:
+# TODO: Decode ciphertext by reversing rolling shift:
 """,
-        "solution_code": """ciphertext = 'Cwxfir ic Nlia!'
-k = 2
+        "solution_code": """ciphertext = input()
+k = int(input())
 
 res = []
 letter_idx = 0
@@ -965,12 +1005,13 @@ print(''.join(res))"""
         "sample_input": "Pls call me b4 u leave, thx!",
         "expected_output": "Please call me before you leave, thanks!",
         "hint": "Strip trailing punctuation, look up lowercase word in dict, capitalize if original was capitalized, and reattach punctuation.",
-        "starter_code": """# [P50-025] Chat Shorthand Expander
-message = 'Pls call me b4 u leave, thx!'
+        "starter_code": """# [CBT-025] Chat Shorthand Expander
+# Read message line:
+message = input()
 
-# Expand chat abbreviations:
+# TODO: Expand chat abbreviations:
 """,
-        "solution_code": """message = 'Pls call me b4 u leave, thx!'
+        "solution_code": """message = input()
 
 shorthand = {
     'u': 'you',
@@ -1016,12 +1057,13 @@ print(' '.join(res))"""
         "sample_input": "ATGCGATGCAATG",
         "expected_output": "Length: 13\nGC Content: 46.15%\nReverse Complement: CATTGCATCGCAT\nATG Count: 3",
         "hint": "Check all chars in 'ACGT'. GC content = (G+C)/len * 100. Overlapping ATG: sum(1 for i in range(len(s)-2) if s[i:i+3] == 'ATG').",
-        "starter_code": """# [P50-026] Genome Lab Sequence Report
-dna = 'ATGCGATGCAATG'
+        "starter_code": """# [CBT-026] Genome Lab Sequence Report
+# Read DNA sequence:
+dna = input().strip()
 
-# Validate and generate DNA report:
+# TODO: Validate and generate DNA report:
 """,
-        "solution_code": """dna = 'ATGCGATGCAATG'.upper()
+        "solution_code": """dna = input().strip().upper()
 
 if not dna or any(c not in 'ACGT' for c in dna):
     print("Invalid DNA Sequence")
@@ -1052,12 +1094,13 @@ else:
         "sample_input": "Paid 250 for tea, 1200 for lunch and 75 for tip",
         "expected_output": "Numbers Found: 250, 1200, 75\nTotal: 1525\nLargest: 1200",
         "hint": "Iterate through characters, accumulating digits into a buffer string. On a non-digit, convert buffer to int if non-empty.",
-        "starter_code": """# [P50-027] Receipt Number Extractor
-text = 'Paid 250 for tea, 1200 for lunch and 75 for tip'
+        "starter_code": """# [CBT-027] Receipt Number Extractor
+# Read receipt text line:
+text = input()
 
-# Extract numbers without re module:
+# TODO: Extract numbers without re module:
 """,
-        "solution_code": """text = 'Paid 250 for tea, 1200 for lunch and 75 for tip'
+        "solution_code": """text = input()
 
 numbers = []
 curr = ""
@@ -1090,14 +1133,15 @@ else:
         "sample_input": "Dormitory\nDirty room",
         "expected_output": "Anagrams\nCommon Letters: 9",
         "hint": "Filter only lowercase letters. Anagrams if sorted lists match. Common count = sum(min(c1[ch], c2[ch]) for ch in set).",
-        "starter_code": """# [P50-028] Anagram Detective
-clue1 = 'Dormitory'
-clue2 = 'Dirty room'
+        "starter_code": """# [CBT-028] Anagram Detective
+# Read both clues:
+clue1 = input()
+clue2 = input()
 
-# Check anagram property and count common letters:
+# TODO: Check anagram property and count common letters:
 """,
-        "solution_code": """clue1 = 'Dormitory'
-clue2 = 'Dirty room'
+        "solution_code": """clue1 = input()
+clue2 = input()
 
 from collections import Counter
 s1 = [c.lower() for c in clue1 if c.isalpha()]
@@ -1124,12 +1168,13 @@ print(f"Common Letters: {common}")"""
         "sample_input": "MCMXCIV",
         "expected_output": "Value: 1994",
         "hint": "Map symbols to values. If curr < next, subtract curr; else add curr.",
-        "starter_code": """# [P50-029] Ancient Library Roman Catalogue
-roman = 'MCMXCIV'
+        "starter_code": """# [CBT-029] Ancient Library Roman Catalogue
+# Read Roman numeral:
+roman = input().strip()
 
-# Convert Roman numeral to integer value:
+# TODO: Convert Roman numeral to integer value:
 """,
-        "solution_code": """roman = 'MCMXCIV'
+        "solution_code": """roman = input().strip()
 
 vals = {'I': 1, 'V': 5, 'X': 10, 'L': 50, 'C': 100, 'D': 500, 'M': 1000}
 
@@ -1158,12 +1203,13 @@ else:
         "sample_input": "forgeeksskeegfor",
         "expected_output": "Longest Palindrome: geeksskeeg\nLength: 10\nStarting Index: 3",
         "hint": "Check all substrings s[i:j]. If s[i:j] == s[i:j][::-1] and len > max_len, update result.",
-        "starter_code": """# [P50-030] Treasure Map Mirror Code
-code = 'forgeeksskeegfor'
+        "starter_code": """# [CBT-030] Treasure Map Mirror Code
+# Read coded lowercase string:
+code = input().strip()
 
-# Find the earliest longest palindromic substring:
+# TODO: Find the earliest longest palindromic substring:
 """,
-        "solution_code": """code = 'forgeeksskeegfor'
+        "solution_code": """code = input().strip()
 
 best_sub = ""
 best_idx = 0
@@ -1193,14 +1239,15 @@ print(f"Starting Index: {best_idx}")"""
         "sample_input": "20\nThe quick brown fox jumps over the lazy dog near the river bank",
         "expected_output": "The quick brown fox\njumps over the lazy\ndog near the river\nbank\nTotal Lines: 4",
         "hint": "Greedy packing: if curr_len + len(w) + 1 <= W, append to current line; else start new line.",
-        "starter_code": """# [P50-031] Notice Board Word Wrapper
-W = 20
-sentence = 'The quick brown fox jumps over the lazy dog near the river bank'
+        "starter_code": """# [CBT-031] Notice Board Word Wrapper
+# Read max line width W and the sentence:
+W = int(input())
+sentence = input()
 
-# Wrap words to max width W:
+# TODO: Wrap words to max width W:
 """,
-        "solution_code": """W = 20
-sentence = 'The quick brown fox jumps over the lazy dog near the river bank'
+        "solution_code": """W = int(input())
+sentence = input()
 
 words = sentence.split()
 lines = []
@@ -1243,12 +1290,13 @@ print(f"Total Lines: {len(lines)}")"""
         "sample_input": "3",
         "expected_output": "  1  2  3\n  8  9  4\n  7  6  5",
         "hint": "Track top, bottom, left, right bounds. Fill while top <= bottom and left <= right.",
-        "starter_code": """# [P50-032] Garden Spiral Planting Plan
-n = 3
+        "starter_code": """# [CBT-032] Garden Spiral Planting Plan
+# Read dimension n:
+n = int(input())
 
-# Fill n x n spiral matrix and format output:
+# TODO: Fill n x n spiral matrix and format output:
 """,
-        "solution_code": """n = 3
+        "solution_code": """n = int(input())
 
 mat = [[0] * n for _ in range(n)]
 top, bottom, left, right = 0, n - 1, 0, n - 1
@@ -1289,24 +1337,17 @@ for row in mat:
         "sample_input": "3 4\n12 5 30 8\n7 22 3 15\n18 9 11 40\n10",
         "expected_output": "Row totals: 55 47 78\nColumn totals: 37 36 44 63\nFullest shelf: 40 at (row 3, column 4)\nShelves below threshold: 5",
         "hint": "row_totals = [sum(row) for row in grid]. col_totals = [sum(grid[r][c] for r in range(R)) for c in range(C)].",
-        "starter_code": """# [P50-033] Warehouse Shelf Grid Audit
-r, c = 3, 4
-grid = [
-    [12, 5, 30, 8],
-    [7, 22, 3, 15],
-    [18, 9, 11, 40]
-]
-T = 10
+        "starter_code": """# [CBT-033] Warehouse Shelf Grid Audit
+# Read r, c, grid rows, and threshold T:
+r, c = map(int, input().split())
+grid = [list(map(int, input().split())) for _ in range(r)]
+T = int(input())
 
-# Compute row/col totals, fullest shelf, and below threshold count:
+# TODO: Compute row/col totals, fullest shelf, and below threshold count:
 """,
-        "solution_code": """r, c = 3, 4
-grid = [
-    [12, 5, 30, 8],
-    [7, 22, 3, 15],
-    [18, 9, 11, 40]
-]
-T = 10
+        "solution_code": """r, c = map(int, input().split())
+grid = [list(map(int, input().split())) for _ in range(r)]
+T = int(input())
 
 row_totals = [sum(row) for row in grid]
 col_totals = [sum(grid[i][j] for i in range(r)) for j in range(c)]
@@ -1341,14 +1382,15 @@ print(f"Shelves below threshold: {below_t}")"""
         "sample_input": "8\n3 1 4 6 2 8 4 7",
         "expected_output": "Duplicate: 4\nMissing: 5",
         "hint": "Count occurrences using a frequency list of size n+1: counts = [0]*(n+1).",
-        "starter_code": """# [P50-034] Lost Parcel Detective
-n = 8
-parcels = [3, 1, 4, 6, 2, 8, 4, 7]
+        "starter_code": """# [CBT-034] Lost Parcel Detective
+# Read n and parcel IDs:
+n = int(input())
+parcels = list(map(int, input().split()))
 
-# Find duplicate and missing ID without sets/dicts:
+# TODO: Find duplicate and missing ID without sets/dicts:
 """,
-        "solution_code": """n = 8
-parcels = [3, 1, 4, 6, 2, 8, 4, 7]
+        "solution_code": """n = int(input())
+parcels = list(map(int, input().split()))
 
 counts = [0] * (n + 1)
 for x in parcels:
@@ -1377,14 +1419,15 @@ print(f"Missing: {miss}")"""
         "sample_input": "7\n100 180 260 310 40 535 695",
         "expected_output": "Buy on day 5 at 40\nSell on day 7 at 695\nMaximum profit: 655",
         "hint": "Track max profit and compare pairs (buy_day, sell_day) with sell_day > buy_day.",
-        "starter_code": """# [P50-035] Stock Trader's Best Deal
-n = 7
-prices = [100, 180, 260, 310, 40, 535, 695]
+        "starter_code": """# [CBT-035] Stock Trader's Best Deal
+# Read n and daily prices:
+n = int(input())
+prices = list(map(int, input().split()))
 
-# Find best transaction or report no profitable transaction:
+# TODO: Find best transaction or report no profitable transaction:
 """,
-        "solution_code": """n = 7
-prices = [100, 180, 260, 310, 40, 535, 695]
+        "solution_code": """n = int(input())
+prices = list(map(int, input().split()))
 
 best_profit = 0
 best_deal = None
@@ -1416,22 +1459,15 @@ else:
         "sample_input": "3\n1 2 3\n4 5 6\n7 8 9",
         "expected_output": "7 4 1\n8 5 2\n9 6 3",
         "hint": "Rotated row r is formed by column r of the original grid taken from bottom to top: grid[n-1-i][j].",
-        "starter_code": """# [P50-036] Satellite Image Rotation
-n = 3
-grid = [
-    [1, 2, 3],
-    [4, 5, 6],
-    [7, 8, 9]
-]
+        "starter_code": """# [CBT-036] Satellite Image Rotation
+# Read n and n rows of image:
+n = int(input())
+grid = [list(map(int, input().split())) for _ in range(n)]
 
-# Rotate grid 90 degrees clockwise:
+# TODO: Rotate grid 90 degrees clockwise:
 """,
-        "solution_code": """n = 3
-grid = [
-    [1, 2, 3],
-    [4, 5, 6],
-    [7, 8, 9]
-]
+        "solution_code": """n = int(input())
+grid = [list(map(int, input().split())) for _ in range(n)]
 
 rotated = []
 for col in range(n):
@@ -1453,18 +1489,19 @@ for row in rotated:
         "sample_input": "980 870 870 640\n990 870 720 500\n5\n870",
         "expected_output": "Top 5 Scores: 990 980 870 870 870\nTotal Players: 8\nRank of 870: 3",
         "hint": "Use two pointers i and j. If A[i] >= B[j], append A[i] and i += 1; else append B[j] and j += 1. Rank = 1 + sum(1 for x in merged if x > S).",
-        "starter_code": """# [P50-037] Esports Leaderboard Merger
-server_A = [980, 870, 870, 640]
-server_B = [990, 870, 720, 500]
-K = 5
-S = 870
+        "starter_code": """# [CBT-037] Esports Leaderboard Merger
+# Read scores of server A and B, K, and target score S:
+server_A = list(map(int, input().split()))
+server_B = list(map(int, input().split()))
+K = int(input())
+S = int(input())
 
-# Merge leaderboards without sort() or sorted():
+# TODO: Merge leaderboards without sort() or sorted():
 """,
-        "solution_code": """server_A = [980, 870, 870, 640]
-server_B = [990, 870, 720, 500]
-K = 5
-S = 870
+        "solution_code": """server_A = list(map(int, input().split()))
+server_B = list(map(int, input().split()))
+K = int(input())
+S = int(input())
 
 merged = []
 i = 0
@@ -1506,14 +1543,15 @@ else:
         "sample_input": "9\n-2 1 -3 4 -1 2 1 -5 4",
         "expected_output": "Best Period: Day 4 to Day 7\nTotal Net Energy: 6",
         "hint": "Check all pairs (i, j). Maintain best sum, best start, best length.",
-        "starter_code": """# [P50-038] Solar Farm Best Stretch
-n = 9
-energy = [-2, 1, -3, 4, -1, 2, 1, -5, 4]
+        "starter_code": """# [CBT-038] Solar Farm Best Stretch
+# Read n and energy values:
+n = int(input())
+energy = list(map(int, input().split()))
 
-# Find best contiguous period:
+# TODO: Find best contiguous period:
 """,
-        "solution_code": """n = 9
-energy = [-2, 1, -3, 4, -1, 2, 1, -5, 4]
+        "solution_code": """n = int(input())
+energy = list(map(int, input().split()))
 
 best_sum = -float('inf')
 best_start = 0
@@ -1554,12 +1592,13 @@ print(f"Total Net Energy: {best_sum}")"""
         "sample_input": "7 3",
         "expected_output": "Elimination Order: 3 6 2 7 5 1\nWinner: 4",
         "hint": "Maintain circular index: idx = (idx + k - 1) % len(circle). pop contestant and record in order.",
-        "starter_code": """# [P50-039] The Elimination Game
-n, k = 7, 3
+        "starter_code": """# [CBT-039] The Elimination Game
+# Read n and k:
+n, k = map(int, input().split())
 
-# Simulate elimination circle:
+# TODO: Simulate elimination circle:
 """,
-        "solution_code": """n, k = 7, 3
+        "solution_code": """n, k = map(int, input().split())
 
 circle = list(range(1, n + 1))
 elim = []
@@ -1588,18 +1627,19 @@ print(f"Winner: {circle[0]}")"""
         "sample_input": "340\nRegular",
         "expected_output": "Energy Charge: Rs. 1900.00\nDiscount: Rs. 0.00\nFixed Charge: Rs. 60.00\nDuty: Rs. 117.60\nNet Payable: Rs. 2077.60",
         "hint": "Calculate energy charge across slabs (0-100, 101-200, >200). Discount = 0.15 * energy if senior else 0. Duty = 0.06 * (energy - disc + 60).",
-        "starter_code": """# [P50-040] Electricity Board Billing Function
-units = 340
-category = 'Regular'
+        "starter_code": """# [CBT-040] Electricity Board Billing Function
+# Read units consumed and category:
+units = int(input())
+category = input().strip()
 
 def calculate_bill(units, senior=False):
     # TODO: Implement function returning (energy, discount, fixed, duty, net)
     pass
 
-# Call calculate_bill and format output:
+# TODO: Call calculate_bill and format output:
 """,
-        "solution_code": """units = 340
-category = 'Regular'
+        "solution_code": """units = int(input())
+category = input().strip()
 
 def calculate_bill(units, senior=False):
     if units <= 100:
@@ -1634,8 +1674,9 @@ print(f"Net Payable: Rs. {net:.2f}")"""
         "sample_input": "84",
         "expected_output": "Prime: No\nNext prime: 89\nPrime factors: 2 x 2 x 3 x 7",
         "hint": "Check prime up to sqrt(n). In prime_factors, divide out 2 then odd factors d from 3 upwards.",
-        "starter_code": """# [P50-041] Prime Toolkit for a Cryptography Class
-n = 84
+        "starter_code": """# [CBT-041] Prime Toolkit for a Cryptography Class
+# Read integer n:
+n = int(input())
 
 def is_prime(n):
     pass
@@ -1646,9 +1687,9 @@ def next_prime(n):
 def prime_factors(n):
     pass
 
-# Call functions and format output:
+# TODO: Call functions and format output:
 """,
-        "solution_code": """n = 84
+        "solution_code": """n = int(input())
 
 def is_prime(n):
     if n < 2: return False
@@ -1696,18 +1737,19 @@ print(f"Prime factors: {' x '.join(map(str, factors))}")"""
         "sample_input": "8\n4 9 4 7 1 9 4 6",
         "expected_output": "Minimum: 1\nMaximum: 9\nMean: 5.50\nMedian: 5.00\nMode: 4",
         "hint": "Sort data. Mean = sum/n. Median = s[n//2] if odd else (s[n//2-1]+s[n//2])/2. Mode = element with highest frequency, picking smallest on tie.",
-        "starter_code": """# [P50-042] Sensor Data Analyser
-n = 8
-data = [4, 9, 4, 7, 1, 9, 4, 6]
+        "starter_code": """# [CBT-042] Sensor Data Analyser
+# Read n and data points:
+n = int(input())
+data = list(map(int, input().split()))
 
 def analyse(data):
-    # Return (minimum, maximum, mean, median, mode)
+    # TODO: Return (minimum, maximum, mean, median, mode)
     pass
 
-# Run analysis and print formatted results:
+# TODO: Run analysis and print formatted results:
 """,
-        "solution_code": """n = 8
-data = [4, 9, 4, 7, 1, 9, 4, 6]
+        "solution_code": """n = int(input())
+data = list(map(int, input().split()))
 
 def analyse(data):
     s_data = sorted(data)
@@ -1750,17 +1792,18 @@ print(f"Mode: {mode}")"""
         "sample_input": "8.5 9.0 7.5 9.5 8.0\n0.3",
         "expected_output": "Judges: 5\nDropped Scores: 7.5, 9.5\nFinal Score: 8.80",
         "hint": "If len(scores) < 3 return -1. Else dropped are min(scores) and max(scores). Sum remaining, divide by len-2, and add bonus.",
-        "starter_code": """# [P50-043] Gymnastics Judging Panel
-scores = [8.5, 9.0, 7.5, 9.5, 8.0]
-bonus = 0.3
+        "starter_code": """# [CBT-043] Gymnastics Judging Panel
+# Read scores and bonus:
+scores = list(map(float, input().split()))
+bonus = float(input())
 
 def final_score(*scores, bonus=0):
     pass
 
-# Unpack scores and print judging results:
+# TODO: Unpack scores and print judging results:
 """,
-        "solution_code": """scores = [8.5, 9.0, 7.5, 9.5, 8.0]
-bonus = 0.3
+        "solution_code": """scores = list(map(float, input().split()))
+bonus = float(input())
 
 def final_score(*scores, bonus=0):
     if len(scores) < 3:
@@ -1792,16 +1835,17 @@ else:
         "sample_input": "3",
         "expected_output": "Move disk 1 from A to C\nMove disk 2 from A to B\nMove disk 1 from C to B\nMove disk 3 from A to C\nMove disk 1 from B to A\nMove disk 2 from B to C\nMove disk 1 from A to C\nTotal Moves: 7",
         "hint": "hanoi(n-1, src, dst, hlp), move disk n from src to dst, hanoi(n-1, hlp, src, dst). Total moves = 2^n - 1.",
-        "starter_code": """# [P50-044] Temple Tower Puzzle
-n = 3
+        "starter_code": """# [CBT-044] Temple Tower Puzzle
+# Read number of discs n:
+n = int(input())
 
 def hanoi(n, source, helper, destination):
     # Print moves and return total count
     pass
 
-# Solve Tower of Hanoi:
+# TODO: Solve Tower of Hanoi:
 """,
-        "solution_code": """n = 3
+        "solution_code": """n = int(input())
 
 def hanoi(n, source, helper, destination):
     if n == 1:
@@ -1827,8 +1871,9 @@ print(f"Total Moves: {total_moves}")"""
         "sample_input": "4",
         "expected_output": "Number of Ways: 7\nRecursive Calls: 25",
         "hint": "Increment global calls at start of function. If n < 0 return 0; if n == 0 return 1; return ways(n-1) + ways(n-2) + ways(n-3).",
-        "starter_code": """# [P50-045] Robot Staircase Paths
-n = 4
+        "starter_code": """# [CBT-045] Robot Staircase Paths
+# Read staircase height n:
+n = int(input())
 
 calls = 0
 def ways(n):
@@ -1837,9 +1882,9 @@ def ways(n):
     # Implement recursion
     pass
 
-# Run ways(n) and report results:
+# TODO: Run ways(n) and report results:
 """,
-        "solution_code": """n = 4
+        "solution_code": """n = int(input())
 
 calls = 0
 
@@ -1868,19 +1913,20 @@ print(f"Recursive Calls: {calls}")"""
         "sample_input": "10\n101 105 110 118 125 131 140 152 160 175\n131",
         "expected_output": "Found at position 6\nCalls Made: 3",
         "hint": "If low > high return (-1, 1). mid = (low+high)//2. If arr[mid] == key return (mid, 1). Else recurse and add 1 to returned calls.",
-        "starter_code": """# [P50-046] College Roll Number Search
-n = 10
-arr = [101, 105, 110, 118, 125, 131, 140, 152, 160, 175]
-key = 131
+        "starter_code": """# [CBT-046] College Roll Number Search
+# Read n, sorted roll numbers, and target key:
+n = int(input())
+arr = list(map(int, input().split()))
+key = int(input())
 
 def binary_search(arr, key, low, high):
     pass
 
-# Search for roll number:
+# TODO: Search for roll number:
 """,
-        "solution_code": """n = 10
-arr = [101, 105, 110, 118, 125, 131, 140, 152, 160, 175]
-key = 131
+        "solution_code": """n = int(input())
+arr = list(map(int, input().split()))
+key = int(input())
 
 def binary_search(arr, key, low, high):
     if low > high:
@@ -1914,10 +1960,11 @@ print(f"Calls Made: {calls}")"""
         "sample_input": "8\n22 25 -999 27 24 1000 26 23\n20 30",
         "expected_output": "Removed: 2\nClean Readings: 22 25 27 24 26 23\nNormalized: 0.00 0.60 1.00 0.40 0.80 0.20",
         "hint": "In-place removal: iterate backwards or rebuild slice `data[:] = [x for x in data if low <= x <= high]`. Normalize using min/max of cleaned data.",
-        "starter_code": """# [P50-047] Sensor Noise Cleaner
-n = 8
-data = [22, 25, -999, 27, 24, 1000, 26, 23]
-low, high = 20, 30
+        "starter_code": """# [CBT-047] Sensor Noise Cleaner
+# Read n, sensor readings, and low/high bounds:
+n = int(input())
+data = list(map(int, input().split()))
+low, high = map(int, input().split())
 
 def clean_readings(data, low, high):
     pass
@@ -1925,11 +1972,11 @@ def clean_readings(data, low, high):
 def normalized_copy(data):
     pass
 
-# Clean and normalize readings:
+# TODO: Clean and normalize readings:
 """,
-        "solution_code": """n = 8
-data = [22, 25, -999, 27, 24, 1000, 26, 23]
-low, high = 20, 30
+        "solution_code": """n = int(input())
+data = list(map(int, input().split()))
+low, high = map(int, input().split())
 
 def clean_readings(data, low, high):
     orig_len = len(data)
@@ -1964,24 +2011,24 @@ print(f"Normalized: {' '.join(f'{x:.2f}' for x in norm)}")"""
         "sample_input": "5\nMeera HR 45000\nArjun IT 72000\nZoya IT 68000\nKabir HR 52000\nAnita Finance 61000",
         "expected_output": "Sorted by Name:\nAnita - Finance - 61000\nArjun - IT - 72000\nKabir - HR - 52000\nMeera - HR - 45000\nZoya - IT - 68000\nSorted by Department and Salary:\nAnita - Finance - 61000\nKabir - HR - 52000\nMeera - HR - 45000\nArjun - IT - 72000\nZoya - IT - 68000\nTop 3 Earners: Arjun, Zoya, Anita",
         "hint": "Name sort: key=lambda x: x[0]. Dept & Salary: key=lambda x: (x[1], -x[2]). Top earners: sorted by salary desc.",
-        "starter_code": """# [P50-048] HR Payroll Sorting with Lambda
-records = [
-    ['Meera', 'HR', 45000],
-    ['Arjun', 'IT', 72000],
-    ['Zoya', 'IT', 68000],
-    ['Kabir', 'HR', 52000],
-    ['Anita', 'Finance', 61000]
-]
+        "starter_code": """# [CBT-048] HR Payroll Sorting with Lambda
+# Read N and N employee records:
+N = int(input())
+records = []
+for _ in range(N):
+    parts = input().split()
+    records.append([parts[0], parts[1], int(parts[2])])
 
-# Sort using lambda and find top earners:
+def top_earners(recs, n=3):
+    pass
+
+# TODO: Sort using lambda and find top earners:
 """,
-        "solution_code": """records = [
-    ['Meera', 'HR', 45000],
-    ['Arjun', 'IT', 72000],
-    ['Zoya', 'IT', 68000],
-    ['Kabir', 'HR', 52000],
-    ['Anita', 'Finance', 61000]
-]
+        "solution_code": """N = int(input())
+records = []
+for _ in range(N):
+    parts = input().split()
+    records.append([parts[0], parts[1], int(parts[2])])
 
 def top_earners(recs, n=3):
     s = sorted(recs, key=lambda x: -x[2])
@@ -2012,9 +2059,10 @@ print(f"Top 3 Earners: {', '.join(top3)}")"""
         "sample_input": "15 8 2023\n26 1 2024",
         "expected_output": "Date 1: Day 227 of 2023\nDate 2: Day 26 of 2024\nDays Between: 164\nWeeks and Days: 23 weeks 3 days",
         "hint": "days_since_start sums full years days + day_of_year. Days between = abs(d1 - d2). Weeks = diff // 7, Days = diff % 7.",
-        "starter_code": """# [P50-049] Calendar Utility Library
-d1, m1, y1 = 15, 8, 2023
-d2, m2, y2 = 26, 1, 2024
+        "starter_code": """# [CBT-049] Calendar Utility Library
+# Read two dates (day month year):
+d1, m1, y1 = map(int, input().split())
+d2, m2, y2 = map(int, input().split())
 
 def is_leap(year):
     pass
@@ -2028,10 +2076,10 @@ def day_of_year(day, month, year):
 def days_since_start(day, month, year):
     pass
 
-# Compute day-of-year and difference:
+# TODO: Compute day-of-year and difference:
 """,
-        "solution_code": """d1, m1, y1 = 15, 8, 2023
-d2, m2, y2 = 26, 1, 2024
+        "solution_code": """d1, m1, y1 = map(int, input().split())
+d2, m2, y2 = map(int, input().split())
 
 def is_leap(year):
     return (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)
@@ -2045,7 +2093,6 @@ def day_of_year(day, month, year):
 
 def days_since_start(day, month, year):
     y = year - 1
-    # Leap years up to y
     leaps = y // 4 - y // 100 + y // 400
     return y * 365 + leaps + day_of_year(day, month, year)
 
@@ -2076,38 +2123,28 @@ print(f"Weeks and Days: {weeks} weeks {rem_days} days")"""
         "sample_input": "9\nD 2000\nW 1500\nW 2000\nW 3000\nD 5000\nW 1000\nD 60000\nX 100\nW 150",
         "expected_output": "Txn 1: Deposited 2000 | Balance: 7000\nTxn 2: Withdrew 1500 | Balance: 5500\nTxn 3: Withdrew 2000 | Balance: 3500\nTxn 4: Withdrew 3000 | Balance: 500\nTxn 5: Deposited 5000 | Balance: 5500\nTxn 6: Withdrew 1000 (fee 20) | Balance: 4480\nTxn 7: Deposit flagged: KYC required | Balance: 4480\nTxn 8: Invalid operation | Balance: 4480\nTxn 9: Invalid amount | Balance: 4480\nFinal Balance: 4480\nSuccessful Withdrawals: 4",
         "hint": "Check op. If D: check <= 0 (Invalid amount), > 50000 (KYC), else add. If W: check > 0 and % 100 == 0. Fee is 20 if withdrawals >= 3. Check balance - amount - fee >= 500.",
-        "starter_code": """# [P50-050] Digital Bank Transaction Processor
-balance = 5000
-transactions = [
-    ('D', 2000),
-    ('W', 1500),
-    ('W', 2000),
-    ('W', 3000),
-    ('D', 5000),
-    ('W', 1000),
-    ('D', 60000),
-    ('X', 100),
-    ('W', 150)
-]
+        "starter_code": """# [CBT-050] Digital Bank Transaction Processor
+# Read N and N transactions (op amount):
+N = int(input())
+transactions = []
+for _ in range(N):
+    parts = input().split()
+    transactions.append((parts[0], int(parts[1])))
 
+balance = 5000
 def process(balance, op, amount, withdrawals):
-    # Returns (updated_balance, message, updated_withdrawals)
+    # TODO: Returns (updated_balance, message, updated_withdrawals)
     pass
 
-# Execute transactions log:
+# TODO: Execute transactions log:
 """,
-        "solution_code": """balance = 5000
-transactions = [
-    ('D', 2000),
-    ('W', 1500),
-    ('W', 2000),
-    ('W', 3000),
-    ('D', 5000),
-    ('W', 1000),
-    ('D', 60000),
-    ('X', 100),
-    ('W', 150)
-]
+        "solution_code": """N = int(input())
+transactions = []
+for _ in range(N):
+    parts = input().split()
+    transactions.append((parts[0], int(parts[1])))
+
+balance = 5000
 
 def process(balance, op, amount, withdrawals):
     if op == 'D':
