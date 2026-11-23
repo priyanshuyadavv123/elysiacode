@@ -778,7 +778,7 @@ def _get_filtered_tuple(subject: str, topic: str, difficulty: str) -> tuple:
     if topic and topic.lower() != "all":
         topic_lower = topic.lower()
         if topic_lower in ("py_scenarios", "scenarios", "scenario"):
-            filtered = [q for q in filtered if q.get("is_scenario") or q.get("topic", "").lower() in ("py_scenarios", "py_real_life", "py_semester", "py_sem_assignment", "py_practice_500", "py_practice_50")]
+            filtered = [q for q in filtered if q.get("is_scenario") or q.get("topic", "").lower() in ("py_scenarios", "py_real_life", "py_semester", "py_sem_assignment", "py_practice_500", "py_cbt", "py_practice_50")]
         else:
             filtered = [q for q in filtered if q["topic"].lower() == topic_lower]
     if difficulty and difficulty.lower() != "all":
