@@ -2841,8 +2841,9 @@ class ElysiaApp {
     const isHi = this.lang === "hi";
 
     const pythonTopics = [
-      { id: "all", label_en: "All Topics (1,840+ Questions)", label_hi: "Saare Topics (1,840+ Questions)" },
-      { id: "py_scenarios", label_en: "🌟 Real-Life Scenarios (All 690 Questions)", label_hi: "🌟 Real-Life Scenarios (Saare 690 Questions)" },
+      { id: "all", label_en: "All Topics (1,890+ Questions)", label_hi: "Saare Topics (1,890+ Questions)" },
+      { id: "py_scenarios", label_en: "🌟 Real-Life Scenarios (All 740 Questions)", label_hi: "🌟 Real-Life Scenarios (Saare 740 Questions)" },
+      { id: "py_practice_50", label_en: "🎯 Practice 50 Problem Set (Q1 - Q50)", label_hi: "🎯 Practice 50 Problem Set (Q1 - Q50)" },
       { id: "py_real_life", label_en: "📱 Real-Life Practice (RL-001 - RL-100)", label_hi: "📱 Real-Life Scenarios (RL-001 - RL-100)" },
       { id: "py_semester", label_en: "🎓 Semester Exam Scenarios (PY-001 - PY-045)", label_hi: "🎓 Semester Exam Questions (PY-001 - PY-045)" },
       { id: "py_sem_assignment", label_en: "📝 Semester Assignment (Q1 - Q45)", label_hi: "📝 Semester Assignment (Q1 - Q45)" },
