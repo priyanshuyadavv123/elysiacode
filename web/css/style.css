@@ -8166,3 +8166,64 @@ body[data-theme="light"] .app-footer div > div > span:first-child {
     padding-bottom: calc(76px + env(safe-area-inset-bottom, 16px)) !important;
   }
 }
+
+/* ===========================================================================
+   🎯 QUESTION BANK PYTHON IDE STYLING
+   =========================================================================== */
+.q-ide-wrapper {
+  margin-bottom: 8px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #090d16;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.q-ide-wrapper:focus-within {
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
+}
+
+.q-ide-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0d1526;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  user-select: none;
+}
+
+.q-ide-editor-wrapper {
+  min-height: 160px;
+  height: 210px;
+  position: relative;
+  overflow: hidden;
+  background: #090d16;
+}
+
+.q-ide-editor-wrapper .CodeMirror {
+  height: 100% !important;
+  font-size: 0.84rem !important;
+  line-height: 1.5 !important;
+  background: #090d16 !important;
+}
+
+.q-ide-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 0.72rem;
+  padding: 2px 7px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.q-ide-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.25);
+}

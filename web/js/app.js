@@ -1088,6 +1088,13 @@ class ElysiaApp {
     if (tabName === "qbank") {
       this.populateQBankTopics();
       this.loadQuestionBank();
+      setTimeout(() => {
+        if (this.qbankCodeMirrors) {
+          Object.values(this.qbankCodeMirrors).forEach(cm => {
+            if (cm && cm.refresh) cm.refresh();
+          });
+        }
+      }, 120);
     }
     if (tabName === "mock") this.loadMockExam();
     if (tabName === "panic") this.renderPanicMode();
@@ -3040,8 +3047,32 @@ class ElysiaApp {
           </div>
 
           <div>
-            <div class="code-editor-wrapper" style="min-height: 150px; margin-bottom: 8px;">
-              <textarea id="q-code-${q.id}" class="code-textarea" spellcheck="false" style="min-height: 150px; font-family:var(--font-mono); font-size:0.84rem; line-height:1.5;">${this._escapeHtml(q.starter_code || "")}</textarea>
+            <!-- 🐍 Professional Python IDE Workspace -->
+            <div class="q-ide-wrapper">
+              <div class="q-ide-header">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="display:inline-flex; gap:4px;">
+                    <span style="width:7px; height:7px; border-radius:50%; background:#ef4444; opacity:0.85;"></span>
+                    <span style="width:7px; height:7px; border-radius:50%; background:#f59e0b; opacity:0.85;"></span>
+                    <span style="width:7px; height:7px; border-radius:50%; background:#10b981; opacity:0.85;"></span>
+                  </span>
+                  <span style="display:inline-flex; align-items:center; gap:5px; font-weight:700; color:#38bdf8; font-size:0.75rem;">
+                    <span>🐍</span> ${isPython ? "Python 3.12 IDE" : "HTML/CSS Editor"}
+                  </span>
+                  <span style="background:rgba(16,185,129,0.15); color:#34d399; font-size:0.65rem; padding:1px 6px; border-radius:9999px; font-weight:700; border:1px solid rgba(16,185,129,0.3);">
+                    ● Ready
+                  </span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span id="q-cursor-${q.id}" style="color:#64748b; font-family:var(--font-mono); font-size:0.7rem;">Ln 1, Col 1</span>
+                  <button type="button" class="q-ide-btn" onclick="window.elysiaApp.copyQBankCode('${q.id}')" title="Copy code">📋 Copy</button>
+                  <button type="button" class="q-ide-btn" onclick="window.elysiaApp.resetQBankCode('${q.id}')" title="Reset starter code">↺ Reset</button>
+                  <button type="button" class="q-ide-btn" onclick="window.elysiaApp.sendQBankToEditor('${q.id}')" title="Open in Fullscreen IDE" style="color:#38bdf8; border-color:rgba(56,189,248,0.3);">⚡ Fullscreen</button>
+                </div>
+              </div>
+              <div class="q-ide-editor-wrapper">
+                <textarea id="q-code-${q.id}" class="code-textarea" spellcheck="false">${this._escapeHtml(q.starter_code || "")}</textarea>
+              </div>
             </div>
 
             ${isPython ? `
@@ -3109,6 +3140,9 @@ class ElysiaApp {
         </div>
       `;
     }).join("");
+
+    // 🐍 Initialize professional CodeMirror Python IDE on every question card
+    this.initQBankCodeMirrors(pageQuestions);
 
     // Update Pagination UI Bar
     if (paginationControls) {
@@ -3243,24 +3277,97 @@ class ElysiaApp {
     }
   }
 
+  /**
+   * 🐍 INIT QBANK CODEMIRRORS: Initializes professional syntax-highlighted IDE on every question card
+   */
+  initQBankCodeMirrors(pageQuestions) {
+    if (typeof window.CodeMirror === "undefined") return;
+    this.qbankCodeMirrors = this.qbankCodeMirrors || {};
+
+    pageQuestions.forEach(q => {
+      const textarea = document.getElementById(`q-code-${q.id}`);
+      if (!textarea) return;
+
+      if (this.qbankCodeMirrors[q.id]) {
+        try {
+          this.qbankCodeMirrors[q.id].toTextArea();
+        } catch (e) {}
+      }
+
+      const isPython = q.subject === "python";
+      const cm = window.CodeMirror.fromTextArea(textarea, {
+        mode: isPython ? "python" : "htmlmixed",
+        theme: "dracula",
+        lineNumbers: true,
+        matchBrackets: true,
+        autoCloseBrackets: true,
+        indentUnit: 4,
+        tabSize: 4,
+        indentWithTabs: false,
+        lineWrapping: true,
+        extraKeys: {
+          "Tab": (cmInstance) => cmInstance.replaceSelection("    ", "end"),
+          "Ctrl-Enter": () => this.solveQBankItem(q.id),
+          "Cmd-Enter": () => this.solveQBankItem(q.id)
+        }
+      });
+
+      const cursorEl = document.getElementById(`q-cursor-${q.id}`);
+      cm.on("cursorActivity", () => {
+        if (cursorEl) {
+          const pos = cm.getCursor();
+          cursorEl.textContent = `Ln ${pos.line + 1}, Col ${pos.ch + 1}`;
+        }
+      });
+
+      cm.on("change", () => {
+        textarea.value = cm.getValue();
+      });
+
+      this.qbankCodeMirrors[q.id] = cm;
+
+      setTimeout(() => {
+        try { cm.refresh(); } catch (e) {}
+      }, 60);
+    });
+  }
+
+  getQBankCode(qId) {
+    const cm = this.qbankCodeMirrors && this.qbankCodeMirrors[qId];
+    if (cm) return cm.getValue();
+    const el = document.getElementById(`q-code-${qId}`);
+    return el ? el.value : "";
+  }
+
+  copyQBankCode(qId) {
+    window.elysiaAudio.playClick();
+    const text = this.getQBankCode(qId);
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      this.showOptimisticToast("Code copied to clipboard!", "success");
+    }
+  }
+
   resetQBankCode(qId) {
     window.elysiaAudio.playClick();
     const q = this.qbankQuestionsMap ? this.qbankQuestionsMap[qId] : null;
     const codeEl = document.getElementById(`q-code-${qId}`);
     const outEl = document.getElementById(`q-out-${qId}`);
-    if (q && codeEl) {
-      codeEl.value = q.starter_code || "";
+    const cm = this.qbankCodeMirrors && this.qbankCodeMirrors[qId];
+    if (q) {
+      if (cm) cm.setValue(q.starter_code || "");
+      if (codeEl) codeEl.value = q.starter_code || "";
       if (outEl) outEl.style.display = "none";
+      this.showOptimisticToast("Reset code to starter template", "info");
     }
   }
 
   sendQBankToEditor(qId) {
     window.elysiaAudio.playClick();
     const q = this.qbankQuestionsMap ? this.qbankQuestionsMap[qId] : null;
-    const codeEl = document.getElementById(`q-code-${qId}`);
     if (!q) return;
 
-    const codeToTransfer = (codeEl && codeEl.value) ? codeEl.value : (q.starter_code || "");
+    const codeToTransfer = this.getQBankCode(qId) || (q.starter_code || "");
     if (this.subject !== q.subject) {
       this.setSubject(q.subject);
     }
@@ -3423,7 +3530,7 @@ class ElysiaApp {
     outEl.innerHTML = '<span style="color:#38bdf8;">⚡ Running execution with input...</span>';
 
     const isPython = q.subject === "python";
-    const userCode = codeEl.value;
+    const userCode = this.getQBankCode(qId);
 
     if (isPython) {
       const currentStdin = stdinEl ? stdinEl.value : (q.sample_input || "");
