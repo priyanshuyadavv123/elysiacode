@@ -87,7 +87,7 @@
         <button class="side-nav-btn" data-dest="qbank" title="Practice 1,890+ Coding Questions">
           <span class="side-nav-icon">🎯</span>
           <span class="side-nav-label">Question Bank</span>
-          <span class="side-nav-badge" style="background:#0284c7; color:#fff; font-size:0.68rem; font-weight:800; padding:1px 6px; border-radius:9999px; margin-left:auto;">1.9k</span>
+          <span class="side-nav-badge" id="nav-badge-qbank" style="background:#0284c7; color:#fff; font-size:0.68rem; font-weight:800; padding:1px 6px; border-radius:9999px; margin-left:auto;">1.9k</span>
         </button>
         <button class="side-nav-btn" data-dest="lab">
           <span class="side-nav-icon">💻</span>
@@ -293,7 +293,7 @@
               <div class="hero-buttons-row">
                 <button class="hero-btn-continue" id="btn-hero-continue">Continue Learning →</button>
                 <button class="hero-btn-curriculum" id="btn-hero-curriculum">View Curriculum</button>
-                <button class="hero-btn-curriculum" onclick="window.elysiaApp.switchTab('qbank')" style="border-color:#38bdf8; color:#38bdf8;" title="Practice 1,890+ Coding Questions">🎯 Question Bank (1.9k)</button>
+                <button class="hero-btn-curriculum" id="hero-btn-qbank" onclick="window.elysiaApp.switchTab('qbank')" style="border-color:#38bdf8; color:#38bdf8;" title="Practice 1,890+ Coding Questions">🎯 Question Bank (1.9k)</button>
               </div>
             </div>
 
@@ -410,7 +410,7 @@
               </button>
               <button class="qa-btn" id="qa-btn-qbank" onclick="window.elysiaApp.switchTab('qbank')" title="Practice 1,890+ Coding Questions">
                 <span class="qa-icon">🎯</span>
-                <span class="qa-label">Q-Bank (1.9k)</span>
+                <span class="qa-label" id="qa-label-qbank">Q-Bank (1.9k)</span>
               </button>
               <button class="qa-btn" id="qa-btn-quiz" title="Take Concept Quiz">
                 <span class="qa-icon">📄</span>
@@ -1857,7 +1857,7 @@ for item in rev_arr:
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
-  <script src="js/app.js?v=2.3.5"></script>
+  <script src="js/app.js?v=2.3.6"></script>
 </body>
 </html>
 

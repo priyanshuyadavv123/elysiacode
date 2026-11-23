@@ -133,6 +133,7 @@ class ElysiaApp {
 
     try {
       this.populateQBankTopics();
+      this.updateCatalogBadges();
       this.updateLanguageUI();
       this.updateGamificationUI();
       this.updateAuthUI();
@@ -2881,6 +2882,31 @@ class ElysiaApp {
     }
   }
 
+  applyCatalogCount(total) {
+    if (!total) return;
+    const formatted = total >= 1000 ? `${(total / 1000).toFixed(1)}k` : `${total}`;
+    const navBadge = document.getElementById("nav-badge-qbank");
+    if (navBadge) navBadge.textContent = formatted;
+    const heroBtn = document.getElementById("hero-btn-qbank");
+    if (heroBtn) heroBtn.textContent = `🎯 Question Bank (${formatted})`;
+    const qaLabel = document.getElementById("qa-label-qbank");
+    if (qaLabel) qaLabel.textContent = `Q-Bank (${formatted})`;
+  }
+
+  async updateCatalogBadges() {
+    try {
+      const res = await fetch("/api/questions/stats");
+      if (res.ok) {
+        const stats = await res.json();
+        if (stats && stats.total) {
+          this.applyCatalogCount(stats.total);
+        }
+      }
+    } catch (e) {
+      // Keep static fallback
+    }
+  }
+
   /**
    * 📌 LOAD QUESTION BANK: Backend API se filtered practice questions fetch karta hai
    */
@@ -2892,6 +2918,9 @@ class ElysiaApp {
     try {
       const res = await fetch(`/api/questions?subject=${this.subject}&topic=${topic}&difficulty=${diff}&count=${count}`);
       const data = await res.json();
+      if (data && data.total_catalog) {
+        this.applyCatalogCount(data.total_catalog);
+      }
       this.currentQBankQuestions = data.questions || [];
       this.renderQuestions(this.currentQBankQuestions);
     } catch (e) {
