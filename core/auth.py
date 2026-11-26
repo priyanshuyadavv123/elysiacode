@@ -283,7 +283,7 @@ def register_user(
     if clean_avatar is None:
         return {"success": False, "error": "Profile picture must be a PNG/JPEG/WEBP/GIF under 300 KB, or an emoji."}
     motto = (motto or DEFAULT_MOTTO).strip()[:MAX_MOTTO_LEN]
-    email = (str(email or "").strip()[:120]) or (ident if "@" in ident else "%s@elysia.local" % ident)
+    email = ((str(email or "").strip()[:120]) or (ident if "@" in ident else "%s@elysia.local" % ident)).lower()
 
     if client_ip and _limiter.blocked("reg:" + client_ip, REGISTER_LIMIT_PER_IP, 3600):
         return {"success": False, "error": "Too many accounts created from this network. Please try later."}
@@ -291,6 +291,14 @@ def register_user(
     user_id = "usr_%d_%s" % (int(time.time()), secrets.token_hex(3))
     try:
         with db.connect() as conn:
+            dup = conn.execute(
+                "SELECT id FROM users WHERE LOWER(username)=? OR LOWER(username)=? "
+                "OR (email != '' AND (LOWER(email)=? OR LOWER(email)=?))",
+                (ident, email, ident, email),
+            ).fetchone()
+            if dup is not None:
+                return {"success": False,
+                        "error": "An account with this username or email already exists. Please Log In."}
             conn.execute(
                 "INSERT INTO users (id, username, name, email, password_hash, avatar, motto, xp, streak,"
                 " completed_subtopics, today_seconds, total_seconds, created_at)"
@@ -332,7 +340,21 @@ def login_user(identifier: str = "", password: str = "", username: str = "", ema
                 "error": "Too many failed attempts. Please wait 5 minutes and try again."}
 
     with db.connect() as conn:
-        row = conn.execute("SELECT * FROM users WHERE username=?", (ident,)).fetchone()
+        row = conn.execute("SELECT * FROM users WHERE LOWER(username)=?", (ident,)).fetchone()
+        if row is None:
+            email_rows = conn.execute(
+                "SELECT * FROM users WHERE LOWER(email)=? ORDER BY created_at DESC", (ident,)
+            ).fetchall()
+            if len(email_rows) == 1:
+                row = email_rows[0]
+            elif len(email_rows) > 1:
+                for cand in email_rows:
+                    ok_cand, _ = _verify_password(password, cand["password_hash"])
+                    if ok_cand:
+                        row = cand
+                        break
+                if row is None:
+                    row = email_rows[0]
         if row is None:
             _verify_password(password, _DUMMY_HASH)          # keep timing similar
             ok, upgrade = False, False

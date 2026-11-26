@@ -124,11 +124,14 @@ class ElysiaApp {
     this._initConfetti();     // Dopamine particle engine
     this.setupReferenceUI();  // 🏛️ Reference UI Bindings & Tree Accordion (Runs synchronously upfront!)
 
-    // Safe asynchronous content loads so UI and navigation never freeze
+    // Safe asynchronous content loads + real session verification in parallel
     try {
-      await this.loadCurriculum();
+      await Promise.allSettled([
+        this.loadCurriculum(),
+        this.verifyServerSession()
+      ]);
     } catch (e) {
-      console.warn("Curriculum load fallback used:", e);
+      console.warn("Curriculum/session load fallback used:", e);
     }
 
     try {
@@ -502,27 +505,48 @@ class ElysiaApp {
       profBtn.addEventListener("click", () => this.openModal("modal-user-profile"));
     }
 
-    const loginSubmitBtn = document.getElementById("btn-submit-login");
-    if (loginSubmitBtn) {
-      loginSubmitBtn.addEventListener("click", () => this.handleLoginSubmit());
-    }
-
-    const signupSubmitBtn = document.getElementById("btn-submit-signup");
-    if (signupSubmitBtn) {
-      signupSubmitBtn.addEventListener("click", () => this.handleSignupSubmit());
-    }
-
-    const loginPassInput = document.getElementById("auth-login-password");
-    if (loginPassInput) {
-      loginPassInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") this.handleLoginSubmit();
+    const loginForm = document.getElementById("auth-login-view");
+    if (loginForm && loginForm.tagName === "FORM") {
+      loginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        this.handleLoginSubmit();
       });
+    } else {
+      const loginSubmitBtn = document.getElementById("btn-submit-login");
+      if (loginSubmitBtn) {
+        loginSubmitBtn.addEventListener("click", () => this.handleLoginSubmit());
+      }
     }
 
-    const signupPassInput = document.getElementById("auth-signup-password");
-    if (signupPassInput) {
-      signupPassInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") this.handleSignupSubmit();
+    const signupForm = document.getElementById("auth-signup-view");
+    if (signupForm && signupForm.tagName === "FORM") {
+      signupForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        this.handleSignupSubmit();
+      });
+    } else {
+      const signupSubmitBtn = document.getElementById("btn-submit-signup");
+      if (signupSubmitBtn) {
+        signupSubmitBtn.addEventListener("click", () => this.handleSignupSubmit());
+      }
+    }
+
+    const signupPassLiveInput = document.getElementById("auth-signup-password");
+    if (signupPassLiveInput) {
+      signupPassLiveInput.addEventListener("input", () => {
+        const hint = document.getElementById("auth-signup-pass-hint");
+        if (!hint) return;
+        const len = signupPassLiveInput.value.trim().length;
+        if (len === 0) {
+          hint.textContent = "Min 8 characters";
+          hint.className = "auth-pass-strength-tag";
+        } else if (len < 8) {
+          hint.textContent = `${len}/8 chars`;
+          hint.className = "auth-pass-strength-tag weak";
+        } else {
+          hint.textContent = "✔ Strong length";
+          hint.className = "auth-pass-strength-tag valid";
+        }
       });
     }
 
@@ -581,7 +605,11 @@ class ElysiaApp {
       progressCard.style.cursor = "pointer";
       progressCard.addEventListener("click", () => {
         window.elysiaAudio?.playClick();
-        this.openModal("modal-profile");
+        if (this.currentUser) {
+          this.openModal("modal-user-profile");
+        } else {
+          this.openAuthModal();
+        }
       });
     }
   }
@@ -2800,6 +2828,7 @@ class ElysiaApp {
     try {
       const res = await fetch("/api/ai/tutor", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query, code, topic, provider: "groq" })
       });
@@ -2807,7 +2836,19 @@ class ElysiaApp {
       if (loadingDiv.parentNode) loadingDiv.parentNode.removeChild(loadingDiv);
 
       if (res.status === 401 || (data.error && data.error.includes("Authentication required"))) {
-        this._appendAIChatMessage("bot", `🔒 <strong>Pehle Login / Sign Up kar lo bhai!</strong> (Free hai)<br><p style="margin:6px 0 10px 0; font-size:0.86rem; color:#64748b;">AI Senior Tutor se baat karne aur doubt poochne ke liye free account zaroori hai taaki tumhari daily chat limit aur coding progress save rahe.</p><button class="pill-btn active" style="padding:6px 14px; cursor:pointer;" onclick="window.elysiaApp.openAuthModal()">🔑 Login / Sign Up Karein</button>`);
+        // Clear any stale client-only session so UI matches real server session
+        const hadUser = Boolean(this.currentUser);
+        this.currentUser = null;
+        localStorage.removeItem("elysia_current_user");
+        this.updateAuthUI();
+        const reasonMsg = hadUser
+          ? (this.lang === "hi"
+              ? "Tumhara session expire ho gaya hai (ya server restart hua hai). Ek baar dubara Log In kar lo bhai!"
+              : "Your login session expired (or the server restarted). Please log in again to continue using AI.")
+          : (this.lang === "hi"
+              ? "AI Senior Tutor se baat karne aur doubt poochne ke liye free account zaroori hai taaki tumhari daily chat limit aur coding progress save rahe."
+              : "A free account is required to chat with AI Senior Tutor and track your daily limit & coding progress.");
+        this._appendAIChatMessage("bot", `🔒 <strong>Pehle Login / Sign Up kar lo bhai!</strong><br><p style="margin:6px 0 10px 0; font-size:0.86rem; color:#94a3b8;">${reasonMsg}</p><button class="pill-btn active" style="padding:6px 14px; cursor:pointer;" onclick="window.elysiaApp.openAuthModal('AI Tutor use karne ke liye Log In karein')">🔑 Login / Sign Up Karein</button>`);
       } else if (data.status === "success" && data.response) {
         this._appendAIChatMessage("bot", data.response);
       } else if (data.status === "unconfigured") {
@@ -3387,7 +3428,11 @@ class ElysiaApp {
   async generateAIQuestion() {
     window.elysiaAudio.playClick();
     if (!this.currentUser) {
-      this.openAuthModal();
+      this.openAuthModal(
+        this.lang === "hi"
+          ? "Groq AI Question Generator use karne ke liye Log In karein!"
+          : "Please Log In to generate custom AI coding questions!"
+      );
       return;
     }
     const btn = document.getElementById("btn-ai-generate-qbank");
@@ -3411,6 +3456,7 @@ class ElysiaApp {
     try {
       const res = await fetch("/api/questions/generate-ai", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           subject: this.subject,
@@ -3422,7 +3468,20 @@ class ElysiaApp {
 
       const data = await res.json();
 
-      if (data.status === "success" && data.question) {
+      if (res.status === 401 || (data.error && data.error.includes("Authentication required"))) {
+        this.currentUser = null;
+        localStorage.removeItem("elysia_current_user");
+        this.updateAuthUI();
+        window.elysiaAudio.playError();
+        if (statusMsg) {
+          statusMsg.innerHTML = `<span style="color:#fbbf24; font-weight:600;">🔒 Session expired. Please Log In again to use Groq AI.</span>`;
+        }
+        this.openAuthModal(
+          this.lang === "hi"
+            ? "Session expire ho gaya hai (ya server restart hua). Dubara Log In karein!"
+            : "Your session expired. Please Log In again to use AI!"
+        );
+      } else if (data.status === "success" && data.question) {
         window.elysiaAudio.playSuccess();
         const newQ = data.question;
 
@@ -5073,9 +5132,62 @@ class ElysiaApp {
   // 🔐 AUTHENTICATION & PROFILE METHODS (SIGN IN, SIGN UP, PHOTO UPLOAD, LOGOUT)
   // ===========================================================================
 
-  openAuthModal() {
+  async verifyServerSession() {
+    try {
+      const res = await fetch("/api/auth/me", { credentials: "same-origin" });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data && data.success && data.user) {
+        this.currentUser = data.user;
+        localStorage.setItem("elysia_current_user", JSON.stringify(this.currentUser));
+        this._mergeUserProgress(data.user);
+      } else {
+        // Server session cookie missing/expired -> ensure client UI does not pretend to be logged in
+        this.currentUser = null;
+        localStorage.removeItem("elysia_current_user");
+      }
+    } catch (e) {
+      console.warn("Session verification skipped:", e);
+    }
+  }
+
+  _mergeUserProgress(user) {
+    if (!user) return;
+    if (typeof user.xp === "number") {
+      this.xp = Math.max(this.xp, user.xp);
+      localStorage.setItem("elysia_xp", this.xp.toString());
+    }
+    if (typeof user.streak === "number") {
+      this.streak = Math.max(this.streak, user.streak);
+      localStorage.setItem("elysia_streak", this.streak.toString());
+    }
+    if (Array.isArray(user.completed_subtopics)) {
+      user.completed_subtopics.forEach(id => this.completedSubtopics.add(id));
+      localStorage.setItem("elysia_completed_subtopics", JSON.stringify(Array.from(this.completedSubtopics)));
+    }
+    if (typeof user.today_seconds === "number" && user.today_seconds > 0) {
+      this.todaySeconds = Math.max(this.todaySeconds, user.today_seconds);
+      localStorage.setItem("elysia_today_sec", this.todaySeconds.toString());
+    }
+  }
+
+  togglePasswordVisibility(inputId, btnEl) {
+    const inp = document.getElementById(inputId);
+    if (!inp) return;
+    const isHidden = inp.type === "password";
+    inp.type = isHidden ? "text" : "password";
+    if (btnEl) {
+      btnEl.textContent = isHidden ? "🙈" : "👁️";
+      btnEl.title = isHidden ? "Hide Password" : "Show Password";
+    }
+  }
+
+  openAuthModal(promptMessage = "") {
     this.switchAuthTab("login");
     this.openModal("modal-auth");
+    if (promptMessage) {
+      this.showAuthFeedback(promptMessage, false, true);
+    }
   }
 
   updateAuthUI() {
@@ -5086,59 +5198,68 @@ class ElysiaApp {
     const avatarImgEl = document.getElementById("nav-user-avatar-img");
     const avatarEmojiEl = document.getElementById("nav-user-avatar-emoji");
     const aiQBtn = document.getElementById("btn-ai-generate-qbank");
+    const sideName = document.getElementById("side-user-name");
+    const sideRole = document.getElementById("side-user-role");
+    const sideAvatarImg = document.getElementById("side-avatar-img");
+    const sideAvatarEmoji = document.getElementById("side-avatar-emoji");
+    const heroProfBtn = document.getElementById("btn-hero-profile");
     const tier = this.getEgoTier();
 
     if (this.currentUser) {
+      const avatar = this.currentUser.avatar || "";
+      const uName = this.currentUser.name || this.currentUser.username || "Coder";
+
       if (aiQBtn) {
         aiQBtn.innerHTML = `<span>✨</span> Generate with Groq AI`;
-        aiQBtn.onclick = () => this.generateAIQuestion();
       }
       if (authBtn) authBtn.style.display = "none";
       if (profileBtn) profileBtn.style.display = "inline-flex";
-      if (nameEl) nameEl.textContent = this.currentUser.name || this.currentUser.username || "Coder";
+      if (nameEl) nameEl.textContent = uName;
       if (rankEl) rankEl.textContent = tier.rank;
 
-      const sideName = document.getElementById("side-user-name");
-      const sideRole = document.getElementById("side-user-role");
-      const sideAvatarImg = document.getElementById("side-avatar-img");
-      const sideAvatarEmoji = document.getElementById("side-avatar-emoji");
-      const heroProfBtn = document.getElementById("btn-hero-profile");
-
-      const uName = this.currentUser.name || this.currentUser.username || "Priyanshu";
       if (sideName) sideName.textContent = uName;
-      if (sideRole) sideRole.textContent = tier.rank || "Student";
-      if (heroProfBtn) heroProfBtn.textContent = uName.charAt(0).toUpperCase();
+      if (sideRole) sideRole.textContent = `● ${tier.rank || "Logged In"}`;
+
+      if (heroProfBtn) {
+        heroProfBtn.classList.remove("is-logged-out");
+        heroProfBtn.classList.add("is-logged-in");
+        heroProfBtn.title = `Signed in as ${uName} (@${this.currentUser.username}) — Click for Profile`;
+        if (avatar && avatar.startsWith("data:image")) {
+          heroProfBtn.innerHTML = `<img src="${avatar}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`;
+        } else {
+          heroProfBtn.textContent = avatar || uName.charAt(0).toUpperCase();
+        }
+      }
 
       if (avatar && avatar.startsWith("data:image")) {
         if (sideAvatarImg) { sideAvatarImg.src = avatar; sideAvatarImg.style.display = "block"; }
         if (sideAvatarEmoji) sideAvatarEmoji.style.display = "none";
+        if (avatarImgEl) { avatarImgEl.src = avatar; avatarImgEl.style.display = "block"; }
+        if (avatarEmojiEl) avatarEmojiEl.style.display = "none";
       } else {
         if (sideAvatarImg) sideAvatarImg.style.display = "none";
         if (sideAvatarEmoji) { sideAvatarEmoji.style.display = "inline-block"; sideAvatarEmoji.textContent = avatar || "🐍"; }
-      }
-
-
-      const avatar = this.currentUser.avatar;
-      if (avatar && avatar.startsWith("data:image")) {
-        if (avatarImgEl) {
-          avatarImgEl.src = avatar;
-          avatarImgEl.style.display = "block";
-        }
-        if (avatarEmojiEl) avatarEmojiEl.style.display = "none";
-      } else {
         if (avatarImgEl) avatarImgEl.style.display = "none";
-        if (avatarEmojiEl) {
-          avatarEmojiEl.style.display = "inline-block";
-          avatarEmojiEl.textContent = avatar || "🐍";
-        }
+        if (avatarEmojiEl) { avatarEmojiEl.style.display = "inline-block"; avatarEmojiEl.textContent = avatar || "🐍"; }
       }
     } else {
       if (aiQBtn) {
         aiQBtn.innerHTML = `<span>🔒</span> Log in to generate AI questions`;
-        aiQBtn.onclick = () => this.openAuthModal();
       }
       if (authBtn) authBtn.style.display = "inline-flex";
       if (profileBtn) profileBtn.style.display = "none";
+
+      if (sideName) sideName.textContent = this.lang === "hi" ? "Guest Learner" : "Guest Learner";
+      if (sideRole) sideRole.textContent = this.lang === "hi" ? "Log in karein" : "Log in to sync";
+      if (sideAvatarImg) sideAvatarImg.style.display = "none";
+      if (sideAvatarEmoji) { sideAvatarEmoji.style.display = "inline-block"; sideAvatarEmoji.textContent = "👤"; }
+
+      if (heroProfBtn) {
+        heroProfBtn.classList.remove("is-logged-in");
+        heroProfBtn.classList.add("is-logged-out");
+        heroProfBtn.textContent = "🔐 Log In";
+        heroProfBtn.title = "Log In or Create Free Account";
+      }
     }
   }
 
@@ -5162,10 +5283,14 @@ class ElysiaApp {
     }
   }
 
-  showAuthFeedback(message, isError = false) {
+  showAuthFeedback(message, isError = false, isHtml = false) {
     const banner = document.getElementById("auth-feedback-banner");
     if (!banner) return;
-    banner.textContent = message;
+    if (isHtml) {
+      banner.innerHTML = message;
+    } else {
+      banner.textContent = message;
+    }
     banner.style.display = "block";
     if (isError) {
       banner.style.background = "rgba(239, 68, 68, 0.15)";
@@ -5266,20 +5391,27 @@ class ElysiaApp {
   }
 
   async handleSignupSubmit() {
+    if (this._authSubmitting) return;
     const nameInput = document.getElementById("auth-signup-name");
     const identInput = document.getElementById("auth-signup-identifier");
     const passInput = document.getElementById("auth-signup-password");
+    const submitBtn = document.getElementById("btn-submit-signup");
 
     const name = nameInput ? nameInput.value.trim() : "";
-    const identifier = identInput ? identInput.value.trim() : "";
+    const identifier = identInput ? identInput.value.trim().toLowerCase() : "";
     const password = passInput ? passInput.value.trim() : "";
 
     if (!name) {
       this.showAuthFeedback(this.lang === "hi" ? "Kripya apna poora naam enter karein!" : "Please enter your full name!", true);
       return;
     }
-    if (!identifier) {
-      this.showAuthFeedback(this.lang === "hi" ? "Kripya username ya email enter karein!" : "Please enter a username or email!", true);
+    if (!identifier || !/^[a-z0-9_.@+\-]{3,64}$/.test(identifier)) {
+      this.showAuthFeedback(
+        this.lang === "hi"
+          ? "Username/Email 3–64 characters ka ho (sirf letters, numbers aur . _ - @ + allowed hain, spaces nahi)."
+          : "Username/Email must be 3–64 characters with no spaces (letters, numbers, . _ - @ + only).",
+        true
+      );
       return;
     }
     if (password.length < 8) {
@@ -5301,61 +5433,90 @@ class ElysiaApp {
       completed_subtopics: Array.from(this.completedSubtopics)
     };
 
+    const origBtnHtml = submitBtn ? submitBtn.innerHTML : "";
+    this._authSubmitting = true;
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span>⏳</span> Creating Account...`;
+    }
+
+    let response, data;
     try {
-      const response = await fetch("/api/auth/register", {
+      response = await fetch("/api/auth/register", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        this.currentUser = data.user;
-        localStorage.setItem("elysia_current_user", JSON.stringify(this.currentUser));
-        this.showAuthFeedback(this.lang === "hi" ? `🎉 Swagat hai, ${this.currentUser.name}! Account ban gaya!` : `🎉 Welcome, ${this.currentUser.name}! Account created!`, false);
-        window.elysiaAudio.playVictory();
-        this.launchConfetti();
-        this.updateAuthUI();
-        this.updateProfileModalUI();
-        setTimeout(() => {
-          this.closeModal("modal-auth");
-          if (passInput) passInput.value = "";
-        }, 1200);
-      } else {
-        this.showAuthFeedback(data.error || (this.lang === "hi" ? "Registration fail ho gaya!" : "Registration failed!"), true);
-        window.elysiaAudio.playError();
-      }
+      data = await response.json();
     } catch (err) {
-      const localUser = {
-        name,
-        username: identifier,
-        email: payload.email,
-        avatar: this.selectedAvatar || "🐍",
-        motto: "Code doesn't lie, syntax errors do.",
-        xp: this.xp,
-        streak: this.streak,
-        today_seconds: this.todaySeconds,
-        completed_subtopics: Array.from(this.completedSubtopics)
-      };
-      this.currentUser = localUser;
-      localStorage.setItem("elysia_current_user", JSON.stringify(localUser));
-      this.showAuthFeedback(this.lang === "hi" ? `🎉 Swagat hai, ${name}! Profile locally save ho gaya!` : `🎉 Welcome, ${name}! Profile saved locally!`, false);
-      window.elysiaAudio.playVictory();
-      this.launchConfetti();
-      this.updateAuthUI();
-      this.updateProfileModalUI();
+      this.showAuthFeedback(
+        this.lang === "hi"
+          ? "Server se connection nahi ho paya. Thodi der baad dubara try karein!"
+          : "Unable to reach the server. Please check your connection and try again.",
+        true
+      );
+      window.elysiaAudio?.playError();
+      this._authSubmitting = false;
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = origBtnHtml;
+      }
+      return;
+    }
+
+    this._authSubmitting = false;
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = origBtnHtml;
+    }
+
+    if (response.ok && data && data.success && data.user) {
+      this.currentUser = data.user;
+      localStorage.setItem("elysia_current_user", JSON.stringify(this.currentUser));
+      this.showAuthFeedback(
+        this.lang === "hi"
+          ? `🎉 Swagat hai, ${this.currentUser.name}! Account ban gaya aur AI Tutor unlock ho gaya!`
+          : `🎉 Welcome, ${this.currentUser.name}! Account created and AI Tutor unlocked!`,
+        false
+      );
+      try { window.elysiaAudio?.playVictory?.(); } catch (_) {}
+      try { this.launchConfetti?.(); } catch (_) {}
+      try {
+        this.updateAuthUI();
+        this.updateGamificationUI();
+        this.updateProfileModalUI();
+      } catch (uiErr) {
+        console.warn("Post-signup UI refresh warning:", uiErr);
+      }
       setTimeout(() => {
         this.closeModal("modal-auth");
         if (passInput) passInput.value = "";
-      }, 1200);
+      }, 900);
+    } else {
+      const errText = (data && data.error) || (this.lang === "hi" ? "Registration fail ho gaya!" : "Registration failed!");
+      if (errText.toLowerCase().includes("already exists")) {
+        const loginIdent = document.getElementById("auth-login-identifier");
+        if (loginIdent) loginIdent.value = identifier;
+        this.showAuthFeedback(
+          `${this._escapeHtml(errText)} <a href="javascript:void(0)" onclick="window.elysiaApp.switchAuthTab('login')" style="color:#38bdf8; text-decoration:underline; font-weight:700; margin-left:6px;">Log In Tab par jayein →</a>`,
+          true,
+          true
+        );
+      } else {
+        this.showAuthFeedback(errText, true);
+      }
+      window.elysiaAudio?.playError();
     }
   }
 
   async handleLoginSubmit() {
+    if (this._authSubmitting) return;
     const identInput = document.getElementById("auth-login-identifier");
     const passInput = document.getElementById("auth-login-password");
+    const submitBtn = document.getElementById("btn-submit-login");
 
-    const identifier = identInput ? identInput.value.trim() : "";
+    const identifier = identInput ? identInput.value.trim().toLowerCase() : "";
     const password = passInput ? passInput.value.trim() : "";
 
     if (!identifier) {
@@ -5367,80 +5528,92 @@ class ElysiaApp {
       return;
     }
 
+    const origBtnHtml = submitBtn ? submitBtn.innerHTML : "";
+    this._authSubmitting = true;
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span>⏳</span> Logging In...`;
+    }
+
+    let response, data;
     try {
-      const response = await fetch("/api/auth/login", {
+      response = await fetch("/api/auth/login", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ identifier, password })
       });
-      const data = await response.json();
+      data = await response.json();
+    } catch (err) {
+      this.showAuthFeedback(
+        this.lang === "hi"
+          ? "Server se connection nahi ho paya. Thodi der baad dubara try karein!"
+          : "Unable to reach the server. Please check your connection and try again.",
+        true
+      );
+      window.elysiaAudio?.playError();
+      this._authSubmitting = false;
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = origBtnHtml;
+      }
+      return;
+    }
 
-      if (response.ok && data.success) {
-        this.currentUser = data.user;
-        localStorage.setItem("elysia_current_user", JSON.stringify(this.currentUser));
+    this._authSubmitting = false;
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = origBtnHtml;
+    }
 
-        if (typeof data.user.xp === "number") {
-          this.xp = Math.max(this.xp, data.user.xp);
-          localStorage.setItem("elysia_xp", this.xp.toString());
-        }
-        if (typeof data.user.streak === "number") {
-          this.streak = Math.max(this.streak, data.user.streak);
-          localStorage.setItem("elysia_streak", this.streak.toString());
-        }
-        if (Array.isArray(data.user.completed_subtopics)) {
-          data.user.completed_subtopics.forEach(id => this.completedSubtopics.add(id));
-          localStorage.setItem("elysia_completed_subtopics", JSON.stringify(Array.from(this.completedSubtopics)));
-        }
-        if (typeof data.user.today_seconds === "number" && data.user.today_seconds > 0) {
-          this.todaySeconds = Math.max(this.todaySeconds, data.user.today_seconds);
-          localStorage.setItem("elysia_today_sec", this.todaySeconds.toString());
-        }
+    if (response.ok && data && data.success && data.user) {
+      this.currentUser = data.user;
+      localStorage.setItem("elysia_current_user", JSON.stringify(this.currentUser));
+      this._mergeUserProgress(data.user);
 
-        this.showAuthFeedback(this.lang === "hi" ? `🔓 Login safal! Wapas swagat hai, ${this.currentUser.name}!` : `🔓 Login successful! Welcome back, ${this.currentUser.name}!`, false);
-        window.elysiaAudio.playVictory();
+      this.showAuthFeedback(
+        this.lang === "hi"
+          ? `🔓 Login safal! Wapas swagat hai, ${this.currentUser.name}!`
+          : `🔓 Login successful! Welcome back, ${this.currentUser.name}!`,
+        false
+      );
+      try { window.elysiaAudio?.playVictory?.(); } catch (_) {}
+      try {
         this.updateAuthUI();
         this.updateGamificationUI();
         this.renderPythonCurriculumNav();
         this.updateProfileModalUI();
-        setTimeout(() => {
-          this.closeModal("modal-auth");
-          if (passInput) passInput.value = "";
-        }, 1000);
-      } else {
-        this.showAuthFeedback(data.error || (this.lang === "hi" ? "Galat credentials ya user nahi mila!" : "Invalid credentials or user not found!"), true);
-        window.elysiaAudio.playError();
+      } catch (uiErr) {
+        console.warn("Post-login UI refresh warning:", uiErr);
       }
-    } catch (err) {
-      const saved = localStorage.getItem("elysia_current_user");
-      if (saved) {
-        const u = JSON.parse(saved);
-        if (u.username === identifier || u.email === identifier) {
-          this.currentUser = u;
-          this.showAuthFeedback(this.lang === "hi" ? `🔓 Login safal (offline mode)!` : `🔓 Login successful (offline mode)!`, false);
-          window.elysiaAudio.playVictory();
-          this.updateAuthUI();
-          this.updateGamificationUI();
-          this.updateProfileModalUI();
-          setTimeout(() => {
-            this.closeModal("modal-auth");
-            if (passInput) passInput.value = "";
-          }, 1000);
-          return;
-        }
-      }
-      this.showAuthFeedback(this.lang === "hi" ? "Login fail! Password ya username check karein." : "Login failed! Please check credentials.", true);
-      window.elysiaAudio.playError();
+      setTimeout(() => {
+        this.closeModal("modal-auth");
+        if (passInput) passInput.value = "";
+        this.showOptimisticToast(
+          this.lang === "hi" ? `🔓 Swagat hai, ${this.currentUser.name}! AI aur profile active hain.` : `🔓 Logged in as ${this.currentUser.name}!`,
+          "success"
+        );
+      }, 800);
+    } else {
+      const errMsg = (data && data.error) || (this.lang === "hi" ? "Galat username/email ya password!" : "Invalid username/email or password!");
+      this.showAuthFeedback(errMsg, true);
+      window.elysiaAudio?.playError();
     }
   }
 
   logoutUser() {
     window.elysiaAudio.playClick();
-    fetch("/api/auth/logout", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" })
-      .catch(() => {});
+    fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: "{}"
+    }).catch(() => {});
     this.currentUser = null;
     localStorage.removeItem("elysia_current_user");
     this.closeModal("modal-user-profile");
     this.updateAuthUI();
+    this.showOptimisticToast(this.lang === "hi" ? "👋 Log out ho gaya!" : "👋 Logged out!", "info");
   }
 
   openEditProfile() {
@@ -5497,12 +5670,13 @@ class ElysiaApp {
     this.updateAuthUI();
     this.updateProfileModalUI();
     this.closeModal("modal-edit-profile");
-    window.elysiaAudio.playVictory();
+    try { window.elysiaAudio?.playVictory?.(); } catch (_) {}
     this.showOptimisticToast(this.lang === "hi" ? "⚡ Profile turant update ho gaya!" : "⚡ Profile updated instantly!", "success");
 
     // Background Network Sync
     fetch("/api/auth/update-profile", {
       method: "POST",
+      credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: this.currentUser.name,
@@ -5523,6 +5697,7 @@ class ElysiaApp {
     try {
       const syncResp = await fetch("/api/auth/sync-progress", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           xp: this.xp,

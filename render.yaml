@@ -23,3 +23,7 @@ services:
         value: "1"
       - key: GROQ_API_KEY
         sync: false
+      # Optional: Set DATABASE_URL (free Neon / Supabase / Render PostgreSQL)
+      # so user accounts and sessions persist across restarts and deploys.
+      - key: DATABASE_URL
+        sync: false

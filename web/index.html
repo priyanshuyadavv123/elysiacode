@@ -28,7 +28,7 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- Main Cinematic Design System -->
-  <link rel="stylesheet" href="css/style.css?v=2.3.1">
+  <link rel="stylesheet" href="css/style.css?v=2.3.2">
   <!-- Visual Handbook / E-Book Styles -->
   <link rel="stylesheet" href="css/handbook.css?v=2.3.0">
   
@@ -123,16 +123,16 @@
 
       <!-- Bottom User Profile Chip in Sidebar -->
       <div class="sidebar-footer">
-        <div class="side-user-chip" id="side-user-profile-chip" title="Click to view profile">
+        <div class="side-user-chip" id="side-user-profile-chip" title="Click to log in or view profile">
           <div class="side-avatar-circle" id="side-avatar-box">
             <img id="side-avatar-img" class="side-avatar-img" style="display:none;" />
-            <span id="side-avatar-emoji" class="side-avatar-emoji">🐍</span>
+            <span id="side-avatar-emoji" class="side-avatar-emoji">👤</span>
           </div>
           <div class="side-user-meta">
-            <span class="side-user-name" id="side-user-name">Priyanshu</span>
-            <span class="side-user-role" id="side-user-role">Student</span>
+            <span class="side-user-name" id="side-user-name">Guest Learner</span>
+            <span class="side-user-role" id="side-user-role">Log in to sync</span>
           </div>
-          <button class="side-settings-btn" id="btn-side-settings" title="Profile Settings">⚙️</button>
+          <button class="side-settings-btn" id="btn-side-settings" title="Account & Profile Settings">⚙️</button>
         </div>
       </div>
     </aside>
@@ -228,8 +228,8 @@
             <option value="light">☀️ Light</option>
           </select>
 
-          <!-- User Avatar Circle -->
-          <button class="hero-avatar-round-btn" id="btn-hero-profile" title="My Profile">P</button>
+          <!-- User Auth / Profile Trigger -->
+          <button class="hero-avatar-round-btn is-logged-out" id="btn-hero-profile" title="Log In or Create Free Account">🔐 Log In</button>
 
           <!-- Hidden legacy navbar triggers kept for full JS event compatibility -->
           <div style="display:none;">
@@ -1496,25 +1496,28 @@ for item in rev_arr:
       <div id="auth-feedback-banner" class="auth-feedback-banner" style="display:none;"></div>
 
       <!-- 1. LOGIN FORM -->
-      <div id="auth-login-view" class="auth-view-panel">
+      <form id="auth-login-view" class="auth-view-panel" autocomplete="on" onsubmit="return false;">
         <div class="auth-input-group">
-          <label class="auth-input-label">Username or Email</label>
-          <input type="text" id="auth-login-identifier" class="auth-input-field" placeholder="e.g. priyanshu@gmail.com" />
+          <label class="auth-input-label" for="auth-login-identifier">Username or Email</label>
+          <input type="text" id="auth-login-identifier" name="username" autocomplete="username" class="auth-input-field" placeholder="e.g. priyanshu_dev or priyanshu@gmail.com" />
         </div>
         <div class="auth-input-group">
-          <label class="auth-input-label">Password</label>
-          <input type="password" id="auth-login-password" class="auth-input-field" placeholder="Enter your password..." />
+          <label class="auth-input-label" for="auth-login-password">Password</label>
+          <div class="auth-password-wrap">
+            <input type="password" id="auth-login-password" name="password" autocomplete="current-password" class="auth-input-field auth-pass-input" placeholder="Enter your password..." />
+            <button type="button" class="auth-pass-toggle" onclick="window.elysiaApp.togglePasswordVisibility('auth-login-password', this)" aria-label="Show password" title="Show / Hide Password">👁️</button>
+          </div>
         </div>
-        <button id="btn-submit-login" class="btn-primary-3d auth-submit-btn">
+        <button type="submit" id="btn-submit-login" class="btn-primary-3d auth-submit-btn">
           <span>🔓</span> Log In to Account
         </button>
         <p class="auth-switch-prompt">
           Don't have an account? <a href="javascript:void(0)" onclick="window.elysiaApp.switchAuthTab('signup')">Create a free account</a>
         </p>
-      </div>
+      </form>
 
       <!-- 2. SIGN UP / REGISTER FORM (WITH REAL PHOTO / PRESET AVATAR) -->
-      <div id="auth-signup-view" class="auth-view-panel" style="display:none;">
+      <form id="auth-signup-view" class="auth-view-panel" style="display:none;" autocomplete="on" onsubmit="return false;">
         <!-- Anti-Spam Honeypot Field (Hidden for bots) -->
         <div style="display:none !important; visibility:hidden; opacity:0; position:absolute; left:-9999px;">
           <label>Campus Blank</label>
@@ -1522,16 +1525,22 @@ for item in rev_arr:
         </div>
 
         <div class="auth-input-group">
-          <label class="auth-input-label">Full Name</label>
-          <input type="text" id="auth-signup-name" class="auth-input-field" placeholder="e.g. Priyanshu Yadav" />
+          <label class="auth-input-label" for="auth-signup-name">Full Name</label>
+          <input type="text" id="auth-signup-name" name="name" autocomplete="name" class="auth-input-field" placeholder="e.g. Priyanshu Yadav" />
         </div>
         <div class="auth-input-group">
-          <label class="auth-input-label">Username / Email</label>
-          <input type="text" id="auth-signup-identifier" class="auth-input-field" placeholder="e.g. priyanshu_dev" />
+          <label class="auth-input-label" for="auth-signup-identifier">Username or Email <span class="auth-rule-hint">(no spaces, 3+ chars)</span></label>
+          <input type="text" id="auth-signup-identifier" name="username" autocomplete="username" class="auth-input-field" placeholder="e.g. priyanshu_dev or email@gmail.com" />
         </div>
         <div class="auth-input-group">
-          <label class="auth-input-label">Password</label>
-          <input type="password" id="auth-signup-password" class="auth-input-field" placeholder="Create a password (min 8 chars)..." />
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <label class="auth-input-label" for="auth-signup-password" style="margin-bottom:0;">Password</label>
+            <span id="auth-signup-pass-hint" class="auth-pass-strength-tag">Min 8 characters</span>
+          </div>
+          <div class="auth-password-wrap">
+            <input type="password" id="auth-signup-password" name="new-password" autocomplete="new-password" class="auth-input-field auth-pass-input" placeholder="Create a password (min 8 chars)..." />
+            <button type="button" class="auth-pass-toggle" onclick="window.elysiaApp.togglePasswordVisibility('auth-signup-password', this)" aria-label="Show password" title="Show / Hide Password">👁️</button>
+          </div>
         </div>
 
         <!-- 📸 PROFILE PICTURE SELECTION -->
@@ -1573,13 +1582,13 @@ for item in rev_arr:
           </div>
         </div>
 
-        <button id="btn-submit-signup" class="btn-primary-3d auth-submit-btn">
+        <button type="submit" id="btn-submit-signup" class="btn-primary-3d auth-submit-btn">
           <span>✨</span> Create Account & Save Profile
         </button>
         <p class="auth-switch-prompt">
           Already have an account? <a href="javascript:void(0)" onclick="window.elysiaApp.switchAuthTab('login')">Log In</a>
         </p>
-      </div>
+      </form>
     </div>
   </div>
 
@@ -1843,7 +1852,7 @@ for item in rev_arr:
     5. curriculum_tree.js: Granular Chapter -> Topic -> Subtopic tree.
     6. app.js: Master state controller, bilingual engine, event listeners, and UI logic.
   -->
-  <script src="js/audio.js?v=2.2.0"></script>
+  <script src="js/audio.js?v=2.3.9"></script>
   <script src="js/pyodide_runner.js?v=2.2.0"></script>
   <script src="js/html_runner.js?v=2.2.0"></script>
   <script src="js/handbook_data.js?v=2.2.0"></script>
@@ -1857,7 +1866,7 @@ for item in rev_arr:
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
-  <script src="js/app.js?v=2.3.8"></script>
+  <script src="js/app.js?v=2.3.9"></script>
 </body>
 </html>
 

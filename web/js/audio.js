@@ -76,34 +76,49 @@ class ElysiaAudio {
     osc.stop(this.ctx.currentTime + 0.04); // 40 milliseconds me sound finish
   }
 
+  _playNotes(notes, type = "triangle", stepSec = 0.08, durationSec = 0.35, peakGain = 0.12) {
+    if (!this.enabled) return;
+    try {
+      this._init();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      notes.forEach((freq, idx) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const start = now + idx * stepSec;
+
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, start);
+
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(peakGain, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + durationSec);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(start);
+        osc.stop(start + durationSec);
+      });
+    } catch (_) {
+      // Audio playback must never break application state transitions
+    }
+  }
+
   playSuccess() {
     // 📌 Test case pass hone par 4-note victory chord (C5, E5, G5, C6)
-    if (!this.enabled) return;
-    this._init();
-    if (!this.ctx) return;
+    this._playNotes([523.25, 659.25, 783.99, 1046.50], "triangle", 0.08, 0.35, 0.12);
+  }
 
-    const now = this.ctx.currentTime;
-    // Music Notes: C5 (523Hz), E5 (659Hz), G5 (784Hz), C6 (1046Hz)
-    const notes = [523.25, 659.25, 783.99, 1046.50];
+  playChord() {
+    // 📌 Simultaneous warm harmonic chord (C5-E5-G5)
+    this._playNotes([523.25, 659.25, 783.99], "triangle", 0.015, 0.32, 0.1);
+  }
 
-    notes.forEach((freq, idx) => {
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-
-      osc.type = 'triangle'; // Mellow chime tone
-      // Har note 80 millisecond ke gap par bajti hai (arpeggio effect)
-      osc.frequency.setValueAtTime(freq, now + idx * 0.08);
-
-      gain.gain.setValueAtTime(0, now + idx * 0.08);
-      gain.gain.linearRampToValueAtTime(0.12, now + idx * 0.08 + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.35);
-
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-
-      osc.start(now + idx * 0.08);
-      osc.stop(now + idx * 0.08 + 0.35);
-    });
+  playVictory() {
+    // 📌 Celebratory fanfare arpeggio for signup/login/profile/chapter wins
+    this._playNotes([523.25, 659.25, 783.99, 1046.50, 1318.51], "triangle", 0.07, 0.42, 0.13);
   }
 
   playError() {

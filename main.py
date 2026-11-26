@@ -184,7 +184,10 @@ class ElysiaHandler(http.server.SimpleHTTPRequestHandler):
         return self.client_address[0]
 
     def _is_https(self):
-        return self.headers.get("X-Forwarded-Proto", "").lower() == "https" if TRUST_PROXY else False
+        if not TRUST_PROXY:
+            return False
+        proto = self.headers.get("X-Forwarded-Proto", "").split(",")[0].strip().lower()
+        return proto == "https"
 
     def _session_token(self):
         raw = self.headers.get("Cookie", "")
@@ -193,9 +196,17 @@ class ElysiaHandler(http.server.SimpleHTTPRequestHandler):
         try:
             jar = http.cookies.SimpleCookie()
             jar.load(raw)
-            return jar[SESSION_COOKIE].value if SESSION_COOKIE in jar else ""
+            if SESSION_COOKIE in jar:
+                return jar[SESSION_COOKIE].value
         except Exception:
-            return ""
+            pass
+        # Fallback per-pair parsing so any malformed sibling cookie cannot break elysia_session
+        for part in raw.split(";"):
+            if "=" in part:
+                k, v = part.split("=", 1)
+                if k.strip() == SESSION_COOKIE:
+                    return v.strip().strip('"')
+        return ""
 
     def _current_user(self):
         return auth.user_for_token(self._session_token())
@@ -203,6 +214,8 @@ class ElysiaHandler(http.server.SimpleHTTPRequestHandler):
     def _cookie_header(self, token, max_age):
         parts = ["%s=%s" % (SESSION_COOKIE, token), "Path=/", "HttpOnly", "SameSite=Lax",
                  "Max-Age=%d" % max_age]
+        if max_age <= 0:
+            parts.append("Expires=Thu, 01 Jan 1970 00:00:00 GMT")
         if self._is_https():
             parts.append("Secure")
         return "; ".join(parts)

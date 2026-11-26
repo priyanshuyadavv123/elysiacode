@@ -360,6 +360,44 @@ class TestHttpServer(unittest.TestCase):
         self.assertEqual(good["status"], 200); self.assertIn("elysia_session=", good["headers"]["set-cookie"])
         self.assertNotIn("password", json.dumps(good["json"]["user"]))
 
+    def test_login_works_with_email_and_case_insensitive_username(self):
+        name = uname("emailuser")
+        email = f"{name}@College.EDU"
+        r = self.call("POST", "/api/auth/register", {
+            "name": "Email Tester",
+            "username": name,
+            "email": email,
+            "password": "Password123!"
+        })
+        self.assertEqual(r["status"], 200, r["text"])
+
+        # Duplicate registration with same email must be rejected cleanly
+        dup = self.call("POST", "/api/auth/register", {
+            "name": "Other User",
+            "username": uname("other"),
+            "email": email.lower(),
+            "password": "Password123!"
+        })
+        self.assertEqual(dup["status"], 400)
+
+        # Login with uppercase username succeeds
+        by_user = self.call("POST", "/api/auth/login", {"identifier": name.upper(), "password": "Password123!"})
+        self.assertEqual(by_user["status"], 200, by_user["text"])
+        self.assertEqual(by_user["json"]["user"]["username"], name)
+
+        # Login with email (mixed case) succeeds and grants valid AI session cookie
+        by_email = self.call("POST", "/api/auth/login", {"identifier": f" {email.lower()} ", "password": "Password123!"})
+        self.assertEqual(by_email["status"], 200, by_email["text"])
+        email_cookie = by_email["headers"]["set-cookie"].split(";")[0]
+        me = self.call("GET", "/api/auth/me", cookie=email_cookie)
+        self.assertTrue(me["json"]["success"])
+
+    def test_cookie_parser_survives_malformed_sibling_cookie(self):
+        _, cookie, _ = self.signup("sibling")
+        noisy_cookie = f"_thirdparty=[bad:value/1]; {cookie}; other=ok"
+        me = self.call("GET", "/api/auth/me", cookie=noisy_cookie)
+        self.assertTrue(me["json"]["success"], f"Session lookup failed with sibling cookie: {me}")
+
     def test_http_login_rate_limit_returns_429(self):
         name, _, _ = self.signup()
         for _ in range(5):

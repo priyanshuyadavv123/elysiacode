@@ -1,9 +1,6 @@
-# Zero external dependencies required for default SQLite operation.
-# Elysia Code runs purely on standard Python 3.8+!
-#
-# Optional production database drivers:
-# For Supabase / PostgreSQL:
-# pip install psycopg2-binary
-# For MySQL / MariaDB:
-# pip install pymysql
+# Elysia Code runtime dependencies (SQLite works out-of-the-box with stdlib;
+# psycopg2-binary enables PostgreSQL / Neon / Supabase persistence when DATABASE_URL is set).
+psycopg2-binary>=2.9.9
+# Optional MySQL driver:
+# pymysql>=1.1.0
 
